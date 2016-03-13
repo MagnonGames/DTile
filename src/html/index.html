@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>dTile</title>
+
+		<script src="./js/dTile.js"></script>
+
+		<link href='https://fonts.googleapis.com/css?family=Lato&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="./css/gui.css">
+		<link rel="stylesheet" type="text/css" href="./css/index.css">
+	</head>
+	<body>
+		<div id="renderContainer">
+		</div>
+
+		<div class="card" id="mainCard">
+			<h1 class="primary">dTile</h1>
+			<!-- <input type="file" accept=".json" id="fileUploader"> -->
+			<div class="multiSelector">
+				<span class="selected">Edit</span>
+				<span>Properties</span>
+				<span>Test</span>
+			</div>
+			<hr>
+			<div class="multiSelector">
+				<span class="selected">Pen</span>
+				<span>Eraser</span>
+				<span>Fill</span>
+				<span>Select</span>
+			</div>
+			<div class="textInput">
+				<input id="inputMapName" type="text" autocomplete="off">
+				<label for="inputMapName">Map Name</label>
+			</div>
+			<div class="container">
+				<span class="title contractible">
+					Layers
+				</span>
+				<div class="listSelector" id="mapLayerSelector">
+				</div>
+				<div class="toolbar">
+					<span id="addLayerButton" title="Add Layer"></span>
+				</div>
+			</div>
+			<div id="tilesetSelectorContainer">
+			</div>
+		</div>
+	</body>
+</html>

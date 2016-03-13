@@ -1,0 +1,29 @@
+# DTile - The simple, non-clutter tilemap editor
+DTile aims to be the best tilemap editor available today. It runs in the browser so that virtually any machine can run it. It uses the latest web technologies such as WebGL (with Pixi.js) and React.
+
+## Why another tilemap editor? Isn't Tiled enough?
+Tiled is a great program with a lot of features an we're absolutely not saying that you can't create great games with it. However, where it's lacking is in terms of ease-of-use. Tiled has a lot of features which makes it capable of doing a lot of things such as different types of maps and a lot of other things, but that takes a pretty huge hit on usability. What DTile aims to do is to strip out all of the unnecessary features and provide you with a great out-of-the-box experience while still allowing for expandability with plugins.
+
+## Using DTile
+DTile is NOT ready for production in any kind of way at all. It's currently very much in development and the master branch can not be considered stable. If you're not planning on contributing to DTile then you should probably wait a while until we're done with a relatively stable version at least.
+
+## Contributing
+Feel free to contribute! We appreciate any kind of help, be it bug reports or pull requests!
+
+### Quick-start Guide for Linux (and osx?)
+1. Set up Gulp
+2. Execute these commands:
+```
+$ git clone https://github.com/theMagnon/DTile.git
+$ cd DTile/
+$ npm install
+$ gulp
+$ npm start
+```
+3. Visit <http://localhost:8080>
+4. `ctrl + c` when you're done
+
+To run with watch so that it automatically updates when you change code, just run `npm run-script dev`.
+
+## License
+MIT - Basically you can do whatever you want it as long as you credit us for making it originally.

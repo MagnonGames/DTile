@@ -1,0 +1,224 @@
+@import "colors";
+
+* {
+	color: $background;
+}
+
+.dialogContainer {
+	content: "";
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: rgba(0, 0, 0, 0.7);
+	z-index: 999;
+	opacity: 0;
+	display: block;
+	transition: opacity 0.3s;
+}
+
+.card {
+	font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+	margin: 20px;
+	$cardPadX: 15px;
+	$cardPadY: 10px;
+	border-radius: 3px;
+	background: transparentize($background, 0.1);
+	box-shadow: 0px 2px 6px 0px $shadowColor;
+	color: $foreground;
+	min-height: 200px;
+	overflow: hidden;
+	user-select: none;
+
+	h1, h2, h3, h4, h5, h6 {
+		margin: 0;
+		padding: 20px 15px;
+
+		&.primary {
+			background-color: $primary;
+			color: $background;
+		}
+		&.secondary {
+			background-color: $secondary;
+			color: $foreground;
+		}
+	}
+
+	hr {
+		clear: both;
+		display: block;
+		margin: 0;
+		border: none;
+		border-bottom: 1px solid $grey;
+	}
+
+	p {
+		color: $foreground;
+		margin: 15px;
+	}
+}
+
+@mixin cardUIElement {
+	position: relative;
+	float: left;
+	margin: 15px;
+	padding: 10px;
+	border-radius: 4px;
+	color: $foreground;
+	box-shadow: 0px 2px 6px 0px $shadowColor;
+	display: inline-block;
+	-webkit-tap-highlight-color: transparent !important;
+    -webkit-focus-ring-color: transparent !important;
+    outline: none !important;
+}
+
+@mixin cardUIInteract($color, $shadow) {
+	cursor: pointer;
+	background: $background;
+	transition: box-shadow 0.2s, background 0.2s;
+
+	&:active {
+		background: $color;
+		box-shadow: $shadow;
+	}
+}
+
+.button {
+	@include cardUIElement;
+	@include cardUIInteract($secondary, 0px 0px 3px 0px transparentize($shadowColor, 0.5));
+}
+
+.multiSelector {
+	@include cardUIElement;
+	padding: 0px;
+	overflow: hidden;
+	font-size: 0;
+
+	span {
+		@include cardUIInteract($secondary, none);
+		border-right: 1px solid $grey;
+		color: $foreground;
+		padding: 10px;
+		display: inline-block;
+		font-size: initial;
+
+		&:last-child {
+			border-right: none;
+		}
+
+		&.selected {
+			background: $secondary;
+		}
+	}
+}
+
+.textInput {
+	@include cardUIElement;
+	box-shadow: none;
+	display: block;
+	clear: both;
+	width: calc(100% - 30px);
+	box-sizing: border-box;
+	padding: 10px 0px;
+	color: $grey;
+	z-index: 1;
+
+	label {
+		z-index: -1;
+		position: absolute;
+		top: 10px;
+		left: 5px;
+		transition: top 0.2s, font-size 0.2s;
+		color: $grey;
+		cursor: text;
+	}
+
+	input[type=text] {
+		z-index: 2;
+		padding: 5px;
+		color: black;
+		border: none;
+		background: none;
+		border-bottom: 2px solid $grey;
+		outline: none !important;
+		transition: border-bottom 0.2s;
+		width: 100%;
+		box-sizing: border-box;
+
+		&:focus {
+			border-bottom: 2px solid $secondary;
+		}
+
+		&:focus + label, &:valid + label {
+			top: -10px;
+			font-size: 12px;
+		}
+	}
+}
+
+.listSelector {
+	display: block;
+	float: left;
+	width: 100%;
+	box-sizing: border-box;
+
+	span {
+		cursor: pointer;
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+		padding: 15px 30px;
+		color: $foreground;
+		border-bottom: 1px solid $grey;
+		transition: background 0.2s;
+
+		&:first-child {
+			border-top: 1px solid $grey;
+		}
+
+		&.selected {
+			background: $secondary;
+		}
+	}
+}
+
+.container {
+	display: block;
+	clear: both;
+	width: 100%;
+	overflow: hidden;
+	max-height: 1000px;
+	transition: max-height 0.2s ease-in;
+
+	.title {
+		display: block;
+		font-size: 12px;
+		width: 100%;
+		box-sizing: border-box;
+		padding: 0 10px;
+		color: $foreground;
+		height: 25px;
+		line-height: 25px;
+
+		&.contractible {
+			cursor: default;
+			padding-left: 26px;
+			background: url("../images/contract-arrow.svg") 10px center / 6px 6px no-repeat;
+		}
+	}
+
+	&.contracted {
+		max-height: 25px;
+		transition: max-height 0.2s cubic-bezier(0, 1.05, 0, 1);
+	}
+}
+
+.dialog {
+	position: absolute;
+	width: 500px;
+	height: 350px;
+	top: 0; right: 0; bottom: 0; left: 0;
+	margin: auto;
+	z-index: 10000;
+}
