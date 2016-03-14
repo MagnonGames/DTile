@@ -17,7 +17,7 @@ function buildJS(watch) {
 			entries: ["./src/js/main.js"],
 			debug: true
 		}).transform("babelify", {
-			presets: ["es2015"]
+			presets: ["es2015", "react"]
 		});
 
 	var b = watch ? watchify(browserifyInstance) : browserifyInstance;
