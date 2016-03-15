@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "pixi.js": "^3.0.9",
-    "react": "^0.14.7"
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7"
   },
   "local-web-server": {
     "port": 8080
