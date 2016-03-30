@@ -11,6 +11,16 @@ body {
 	overflow: hidden;
 }
 
+// For fixing React events which are totally
+// broken without this for some reason.
+#app {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+}
+
 #renderContainer {
 	width: 100%;
 	height: 100%;
@@ -33,12 +43,6 @@ body {
 
 #addLayerButton {
 	float: right;
-	margin: 0px 5px;
-	font-size: 25px;
-	cursor: pointer;
-	background: url("../images/plus.svg") center / 16px 16px no-repeat;
-	width: 24px;
-	height: 24px;
 }
 
 body > input {

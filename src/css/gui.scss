@@ -14,8 +14,13 @@
 	background: rgba(0, 0, 0, 0.7);
 	z-index: 999;
 	opacity: 0;
-	display: block;
 	transition: opacity 0.3s;
+	pointer-events: none;
+
+	&.shown {
+		opacity: 1;
+		pointer-events: all;
+	}
 }
 
 .card {
@@ -212,6 +217,15 @@
 		max-height: 25px;
 		transition: max-height 0.2s cubic-bezier(0, 1.05, 0, 1);
 	}
+}
+
+.imageButton {
+	margin: 0px 5px;
+	font-size: 25px;
+	cursor: pointer;
+	width: 24px;
+	height: 24px;
+	background: transparent center / 16px 16px no-repeat;
 }
 
 .dialog {

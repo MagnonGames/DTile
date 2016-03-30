@@ -3,55 +3,20 @@ import InputManager from "./input.js";
 import { PositionedTile, TileSelection } from "./selectionUtils.js";
 import MapRenderer from "./render/mapRenderer.js";
 
-import GUI, { ListSelectorManager, Dialog } from "./gui.js";
+import GUI from "./gui/dTileGUI.jsx";
 
 export default class Editor {
-	constructor(width, height, tilesets) {
+	constructor(width, height, tilesets, gui) {
 		this.tilesets = tilesets;
 
 		this.maps = [];
 		this.maps.push(new Map(50, 50, 16, 16, this.tilesets));
 		this.setCurrentMap(0);
 
-		// TODO: THIS CODE SHOULD BE CONVERTED TO SOME KIND OF REACT CODE
-
-		this.layerListManager = new ListSelectorManager(
-			document.getElementById("mapLayerSelector")
-		);
-		this.layerListManager.on("change", function(value) {
-			for (let i = 0; i < this.getCurrentMap().tileLayers.length; i++) {
-				if (this.getCurrentMap().tileLayers[i].name == value.value) {
-					this.setCurrentLayer(this.getCurrentMap().tileLayers
-						.indexOf(this.getCurrentMap().tileLayers[i]));
-					break;
-				}
-			}
-		}.bind(this));
-
-		GUI.listenTo("addLayerButton", "click", function() {
-			let dialog = new Dialog("Add Layer", [
-				{
-					type: "textInput",
-					name: "name",
-					label: "Layer Name"
-				},
-				{
-					type: "button",
-					content: "Cancel",
-					callback: () => {
-						dialog.dispose();
-					}
-				},
-				{
-					type: "button",
-					content: "Add",
-					callback: values => {
-						dialog.dispose();
-						this.addLayerToCurrentMap(values.name);
-					}
-				}
-			]);
-		}.bind(this));
+		this.layerListManager = gui.sidebarCard.layerListSelector;
+		this.layerListManager.on("change", value => {
+			this.setCurrentLayer(value);
+		});
 
 		this.renderer = new MapRenderer(this.getCurrentMap(), width, height, 16, 16, true); // TODO: Make modular
 
@@ -134,8 +99,7 @@ export default class Editor {
 
 	addLayerToCurrentMap(name) {
 		this.getCurrentMap().createLayer(name);
-		this.updateLayerList();
-		this.layerListManager.select(this.layerListManager.getItem(name));
+		this.layerListManager.addItem(name, true);
 		this.renderer.applyTiles();
 	}
 

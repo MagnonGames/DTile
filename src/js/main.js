@@ -3,8 +3,7 @@ import DTile from "./dTile.js";
 let dTile;
 
 function start() {
-	dTile = new DTile(document.getElementById("renderContainer"),
-		document.getElementById("tilesetSelectorContainer"));
+	dTile = new DTile();
 	window.addEventListener("resize", function() {
 		dTile.resize(window.innerWidth, window.innerHeight);
 	});
