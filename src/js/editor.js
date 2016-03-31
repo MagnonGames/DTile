@@ -112,7 +112,7 @@ export default class Editor {
 		});
 
 		let mapBlob = new Blob([mapJson], {type: "text/plain;charset=utf-8"});
-		saveAs(mapBlob, "dTile Map.json");
+		saveAs(mapBlob, "DTile Map.json");
 	}
 
 	_getFocus() {
