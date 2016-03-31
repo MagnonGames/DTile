@@ -12,6 +12,13 @@ var gulp = require("gulp"),
 
 gulp.task("js", function() { return buildJS(); });
 
+function handleError(error) {
+	gutil.log(gutil.colors.bgRed(error.name) + ": "
+		+ gutil.colors.red(error.message));
+
+	this.emit("end");
+}
+
 function buildJS(watch) {
 	var browserifyInstance = browserify({
 			entries: ["./src/js/main.js"],
@@ -26,8 +33,9 @@ function buildJS(watch) {
 	var b = watch ? watchify(browserifyInstance) : browserifyInstance;
 
  	var build = function() {
-		 // TODO: HANDLE ERRORS, MINIFIED BUILD
+		 // TODO: MINIFIED BUILD
 		return b.bundle()
+			.on("error", handleError)
 			.pipe(source("dTile.js"))
 			.pipe(buffer())
 			.pipe(sourcemaps.init({ loadMaps: true }))
