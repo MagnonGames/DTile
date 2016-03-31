@@ -1,5 +1,6 @@
 var gulp = require("gulp"),
 	gutil = require("gulp-util"),
+	notify = require("gulp-notify"),
 	babelify = require("babelify"),
 	sourcemaps = require("gulp-sourcemaps"),
 	browserify = require("browserify"),
@@ -13,8 +14,10 @@ var gulp = require("gulp"),
 gulp.task("js", function() { return buildJS(); });
 
 function handleError(error) {
-	gutil.log(gutil.colors.bgRed(error.name) + ": "
-		+ gutil.colors.red(error.message));
+	notify.onError({
+		title: "Build Error!",
+		message: "<%= error.message %>"
+	})(error);
 
 	this.emit("end");
 }
