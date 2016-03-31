@@ -44,7 +44,13 @@ function buildJS(watch) {
 	}
 
 	if (watch) {
-		b.on("update", build);
+		b.on("update", function() {
+			gutil.log("Rebundling...");
+			build();
+		});
+		b.on("log", function(e) {
+			gutil.log("Bundling Successful: " + gutil.colors.gray(e));
+		});
 	}
 
 	return build();
