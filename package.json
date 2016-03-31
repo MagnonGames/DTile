@@ -23,6 +23,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "filesaver.js": "^0.2.0",
     "pixi.js": "^3.0.9",
     "react": "^0.14.7",
     "react-dom": "^0.14.7"

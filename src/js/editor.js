@@ -1,3 +1,5 @@
+import filesaver from "filesaver.js";
+
 import Map from "./map/map.js";
 import InputManager from "./input.js";
 import { PositionedTile, TileSelection } from "./selectionUtils.js";
@@ -112,7 +114,7 @@ export default class Editor {
 		});
 
 		let mapBlob = new Blob([mapJson], {type: "text/plain;charset=utf-8"});
-		saveAs(mapBlob, "DTile Map.json");
+		filesaver.saveAs(mapBlob, "DTile Map.json");
 	}
 
 	_getFocus() {
