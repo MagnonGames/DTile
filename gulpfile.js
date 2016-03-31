@@ -15,7 +15,10 @@ gulp.task("js", function() { return buildJS(); });
 function buildJS(watch) {
 	var browserifyInstance = browserify({
 			entries: ["./src/js/main.js"],
-			debug: true
+			debug: true,
+			cache: {},
+		    packageCache: {},
+		    fullPaths: watch
 		}).transform("babelify", {
 			presets: ["es2015", "react"]
 		});
