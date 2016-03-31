@@ -7,6 +7,7 @@ function start() {
 	window.addEventListener("resize", function() {
 		dTile.resize(window.innerWidth, window.innerHeight);
 	});
+	window.dTile = dTile;
 }
 
 document.addEventListener("DOMContentLoaded", start);
