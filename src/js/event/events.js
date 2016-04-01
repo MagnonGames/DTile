@@ -5,6 +5,6 @@
 // is fired.
 // Example: "when an awesome map was created"
 
-export default const Events = {
-	
+export default {
+
 }
