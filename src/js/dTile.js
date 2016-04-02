@@ -36,9 +36,6 @@ export default class DTile {
 		this.gui.sidebarCard.tilesetRenderContainer.appendChild(
 			this.tilesetSelector.getRenderer()
 		);
-		PubSub.subscribe(Events.TILESET_TILES_SELECTED, function(e) {
-			this.editor.selectedTiles = e;
-		}.bind(this));
 
 		// GUI.listenTo("fileUploader", "change", function() {
 		// 	let reader = new FileReader();

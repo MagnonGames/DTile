@@ -29,6 +29,10 @@ export default class Editor {
 
 		PubSub.subscribe(Events.ADD_LAYER, this.addLayerToCurrentMap.bind(this));
 
+		PubSub.subscribe(Events.TILESET_TILES_SELECTED, function(e) {
+			this.selectedTiles = e;
+		}.bind(this));
+
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
 		this.inputManager.on("click", e => this._clickAction(e));
 		this.inputManager.on("drag", e => this._clickAction(e));
