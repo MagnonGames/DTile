@@ -19,10 +19,8 @@ export default class GUI {
 			<div>
 				<div id="renderContainer"
 					ref={ ref => this.mainRenderContainer = ref } />
-				<SidebarCard gui={ this } ref={ ref => this.sidebarCard = ref }
-				 	dTile={ this.dTile }/>
-				<DialogContainer ref={ ref => this.dialogContainer = ref }
-					dTile={ this.dTile } />
+				<SidebarCard gui={ this } ref={ ref => this.sidebarCard = ref } />
+				<DialogContainer ref={ ref => this.dialogContainer = ref } />
 			</div>
 		), document.getElementById("app"));
 	}
@@ -39,8 +37,7 @@ class SidebarCard extends React.Component {
 				<hr />
 				<Components.TextInput name="mapName" label="Map Name" />
 				<Components.Container title="Layers" contractible>
-					<LayerListSelector ref={ ref => this.layerListSelector = ref }
-						gui={ this.props.dTile.gui } />
+					<LayerListSelector ref={ ref => this.layerListSelector = ref } />
 				</Components.Container>
 				<Components.Container title="Tileset" contractible>
 					<div id="tilesetSelectorContainer"

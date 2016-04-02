@@ -36,8 +36,7 @@ export class DialogContainer extends React.Component {
 						return (
 							<Dialog key={ index }
 								close={ this.close.bind(this, index) }
-								Type={ Type }
-								dTile={ this.props.dTile } />
+								Type={ Type } />
 						);
 					})
 				}
@@ -50,8 +49,7 @@ export default class Dialog extends React.Component {
 	render() {
 		return (
 			<div className="card dialog">
-				<this.props.Type close={ this.props.close }
-					dTile={ this.props.dTile } />
+				<this.props.Type close={ this.props.close } />
 			</div>
 		);
 	}
