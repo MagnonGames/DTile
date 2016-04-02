@@ -63,7 +63,7 @@ export default class LayerListSelector extends React.Component {
 					<ImageButton imageURL="../images/plus.svg" title="Add Layer"
 					 	id="addLayerButton"
 						onClick={
-							e => this.props.gui.openDialog(AddLayerDialog)
+							e => PubSub.publish(Events.OPEN_DIALOG, AddLayerDialog)
 						} />
 				</FooterToolbar>
 			</div>

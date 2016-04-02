@@ -1,5 +1,8 @@
 import React from "react";
 
+import PubSub from "../../event/pubSub.js";
+import Events from "../../event/events.js";
+
 export class DialogContainer extends React.Component {
 	constructor(props) {
 		super(props);
@@ -7,13 +10,13 @@ export class DialogContainer extends React.Component {
 		this.state = {
 			dialogs: []
 		};
-	}
 
-	openDialog(dialog) {
-		let dialogs = this.state.dialogs;
-		dialogs.push(dialog);
+		PubSub.subscribe(Events.OPEN_DIALOG, dialog => {
+			let dialogs = this.state.dialogs;
+			dialogs.push(dialog);
 
-		this.setState({ dialogs });
+			this.setState({ dialogs });
+		});
 	}
 
 	close(index) {

@@ -11,5 +11,6 @@ export default {
 
 	// GUI Events
 	LAYER_SELECTED: "a new layer was selected",
-	ADD_LAYER: "a new layer was requested to be added"
+	ADD_LAYER: "a new layer was requested to be added",
+	OPEN_DIALOG: "a request to open a dialog was made"
 }
