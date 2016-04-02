@@ -1,4 +1,4 @@
-export default class PubSub {
+class PubSub {
 	constructor() {
 		this.subscribers = [];
 	}
@@ -28,3 +28,5 @@ class Subscriber {
 		this.handler(params);
 	}
 }
+
+export default (new PubSub());
