@@ -2,6 +2,9 @@ import InputManager from "../input.js";
 import Selection from "./tileSelection.js";
 import { TileSelection, PositionedTile } from "../selectionUtils.js";
 
+import PubSub from "../event/pubSub.js";
+import Events from "../event/events.js";
+
 let PIXI = require("pixi.js");
 
 export default class TilesetSelector {
@@ -69,7 +72,7 @@ export default class TilesetSelector {
 					bounds.height = tile.y;
 				}
 			}
-			this._fire("selected",
+			PubSub.publish(Events.TILESET_TILES_SELECTED,
 				new TileSelection(bounds.width, bounds.height, selectedTiles));
 		}.bind(this));
 		this.inputManager.on("scroll", function(e) {
@@ -154,23 +157,5 @@ export default class TilesetSelector {
 
 	render() {
 		this._renderer.render(this._container);
-	}
-
-	_fire(event, params) {
-		if (this._listeners) {
-			for (let i = 0; i < this._listeners.length; i++) {
-				if (this._listeners[i].event == event) {
-					this._listeners[i].callback(params);
-				}
-			}
-		}
-	}
-
-	on(event, callback) {
-		if (!this._listeners) this._listeners = [];
-		this._listeners.push({
-			event: event,
-			callback: callback
-		});
 	}
 }

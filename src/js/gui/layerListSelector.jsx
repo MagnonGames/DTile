@@ -4,6 +4,9 @@ import { ListSelector, FooterToolbar, ImageButton } from "./guiComponents.jsx";
 
 import AddLayerDialog from "./dialogs/addLayerDialog.jsx";
 
+import PubSub from "../event/pubSub.js";
+import Events from "../event/events.js";
+
 export default class LayerListSelector extends React.Component {
 	constructor(props) {
 		super(props);
@@ -13,9 +16,7 @@ export default class LayerListSelector extends React.Component {
 			selectedIndex: 0
 		}
 
-		this.listeners = [];
-
-		this._sendChange(0);
+		PubSub.publish(Events.LAYER_SELECTED, 0);
 	}
 
 	addItem(content, select) {
@@ -40,7 +41,7 @@ export default class LayerListSelector extends React.Component {
 			selectedIndex
 		});
 
-		this._sendChange(selectedIndex);
+		PubSub.publish(Events.LAYER_SELECTED, selectedIndex);
 	}
 
 	getItem(content) {
@@ -49,10 +50,6 @@ export default class LayerListSelector extends React.Component {
 
 	clear() {
 		this._updateState([], 0);
-	}
-
-	on(event, callback) {
-		this.listeners.push({ event, callback });
 	}
 
 	render() {
@@ -71,13 +68,5 @@ export default class LayerListSelector extends React.Component {
 				</FooterToolbar>
 			</div>
 		);
-	}
-
-	_sendChange(selectedIndex) {
-		this.listeners.map(listener => {
-			if (listener.event == "change") {
-				listener.callback(selectedIndex);
-			}
-		});
 	}
 }

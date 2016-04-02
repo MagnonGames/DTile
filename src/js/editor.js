@@ -5,6 +5,9 @@ import InputManager from "./input.js";
 import { PositionedTile, TileSelection } from "./selectionUtils.js";
 import MapRenderer from "./render/mapRenderer.js";
 
+import PubSub from "./event/pubSub.js";
+import Events from "./event/events.js";
+
 import GUI from "./gui/dTileGUI.jsx";
 
 export default class Editor {
@@ -16,13 +19,15 @@ export default class Editor {
 		this.setCurrentMap(0);
 
 		this.layerListManager = gui.sidebarCard.layerListSelector;
-		this.layerListManager.on("change", value => {
+		PubSub.subscribe(Events.LAYER_SELECTED, value => {
 			this.setCurrentLayer(value);
 		});
 
 		this.renderer = new MapRenderer(this.getCurrentMap(), width, height, 16, 16, true); // TODO: Make modular
 
 		this.addLayerToCurrentMap("Layer 1");
+
+		PubSub.subscribe(Events.ADD_LAYER, this.addLayerToCurrentMap.bind(this));
 
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
 		this.inputManager.on("click", e => this._clickAction(e));

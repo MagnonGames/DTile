@@ -2,6 +2,9 @@ import React from "react";
 
 import { Button, TextInput } from "../guiComponents.jsx";
 
+import PubSub from "../../event/pubSub.js";
+import Events from "../../event/events.js";
+
 export default class AddLayerDialog extends React.Component {
 	constructor(props) {
 		super(props);
@@ -12,7 +15,7 @@ export default class AddLayerDialog extends React.Component {
 	success(e) {
 		if (typeof e != "undefined") e.preventDefault();
 
-		this.props.dTile.editor.addLayerToCurrentMap(this.state.layerNameText);
+		PubSub.publish(Events.ADD_LAYER, this.state.layerNameText);
 		this.props.close();
 	}
 

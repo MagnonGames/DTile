@@ -6,5 +6,10 @@
 // Example: "when an awesome map was created"
 
 export default {
+	TILESET_LOADED: "tileset is loaded",
+	TILESET_TILES_SELECTED: "tiles are selected in tileset selector",
 
+	// GUI Events
+	LAYER_SELECTED: "a new layer was selected",
+	ADD_LAYER: "a new layer was requested to be added"
 }

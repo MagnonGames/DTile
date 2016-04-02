@@ -1,3 +1,6 @@
+import PubSub from "../event/pubSub.js";
+import Events from "../event/events.js";
+
 let PIXI = require("pixi.js");
 
 export default class Tileset {
@@ -16,7 +19,7 @@ export default class Tileset {
 			this.height = Math.floor(this._texture.height / this.tileHeight);
 
 			this._generateTiles();
-			this._fire("loaded");
+			PubSub.publish(Events.TILESET_LOADED, this);
 		}
 		if (this._texture.baseTexture.hasLoaded) {
 			textureLoaded();
@@ -62,26 +65,5 @@ export default class Tileset {
 
 	getTexture() {
 		return this._texture;
-	}
-
-	_fire(event) {
-		if (this._listeners) {
-			for (let i = 0; i < this._listeners.length; i++) {
-				if (this._listeners[i].event == event) {
-					this._listeners[i].callback();
-					this._listeners.splice(
-						this._listeners.indexOf(this._listeners[i]), 1
-					);
-				}
-			}
-		}
-	}
-
-	once(event, callback) {
-		if (!this._listeners) this._listeners = [];
-		this._listeners.push({
-			event: event,
-			callback: callback
-		});
 	}
 }

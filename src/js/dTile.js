@@ -1,7 +1,9 @@
 import Tileset from "./render/tileset.js";
 import Editor from "./editor.js";
 import TilesetSelector from "./render/tilesetSelector.js";
+
 import PubSub from "./event/pubSub.js";
+import Events from "./event/events.js";
 
 import GUI from "./gui/dTileGUI.jsx";
 
@@ -11,19 +13,18 @@ export default class DTile {
 	constructor() {
 		PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
-		this.events = new PubSub();
-
 		this.gui = new GUI(this);
 		this.gui.render();
 
 		this.tilesets = [];
 
-		this.tilesets.push(new Tileset("tileset", "./images/hello.png", 16, 16, 0, 0));
-		this.tilesets[0].once("loaded", function() {
+		PubSub.subscribe(Events.TILESET_LOADED, function(tileset) {
 			this.editor.renderer.update();
 			this.editor.renderer.render();
-			this.tilesetSelector.changeTileset(this.tilesets[0]);
+			this.tilesetSelector.changeTileset(tileset);
 		}.bind(this));
+
+		this.tilesets.push(new Tileset("tileset", "./images/hello.png", 16, 16, 0, 0));
 
 		this.editor = new Editor(
 			window.innerWidth, window.innerHeight, this.tilesets, this.gui
@@ -35,7 +36,7 @@ export default class DTile {
 		this.gui.sidebarCard.tilesetRenderContainer.appendChild(
 			this.tilesetSelector.getRenderer()
 		);
-		this.tilesetSelector.on("selected", function(e) {
+		PubSub.subscribe(Events.TILESET_TILES_SELECTED, function(e) {
 			this.editor.selectedTiles = e;
 		}.bind(this));
 
