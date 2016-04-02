@@ -29,7 +29,7 @@ export default class AddLayerDialog extends React.Component {
 
 	render() {
 		return (
-			<form onSubmit={ e => { this.success(e); } } onsubmit="return false">
+			<form onSubmit={ e => { this.success(e); } }>
 				<h2 className="primary">Add Layer</h2>
 				<TextInput name="layerName" label="Layer Name"
 					value={ this.state.layerNameText }
