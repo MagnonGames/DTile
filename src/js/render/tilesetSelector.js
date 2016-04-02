@@ -1,11 +1,11 @@
+import PIXI from "pixi.js";
+
 import InputManager from "../input.js";
 import Selection from "./tileSelection.js";
 import { TileSelection, PositionedTile } from "../selectionUtils.js";
 
 import PubSub from "../event/pubSub.js";
 import Events from "../event/events.js";
-
-let PIXI = require("pixi.js");
 
 export default class TilesetSelector {
 	constructor(width, height, tileset) {

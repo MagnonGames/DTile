@@ -1,4 +1,4 @@
-let PIXI = require("pixi.js");
+import PIXI from "pixi.js";
 
 export default class Tile {
 	constructor(tileId) {
