@@ -10,6 +10,9 @@ DTile is NOT ready for production in any kind of way at all. It's currently very
 ## Contributing
 Feel free to contribute! We appreciate any kind of help, be it bug reports or pull requests!
 
+Planned features can be found on our trello board which you can find here: <https://trello.com/b/wjNJgZiS/dtile>.
+GitHub issues is used for bug tracking and user feature request while trello is used for more "officially" planned features. Feel free to leave a comment on trello or GitHub issues if you have any input.
+
 ### Quick-start Guide for Linux (and osx?)
 1. Set up Gulp
 2. Execute these commands:
