@@ -1,4 +1,5 @@
 import Tile from "./tile.js";
+import { PositionedTile, TileSelection } from "../selectionUtils.js";
 
 export default class TileLayer {
 	constructor(name, width, height) {
@@ -26,5 +27,24 @@ export default class TileLayer {
 
 	getTile(x, y) {
 		return this.tiles[x][y];
+	}
+
+	getTilesFromArea(x, y, width, height) {
+		let positionedTiles = [];
+		for (let mapX = x; mapX < x + width; mapX++) {
+			for (let mapY = y; mapY < y + height; mapY++) {
+				positionedTiles.push(new PositionedTile(
+					mapX - x,
+					mapY - y,
+					this.getTile(mapX, mapY).id
+				));
+			}
+		}
+
+		return new TileSelection(
+			width,
+			height,
+			positionedTiles
+		);
 	}
 }

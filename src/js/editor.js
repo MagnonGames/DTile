@@ -5,6 +5,9 @@ import InputManager from "./input.js";
 import { PositionedTile, TileSelection } from "./selectionUtils.js";
 import MapRenderer from "./render/mapRenderer.js";
 
+import ActionLog from "./action/actionLog.js";
+import PaintAction from "./action/paintAction.js";
+
 import PubSub from "./event/pubSub.js";
 import Events from "./event/events.js";
 
@@ -17,6 +20,9 @@ export default class Editor {
 		this.maps = [];
 		this.maps.push(new Map(50, 50, 16, 16, this.tilesets));
 		this.setCurrentMap(0);
+
+		this.actionLogs = [];
+		this.actionLogs.push(new ActionLog(this.maps[this.currentMapId]));
 
 		this.layerListManager = gui.sidebarCard.layerListSelector;
 		PubSub.subscribe(Events.LAYER_SELECTED, value => {
@@ -76,11 +82,16 @@ export default class Editor {
 	}
 
 	paintAtPosition(x, y) {
-		for (let toPaint of this.selectedTiles.tiles) {
-			let tile = this.getCurrentLayer().getTile(x + toPaint.x, y + toPaint.y);
-			tile.setTileID(toPaint.tileId);
-			tile.setTilesetName("tileset"); // TODO: SHOULD CHANGE ACCORDING TO TILESET NAME.
-		}
+		this.getCurrentActionLog().add(new PaintAction(
+			this.getCurrentLayer().getTilesFromArea(
+				x, y,
+				this.selectedTiles.width,
+				this.selectedTiles.height
+			),
+			this.selectedTiles,
+			this.currentLayerId,
+			x, y
+		));
 	}
 
 	updateLayerList() {
@@ -90,6 +101,10 @@ export default class Editor {
 				this.getCurrentMap().tileLayers[i].name
 			);
 		}
+	}
+
+	getCurrentActionLog() {
+		return this.actionLogs[this.currentMapId];
 	}
 
 	setCurrentMap(id) {
