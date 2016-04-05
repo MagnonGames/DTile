@@ -35,6 +35,17 @@ export default class Editor {
 
 		PubSub.subscribe(Events.ADD_LAYER, this.addLayerToCurrentMap.bind(this));
 
+		PubSub.subscribe(Events.UNDO_REQUESTED, () => {
+			this.getCurrentActionLog().undoPrevious();
+			this.renderer.update();
+			this.renderer.render();
+		});
+		PubSub.subscribe(Events.REDO_REQUESTED, () => {
+			this.getCurrentActionLog().restoreForward();
+			this.renderer.update();
+			this.renderer.render();
+		});
+
 		PubSub.subscribe(Events.TILESET_TILES_SELECTED, function(e) {
 			this.selectedTiles = e;
 		}.bind(this));
