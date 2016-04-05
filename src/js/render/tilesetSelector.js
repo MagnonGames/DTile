@@ -65,11 +65,11 @@ export default class TilesetSelector {
 			for (let tile of selectedTiles) {
 				tile.x -= bounds.x;
 				tile.y -= bounds.y;
-				if (tile.x > bounds.width) {
-					bounds.width = tile.x;
+				if (tile.x >= bounds.width) {
+					bounds.width = tile.x + 1;
 				}
-				if (tile.y > bounds.height) {
-					bounds.height = tile.y;
+				if (tile.y >= bounds.height) {
+					bounds.height = tile.y + 1;
 				}
 			}
 			PubSub.publish(Events.TILESET_TILES_SELECTED,
