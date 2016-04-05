@@ -5,6 +5,9 @@ import * as Components from "./guiComponents.jsx";
 import LayerListSelector from "./layerListSelector.jsx";
 import { DialogContainer } from "./dialogs/dialog.jsx";
 
+import PubSub from "../event/pubSub.js";
+import Events from "../event/events.js";
+
 export default class GUI {
 	constructor(dTile) {
 		this.dTile = dTile;
@@ -34,6 +37,13 @@ class SidebarCard extends React.Component {
 				<Components.MultiSelector
 					values={ [ "Pen", "Fill", "Select" ] }
 					defaultSelected="0" />
+				<hr />
+				<Components.Button onClick={ () => {
+					PubSub.publish(Events.UNDO_REQUESTED);
+				} } text="Undo" />
+				<Components.Button onClick={ () => {
+					PubSub.publish(Events.REDO_REQUESTED);
+				} } text="Redo" />
 				<hr />
 				<Components.TextInput name="mapName" label="Map Name" />
 				<Components.Container title="Layers" contractible>
