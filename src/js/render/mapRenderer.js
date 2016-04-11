@@ -45,6 +45,8 @@ export default class MapRenderer {
 				for (let i = 0; i < this.map.tilesets.length; i++) {
 					if (this.map.tilesets[i].name == tile.tilesetName) {
 						tile.updateSprite(this.map.tilesets[i]);
+					} else if (tile.id == -1) {
+						tile.updateSprite();
 					}
 				}
 			}
