@@ -7,6 +7,7 @@ import MapRenderer from "./render/mapRenderer.js";
 
 import ActionLog from "./action/actionLog.js";
 import PaintAction from "./action/paintAction.js";
+import DragPaintAction from "./action/dragPaintAction.js";
 
 import PubSub from "./event/pubSub.js";
 import Events from "./event/events.js";
@@ -51,8 +52,40 @@ export default class Editor {
 		}.bind(this));
 
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
-		this.inputManager.on("click", e => this._clickAction(e));
-		this.inputManager.on("drag", e => this._clickAction(e));
+		this.inputManager.on("click", e => {
+			this._clickAction(e);
+		});
+		this.inputManager.on("drag", e => {
+			let tilePos = this.renderer.unprojectToTile({ x: e.x, y: e.y }),
+				currentAction = this.getCurrentActionLog().getCurrentAction();
+
+			// If the last action isn't a drag action or the current action
+			// isn't a drag action, then make it one.
+			if (!this.dragAction || !(currentAction instanceof DragPaintAction)) {
+				this.getCurrentActionLog().add(new DragPaintAction(
+					tilePos.x,
+					tilePos.y,
+					this.currentLayerId,
+					this.selectedTiles
+				));
+			}
+
+			this.getCurrentActionLog().getCurrentAction().paint(
+				tilePos.x, tilePos.y, this.getCurrentMap()
+			);
+
+			if (this.getCurrentActionLog().getCurrentAction().needsUpdate) {
+				this.getCurrentActionLog().applyCurrent();
+
+				this.renderer.update();
+				this.renderer.render();
+			}
+
+			this.dragAction = true;
+		});
+		this.inputManager.on("up", e => {
+			this.dragAction = false;
+		});
 		this.inputManager.on("scroll", function(e) {
 			if (!e.alt) { // Scroll
 				this.renderer.offset.x += e.x / this.renderer.zoom;

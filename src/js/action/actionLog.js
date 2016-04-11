@@ -17,6 +17,10 @@ export default class ActionLog {
 		return this.log[this.currentIndex];
 	}
 
+	applyCurrent() {
+		this.getCurrentAction().apply(this.map);
+	}
+
 	undoPrevious() {
 		this.getCurrentAction().undo(this.map);
 		this.currentIndex--;
