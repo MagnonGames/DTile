@@ -12,4 +12,12 @@ export class TileSelection {
 		this.height = height;
 		this.tiles = tiles;
 	}
+
+	getTile(x, y) {
+		for (let tile of this.tiles) {
+			if (tile.x == x && tile.y == y) {
+				return tile;
+			}
+		}
+	}
 }
