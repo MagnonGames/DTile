@@ -68,6 +68,8 @@ export default class Editor {
 					this.currentLayerId,
 					this.selectedTiles
 				));
+
+				this.dragAction = true;
 			}
 
 			this.getCurrentActionLog().getCurrentAction().paint(
@@ -80,8 +82,6 @@ export default class Editor {
 				this.renderer.update();
 				this.renderer.render();
 			}
-
-			this.dragAction = true;
 		});
 		this.inputManager.on("up", e => {
 			this.dragAction = false;
