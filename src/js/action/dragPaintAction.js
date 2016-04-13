@@ -42,12 +42,17 @@ export default class DragPaintAction {
 	}
 
 	apply(map) {
+		let areaWidth = this.tileArea.width,
+			areaHeight = this.tileArea.height,
+			tileOffsetX = ((this.startX - areaWidth) % areaWidth) - areaWidth,
+			tileOffsetY = ((this.startY - areaHeight) % areaHeight) - areaHeight;
+
 		for (let location of this.locations) {
 			for (let x = location.x; x < location.x + this.tileArea.width; x++) {
 				for (let y = location.y; y < location.y + this.tileArea.height; y++) {
-					let tileX = Math.abs(x % this.tileArea.width),
-						tileY = Math.abs(y % this.tileArea.height),
-						tileId = this.tileArea.getTile(tileX, tileY).tileId,
+					let tileX = (x - tileOffsetX) % areaWidth,
+						tileY = (y - tileOffsetY) % areaHeight;
+					let tileId = this.tileArea.getTile(tileX, tileY).tileId,
 						tile = map.tileLayers[this.layerId].getTile(x, y);
 
 					tile.setTileID(tileId);
