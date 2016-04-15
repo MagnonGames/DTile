@@ -9,7 +9,7 @@ export default class AddLayerDialog extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { layerNameText: "" };
+		this.state = { layerNameText: "New Layer" };
 	}
 
 	success(e) {
