@@ -171,9 +171,16 @@ export class ImageButton extends React.Component {
 }
 
 export class Button extends React.Component {
+	_onClick(e) {
+		if (!this.props.disabled) {
+			this.props.onClick(e);
+		}
+	}
+
 	render() {
 		return (
-			<span className="button" onClick={ e => this.props.onClick(e) }>
+			<span className={ "button" + (this.props.disabled ? " disabled" : "") }
+				onClick={ e => this._onClick(e) }>
 				{ this.props.text }
 			</span>
 		)

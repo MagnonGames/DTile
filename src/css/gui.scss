@@ -81,7 +81,7 @@
 @mixin cardUIInteract($color, $shadow) {
 	cursor: pointer;
 	background: $background;
-	transition: box-shadow 0.2s, background 0.2s;
+	transition: all 0.2s, background 0.2s;
 
 	&:active {
 		background: $color;
@@ -92,6 +92,13 @@
 .button {
 	@include cardUIElement;
 	@include cardUIInteract($secondary, 0px 0px 3px 0px transparentize($shadowColor, 0.5));
+
+	&.disabled {
+		background-color: lighten($grey, 10);
+		color: lighten($foreground, 30);
+		cursor: default;
+		box-shadow: 0px 0px 0px 0px transparent;
+	}
 }
 
 .multiSelector {
