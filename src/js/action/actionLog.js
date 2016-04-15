@@ -8,6 +8,8 @@ export default class ActionLog {
 	add(action) {
 		this.log[this.currentIndex + 1] = action;
 		this.restoreForward();
+
+		this.log.splice(this.currentIndex + 1, this.log.length + this.currentIndex);
 	}
 
 	// Can also be refered to as previous action. Basically, the current action
