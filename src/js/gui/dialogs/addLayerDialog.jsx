@@ -36,7 +36,8 @@ export default class AddLayerDialog extends React.Component {
 					onChange={ this.onChange.bind(this) } />
 				<div className="actionButtonContainer">
 					<Button onClick={ () => this.abort() } text="Cancel" />
-					<Button onClick={ () => this.success() } text="Add" />
+					<Button onClick={ () => this.success() } text="Add"
+						disabled={ this.state.layerNameText == "" } />
 				</div>
 			</form>
 		);
