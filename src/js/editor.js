@@ -168,6 +168,27 @@ export default class Editor {
 	}
 
 	addLayerToCurrentMap(name) {
+		let occurrences = 0, foundSame = false, stripNumberRegExp = / \(\d+\)/,
+			testMatchingLayerRegExp = new RegExp(
+			   name.replace(stripNumberRegExp, "") + "( \(\d+\))?"
+		   );
+
+		for (let layer of this.getCurrentMap().tileLayers) {
+			if (testMatchingLayerRegExp.test(layer.name)) {
+				occurrences++
+			}
+
+			// To not allow manually naming a layer to a numbered layer that
+			// already exist.
+			if (layer.name == name) {
+				foundSame = true;
+			}
+		}
+		if (foundSame) {
+			name = name.replace(stripNumberRegExp, "");
+		}
+		name += (occurrences > 0 ? " (" + occurrences + ")" : "");
+
 		this.getCurrentMap().createLayer(name);
 		this.layerListManager.addItem(name, true);
 		this.renderer.applyTiles();
