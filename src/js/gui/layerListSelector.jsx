@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ListSelector, FooterToolbar, ImageButton } from "./guiComponents.jsx";
+import { ListSelector, FooterToolbar, IconButton } from "./guiComponents.jsx";
 
 import AddLayerDialog from "./dialogs/addLayerDialog.jsx";
 
@@ -60,7 +60,7 @@ export default class LayerListSelector extends React.Component {
 					selectedIndex={ this.state.selectedIndex }
 					onSelect={ index => { this.select(index); } } />
 				<FooterToolbar>
-					<ImageButton imageURL="../images/plus.svg" title="Add Layer"
+					<IconButton icon="add" title="Add Layer"
 					 	id="addLayerButton"
 						onClick={
 							e => PubSub.publish(Events.OPEN_DIALOG, AddLayerDialog)

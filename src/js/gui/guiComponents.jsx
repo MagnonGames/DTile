@@ -1,5 +1,7 @@
 import React from "react";
 
+const iconMap = require("./icon/materialIconMap.json");
+
 export class Card extends React.Component {
 	render() {
 		return (
@@ -84,9 +86,14 @@ export class Container extends React.Component {
 
 		return (
 			<div className={ "container" + contracted }>
-				<span className={ "title" + contractible }
+				<span className={ "top" + contractible }
 						onClick={ e => this.handleClick() }>
-					{ this.props.title }
+					<Icon iconName={
+						this.state.contracted ? "expandArrow" : "contractArrow"
+					} />
+					<span className="title">
+						{ this.props.title }
+					</span>
 				</span>
 				{ this.props.children }
 			</div>
@@ -157,16 +164,25 @@ export class FooterToolbar extends React.Component {
 	}
 }
 
-export class ImageButton extends React.Component {
+export class IconButton extends React.Component {
 	render() {
 		return (
-			<span className="imageButton" title={ this.props.tooltip }
-				style={ {
-					backgroundImage: "url(" + this.props.imageURL + ")"
-				} }
+			<span className="iconButton" title={ this.props.tooltip }
 				onClick={ e => this.props.onClick(e) }
-				id={ this.props.id } />
+				id={ this.props.id }>
+				<Icon iconName={ this.props.icon } />
+			</span>
 		);
+	}
+}
+
+class Icon extends React.Component {
+	render() {
+		return (
+			<i className={ "icon " + (this.props.light ? "light" : "dark") }>
+				{ iconMap[this.props.iconName] }
+			</i>
+		)
 	}
 }
 

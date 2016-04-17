@@ -203,20 +203,38 @@
 	max-height: 1000px;
 	transition: max-height 0.2s ease-in;
 
-	.title {
+	.top {
 		display: block;
-		font-size: 12px;
 		width: 100%;
 		box-sizing: border-box;
 		padding: 0 10px;
-		color: $foreground;
 		height: 25px;
-		line-height: 25px;
 
 		&.contractible {
 			cursor: default;
-			padding-left: 26px;
-			background: url("../images/contract-arrow.svg") 10px center / 6px 6px no-repeat;
+			padding-left: 5px;
+		}
+
+		&:not(.contractible) {
+			.icon {
+				display: none;
+			}
+		}
+
+		.icon {
+			font-size: 16px;
+			line-height: 25px;
+			width: 16px;
+			float: left;
+		}
+
+		.title {
+			font-size: 12px;
+			line-height: 25px;
+			height: 25px;
+			display: inline-block;
+			color: $foreground;
+			float: left;
 		}
 	}
 
@@ -226,7 +244,7 @@
 	}
 }
 
-.imageButton {
+.iconButton {
 	margin: 0px 5px;
 	font-size: 25px;
 	cursor: pointer;

@@ -1,0 +1,26 @@
+{
+	"applicationMenu": "more_vert",
+
+	"pen": "mode_edit",
+	"fill": "format_color_fill",
+	"select": "crop_square",
+
+	"enableGrid": "border_clear",
+
+	"add": "add",
+	"remove": "remove",
+
+	"expandArrow": "arrow_drop_down",
+	"contractArrow": "arrow_drop_up",
+
+	"dropDownArrow": "expand_more",
+
+	"undo": "undo",
+	"redo": "redo",
+
+	"saveDone": "check",
+
+	"layerOpacity": "opacity",
+	"layerFocus": "center_focus_strong",
+	"layerDuplicate": "content_copy"
+}

@@ -70,6 +70,11 @@ gulp.task("css", function() {
 		.pipe(gulp.dest("bin/css"));
 });
 
+gulp.task("icons", function() {
+	gulp.src("./src/icon/**/*")
+		.pipe(gulp.dest("bin/icons"));
+});
+
 gulp.task("html", function() {
 	gulp.src("./src/html/**/*.html")
 		.pipe(gulp.dest("bin"));
@@ -91,7 +96,7 @@ gulp.task("watch", ["default"], function() {
 	gulp.watch("./src/images/**/*", ["images"]);
 });
 
-gulp.task("default", ["js", "css", "html", "images"]);
+gulp.task("default", ["js", "css", "html", "images", "icons"]);
 
 // TODO: Proper build task
 // TODO: Uglify everything in final build, not in dev.
