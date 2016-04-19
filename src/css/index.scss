@@ -61,6 +61,24 @@ body {
 			}
 		}
 	}
+
+	#mainToolbar {
+		.multiSelector {
+			box-shadow: none;
+			margin: 0;
+			border-radius: 0;
+
+			span {
+				&:last-child {
+					border-right: 1px solid $grey;
+				}
+
+				&:not(.selected) {
+					background: transparent;
+				}
+			}
+		}
+	}
 }
 
 #tilesetSelectorContainer {

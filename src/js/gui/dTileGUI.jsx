@@ -45,9 +45,11 @@ class SidebarCard extends React.Component {
 						<Components.IconButton icon="applicationMenu" />
 					</div>
 				</div>
-				<Components.MultiSelector
-					values={ [ "Pen", "Fill", "Select" ] }
-					defaultSelected="0" />
+				<div id="mainToolbar">
+					<Components.MultiSelector useIcons
+						values={ [ "pen", "fill", "select" ] }
+						defaultSelected="0" />
+				</div>
 				<hr />
 				<Components.TextInput name="mapName" label="Map Name" />
 				<Components.Container title="Layers" contractible>
