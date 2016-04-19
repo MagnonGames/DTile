@@ -49,13 +49,6 @@ class SidebarCard extends React.Component {
 					values={ [ "Pen", "Fill", "Select" ] }
 					defaultSelected="0" />
 				<hr />
-				<Components.Button onClick={ () => {
-					PubSub.publish(Events.UNDO_REQUESTED);
-				} } text="Undo" />
-				<Components.Button onClick={ () => {
-					PubSub.publish(Events.REDO_REQUESTED);
-				} } text="Redo" />
-				<hr />
 				<Components.TextInput name="mapName" label="Map Name" />
 				<Components.Container title="Layers" contractible>
 					<LayerListSelector ref={ ref => this.layerListSelector = ref } />
