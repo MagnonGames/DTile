@@ -36,17 +36,26 @@
 	overflow: hidden;
 	user-select: none;
 
-	h1, h2, h3, h4, h5, h6 {
+	.primary, .secondary {
 		margin: 0;
 		padding: 20px 15px;
+	}
 
-		&.primary {
-			background-color: $primary;
-			color: $background;
+	.primary {
+		background-color: $primary;
+		color: $background;
+
+		h1, h2, h3, h4, h5, h6 {
+			margin: 0;
 		}
-		&.secondary {
-			background-color: $secondary;
-			color: $foreground;
+	}
+
+	.secondary {
+		background-color: $secondary;
+		color: $foreground;
+
+		h1, h2, h3, h4, h5, h6 {
+			margin: 0;
 		}
 	}
 

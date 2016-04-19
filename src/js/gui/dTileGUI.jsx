@@ -33,7 +33,18 @@ class SidebarCard extends React.Component {
 	render() {
 		return (
 			<Components.Card id="mainCard">
-				<Components.CardTitle>DTile</Components.CardTitle>
+				<div className="primary" id="topBar">
+					<h1>DTile</h1>
+					<div className="icons">
+						<Components.IconButton onClick={ () => {
+							PubSub.publish(Events.UNDO_REQUESTED);
+						} } icon="undo" />
+						<Components.IconButton onClick={ () => {
+							PubSub.publish(Events.REDO_REQUESTED);
+						} } icon="redo" />
+						<Components.IconButton icon="applicationMenu" />
+					</div>
+				</div>
 				<Components.MultiSelector
 					values={ [ "Pen", "Fill", "Select" ] }
 					defaultSelected="0" />

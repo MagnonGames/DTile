@@ -35,6 +35,32 @@ body {
 	position: absolute;
 	top: 0px;
 	left: 0px;
+
+	#topBar {
+		h1 {
+			display: inline-block;
+		}
+
+		.icons {
+			float: right;
+			display: block;
+
+			.icon {
+				background-color: rgba(0, 0, 0, 0.2);
+				box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.1);
+				border-radius: 50%;
+				padding: 5px;
+				font-size: 16px;
+				color: white;
+				transition: all 0.1s;
+
+				&:active {
+					background-color: rgba(0, 0, 0, 0);
+					box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.1);
+				}
+			}
+		}
+	}
 }
 
 #tilesetSelectorContainer {
