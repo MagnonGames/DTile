@@ -41,7 +41,10 @@ export class MultiSelector extends React.Component {
 					<span key={ index } className={
 						index == this.state.selectedIndex ? "selected" : ""
 					} onClick={ e => this.changeSelectedIndex(index) }>
-						{ value }
+						{ this.props.useIcons
+							? <Icon iconName={ value } />
+							: value
+						}
 					</span>
 				)})
 			}</div>
