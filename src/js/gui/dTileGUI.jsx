@@ -51,7 +51,6 @@ class SidebarCard extends React.Component {
 						defaultSelected="0" />
 				</div>
 				<hr />
-				<Components.TextInput name="mapName" label="Map Name" />
 				<Components.Container title="Layers" contractible>
 					<LayerListSelector ref={ ref => this.layerListSelector = ref } />
 				</Components.Container>
