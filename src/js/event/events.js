@@ -15,5 +15,7 @@ export default {
 	OPEN_DIALOG: "a request to open a dialog was made",
 
 	UNDO_REQUESTED: "undo action was requested",
-	REDO_REQUESTED: "redo action was requested"
+	REDO_REQUESTED: "redo action was requested",
+
+	OPEN_CONTEXT_MENU: "opening of a context menu was requested"
 }

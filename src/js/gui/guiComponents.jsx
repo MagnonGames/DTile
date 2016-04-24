@@ -205,3 +205,25 @@ export class Button extends React.Component {
 		)
 	}
 }
+
+export class ContextMenu extends React.Component {
+	render() {
+		return (
+			<div className="contextMenu" onClick={ e => {
+				e.stopPropagation();
+			} }>
+				{ this.props.children }
+			</div>
+		);
+	}
+}
+
+export class ContextMenuEntry extends React.Component {
+	render() {
+		return (
+			<div className="entry" onClick={ e => this.props.onClick(e) }>
+				{ this.props.children }
+			</div>
+		);
+	}
+}
