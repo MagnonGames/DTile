@@ -4,6 +4,7 @@ import React from "react";
 import * as Components from "./guiComponents.jsx";
 import LayerListSelector from "./layerListSelector.jsx";
 import { DialogContainer } from "./dialogs/dialog.jsx";
+import AboutDialog from "./dialogs/aboutDialog.jsx";
 
 import PubSub from "../event/pubSub.js";
 import Events from "../event/events.js";
@@ -107,7 +108,7 @@ class TopContextMenu extends React.Component {
 	}
 
 	openAbout() {
-		// TODO
+		PubSub.publish(Events.OPEN_DIALOG, AboutDialog);
 	}
 
 	render() {
