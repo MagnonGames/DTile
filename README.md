@@ -13,20 +13,22 @@ Feel free to contribute! We appreciate any kind of help, be it bug reports or pu
 Planned features can be found on our trello board which you can find here: <https://trello.com/b/wjNJgZiS/dtile>.
 GitHub issues is used for bug tracking and user feature request while trello is used for more "officially" planned features. Feel free to leave a comment on trello or GitHub issues if you have any input.
 
-### Quick-start Guide for Linux (and osx?)
-1. Set up Gulp
+### Quick-start Guide
+1. Download and install node (<https://nodejs.org/en/download/package-manager/>)
 2. Execute these commands:
 ```
 $ git clone https://github.com/theMagnon/DTile.git
 $ cd DTile/
 $ npm install
-$ gulp
+$ npm run build
 $ npm start
 ```
 3. Visit <http://localhost:8080>
 4. `ctrl + c` when you're done (in the terminal of course)
 
-To run with watch so that it automatically updates when you change code, just run `npm run-script dev`.
+If you for some reason would like to only build a specific part of DTile, you can use the following syntax: `npm run build -- <js|css|html|images|icons>`
+
+To run with watch so that it automatically updates when you change code, just run `npm run dev`.
 
 ## License
 MIT - Basically you can do whatever you want with it as long as you credit us for making it originally.
