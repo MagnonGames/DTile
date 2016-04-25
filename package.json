@@ -33,6 +33,7 @@
   },
   "scripts": {
     "dev": "gulp watch & ws -d bin && fg",
+    "build": "gulp",
     "start": "ws -d bin"
   }
 }
