@@ -306,9 +306,15 @@
 		padding: 10px;
 		border-bottom: 1px solid $grey;
 		cursor: pointer;
+		background: transparent;
+		transition: background 0.2s;
 
 		&:last-child {
 			border-bottom: none;
+		}
+
+		&:active {
+			background: darken($background, 30);
 		}
 
 		* {
