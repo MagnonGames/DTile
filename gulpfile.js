@@ -62,7 +62,7 @@ function buildJS(watch) {
 gulp.task("css", function() {
 	gulp.src("./src/css/**/*.scss")
 		.pipe(sourcemaps.init())
-		.pipe(sass())
+		.pipe(sass().on("error", handleError))
 		.pipe(autoprefixer({
 			browsers: ['last 2 versions']
 		}))
