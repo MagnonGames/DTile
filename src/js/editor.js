@@ -13,6 +13,8 @@ import { PubSub, Events } from "./event/pubSub.js";
 
 import GUI from "./gui/dTileGUI.jsx";
 
+import _ from "./exporter.js";
+
 export default class Editor {
 	constructor(width, height, tilesets, gui) {
 		this.tilesets = tilesets;
@@ -54,7 +56,11 @@ export default class Editor {
 
 		this.tool = "pen";
 		PubSub.subscribe(Events.TOOL_SELECTED, tool => {
-			this.tool = tool
+			this.tool = tool;
+		});
+
+		PubSub.subscribe(Events.PARSE_AND_SAVE, parser => {
+			this.saveMap(parser);
 		});
 
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
@@ -142,15 +148,10 @@ export default class Editor {
 		this.renderer.applyTiles();
 	}
 
-	saveMap() {
-		let mapJson = JSON.stringify(this.getCurrentMap(), function(key, value) {
-			if (key.indexOf("_") == 0) {
-				return undefined;
-			}
-			return value;
-		});
+	saveMap(parser) {
+		let mapData = parser(this.getCurrentMap());
 
-		let mapBlob = new Blob([mapJson], {type: "text/plain;charset=utf-8"});
+		let mapBlob = new Blob([mapData], {type: "text/plain;charset=utf-8"});
 		filesaver.saveAs(mapBlob, "DTile Map.json");
 	}
 

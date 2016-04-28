@@ -20,4 +20,7 @@ export default {
 	TOOL_SELECTED: "a new tool was selected",
 
 	OPEN_CONTEXT_MENU: "opening of a context menu was requested"
+
+	SAVE_REQUESTED: "a save action was requested",
+	PARSE_AND_SAVE: "final save action passed with a parser function"
 }

@@ -112,7 +112,7 @@ class SidebarCard extends React.Component {
 
 class TopContextMenu extends React.Component {
 	exportMap() {
-		// TODO
+		PubSub.publish(Events.SAVE_REQUESTED, "dTileJSON");
 	}
 
 	openAbout() {
