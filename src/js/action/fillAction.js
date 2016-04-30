@@ -1,8 +1,8 @@
-import DragPaintAction from "./dragPaintAction.js";
+import TilingAction from "./tilingAction.js";
 
-export default class FillAction extends DragPaintAction {
+export default class FillAction extends TilingAction {
 	constructor(x, y, layerId, tileArea) {
-		super(x, y, layerId, tileArea);
+		super(x, y, layerId, tileArea, true);
 
 		this.x = x;
 		this.y = y;
@@ -39,7 +39,7 @@ export default class FillAction extends DragPaintAction {
 			}
 
 			do {
-				this.paint(x, y, map);
+				this.applyTile(x, y, map);
 				testSeed(x, y, 1);
 				testSeed(x, y, -1);
 				x++;
@@ -49,7 +49,7 @@ export default class FillAction extends DragPaintAction {
 			y = seed.y;
 			while (x > 0 && getTile(x - 1, y).id == fillId) {
 				x--;
-				this.paint(x, y, map);
+				this.applyTile(x, y, map);
 				testSeed(x, y, 1);
 				testSeed(x, y, -1);
 			}
