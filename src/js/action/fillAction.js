@@ -16,8 +16,8 @@ export default class FillAction extends TilingAction {
 			seeds = [{ x: this.x, y: this.y }];
 
 		let testSeed = (x, y, verticalModifier) => {
-			if (y + verticalModifier >= 0 &&
-				getTile(x, y + verticalModifier).id == fillId) {
+			if (y + verticalModifier >= 0 && y + verticalModifier < map.height
+				&& getTile(x, y + verticalModifier).id == fillId) {
 				if (x <= 0
 					|| getTile(x - 1, y + verticalModifier).id != fillId
 					|| getTile(x - 1, y).id != fillId) {
