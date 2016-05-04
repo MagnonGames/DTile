@@ -32,6 +32,7 @@ export class MultiSelector extends React.Component {
 		this.setState({
 			selectedIndex: index
 		});
+		this.props.onChange(index);
 	}
 
 	render() {
