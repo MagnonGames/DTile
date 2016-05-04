@@ -17,5 +17,7 @@ export default {
 	UNDO_REQUESTED: "undo action was requested",
 	REDO_REQUESTED: "redo action was requested",
 
+	TOOL_SELECTED: "a new tool was selected",
+
 	OPEN_CONTEXT_MENU: "opening of a context menu was requested"
 }

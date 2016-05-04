@@ -59,6 +59,12 @@ export default class GUI {
 }
 
 class SidebarCard extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.tools = ["pen", "fill", "select"];
+	}
+
 	openTopContextMenu(x, y) {
 		PubSub.publish(Events.OPEN_CONTEXT_MENU, {
 			menu: <TopContextMenu />, x, y
@@ -85,8 +91,11 @@ class SidebarCard extends React.Component {
 				</div>
 				<div id="mainToolbar">
 					<Components.MultiSelector useIcons
-						values={ [ "pen", "fill", "select" ] }
-						defaultSelected="0" />
+						values={ this.tools }
+						defaultSelected="0"
+						onChange={ id => {
+							PubSub.publish(Events.TOOL_SELECTED, this.tools[id]);
+						} } />
 				</div>
 				<hr />
 				<Components.Container title="Layers" contractible>
