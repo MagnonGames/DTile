@@ -8,6 +8,7 @@ import MapRenderer from "./render/mapRenderer.js";
 import ActionLog from "./action/actionLog.js";
 import PaintAction from "./action/paintAction.js";
 import DragPaintAction from "./action/dragPaintAction.js";
+import FillAction from "./action/fillAction.js";
 
 import PubSub from "./event/pubSub.js";
 import Events from "./event/events.js";
@@ -51,36 +52,43 @@ export default class Editor {
 			this.selectedTiles = e;
 		}.bind(this));
 
+		this.tool = "pen";
+		PubSub.subscribe(Events.TOOL_SELECTED, tool => {
+			this.tool = tool
+		});
+
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
 		this.inputManager.on("click", e => {
 			this._clickAction(e);
 		});
 		this.inputManager.on("drag", e => {
-			let tilePos = this.renderer.unprojectToTile({ x: e.x, y: e.y }),
-				currentAction = this.getCurrentActionLog().getCurrentAction();
+			if (this.tool = "pen") {
+				let tilePos = this.renderer.unprojectToTile({ x: e.x, y: e.y }),
+					currentAction = this.getCurrentActionLog().getCurrentAction();
 
-			// If the last action isn't a drag action or the current action
-			// isn't a drag action, then make it one.
-			if (!this.dragAction || !(currentAction instanceof DragPaintAction)) {
-				this.getCurrentActionLog().add(new DragPaintAction(
-					tilePos.x,
-					tilePos.y,
-					this.currentLayerId,
-					this.selectedTiles
-				));
+				// If the last action isn't a drag action or the current action
+				// isn't a drag action, then make it one.
+				if (!this.dragAction || !(currentAction instanceof DragPaintAction)) {
+					this.getCurrentActionLog().add(new DragPaintAction(
+						tilePos.x,
+						tilePos.y,
+						this.currentLayerId,
+						this.selectedTiles
+					));
 
-				this.dragAction = true;
-			}
+					this.dragAction = true;
+				}
 
-			this.getCurrentActionLog().getCurrentAction().paint(
-				tilePos.x, tilePos.y, this.getCurrentMap()
-			);
+				this.getCurrentActionLog().getCurrentAction().applyTile(
+					tilePos.x, tilePos.y, this.getCurrentMap()
+				);
 
-			if (this.getCurrentActionLog().getCurrentAction().needsUpdate) {
-				this.getCurrentActionLog().applyCurrent();
+				if (this.getCurrentActionLog().getCurrentAction().needsUpdate) {
+					this.getCurrentActionLog().applyCurrent();
 
-				this.renderer.update();
-				this.renderer.render();
+					this.renderer.update();
+					this.renderer.render();
+				}
 			}
 		});
 		this.inputManager.on("up", e => {
@@ -114,7 +122,16 @@ export default class Editor {
 						.getTile(tilePos.x, tilePos.y).tileId)
 				]);
 			} else if (e.button == 0) {
-				this.paintAtPosition(tilePos.x, tilePos.y);
+				if (this.tool == "pen") {
+					this.paintAtPosition(tilePos.x, tilePos.y);
+				} else if (this.tool == "fill") {
+					this.getCurrentActionLog().add(new FillAction(
+						tilePos.x,
+						tilePos.y,
+						this.currentLayerId,
+						this.selectedTiles
+					));
+				}
 			} else if (e.button == 2) {
 				this.getCurrentLayer().getTile(tilePos.x, tilePos.y)
 					.setTileID(-1);
