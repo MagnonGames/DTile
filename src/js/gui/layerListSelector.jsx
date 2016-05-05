@@ -4,8 +4,7 @@ import { ListSelector, FooterToolbar, IconButton } from "./guiComponents.jsx";
 
 import AddLayerDialog from "./dialogs/addLayerDialog.jsx";
 
-import PubSub from "../event/pubSub.js";
-import Events from "../event/events.js";
+import { PubSub, Events } from "../event/pubSub.js";
 
 export default class LayerListSelector extends React.Component {
 	constructor(props) {

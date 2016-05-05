@@ -2,8 +2,7 @@ import Tileset from "./render/tileset.js";
 import Editor from "./editor.js";
 import TilesetSelector from "./render/tilesetSelector.js";
 
-import PubSub from "./event/pubSub.js";
-import Events from "./event/events.js";
+import { PubSub, Events } from "./event/pubSub.js";
 
 import GUI from "./gui/dTileGUI.jsx";
 
@@ -11,6 +10,7 @@ const DTILE_VERSION = require("../../package.json").version;
 
 export default class DTile {
 	constructor() {
+	console.log(Events);
 		PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
 		this.gui = new GUI(this);

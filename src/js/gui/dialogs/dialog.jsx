@@ -1,7 +1,6 @@
 import React from "react";
 
-import PubSub from "../../event/pubSub.js";
-import Events from "../../event/events.js";
+import { PubSub, Events } from "../../event/pubSub.js";
 
 export class DialogContainer extends React.Component {
 	constructor(props) {

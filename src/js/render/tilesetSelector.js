@@ -4,8 +4,7 @@ import InputManager from "../input.js";
 import Selection from "./tileSelection.js";
 import { TileSelection, PositionedTile } from "../selectionUtils.js";
 
-import PubSub from "../event/pubSub.js";
-import Events from "../event/events.js";
+import { PubSub, Events } from "../event/pubSub.js";
 
 export default class TilesetSelector {
 	constructor(width, height, tileset) {

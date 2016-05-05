@@ -1,7 +1,6 @@
 import PIXI from "pixi.js";
 
-import PubSub from "../event/pubSub.js";
-import Events from "../event/events.js";
+import { PubSub, Events } from "../event/pubSub.js";
 
 export default class Tileset {
 	// TODO: Implement spacing. variables are available, but they aren't implemented yet.

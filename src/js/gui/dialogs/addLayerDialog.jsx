@@ -2,8 +2,7 @@ import React from "react";
 
 import { Button, TextInput } from "../guiComponents.jsx";
 
-import PubSub from "../../event/pubSub.js";
-import Events from "../../event/events.js";
+import { PubSub, Events } from "../../event/pubSub.js";
 
 export default class AddLayerDialog extends React.Component {
 	constructor(props) {

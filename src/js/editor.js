@@ -10,8 +10,7 @@ import PaintAction from "./action/paintAction.js";
 import DragPaintAction from "./action/dragPaintAction.js";
 import FillAction from "./action/fillAction.js";
 
-import PubSub from "./event/pubSub.js";
-import Events from "./event/events.js";
+import { PubSub, Events } from "./event/pubSub.js";
 
 import GUI from "./gui/dTileGUI.jsx";
 

@@ -2,8 +2,7 @@ import React from "react";
 
 import { Button } from "../guiComponents.jsx";
 
-import PubSub from "../../event/pubSub.js";
-import Events from "../../event/events.js";
+import { PubSub, Events } from "../../event/pubSub.js";
 
 export default class AboutDialog extends React.Component {
 	openMentions() {

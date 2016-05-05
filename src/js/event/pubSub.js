@@ -1,4 +1,6 @@
-class PubSub {
+import Events from "./events.js";
+
+class PubSubObject {
 	constructor() {
 		this.subscribers = [];
 	}
@@ -29,4 +31,5 @@ class Subscriber {
 	}
 }
 
-export default (new PubSub());
+export let PubSub = new PubSubObject();
+export { Events };

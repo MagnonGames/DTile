@@ -6,8 +6,7 @@ import LayerListSelector from "./layerListSelector.jsx";
 import { DialogContainer } from "./dialogs/dialog.jsx";
 import AboutDialog from "./dialogs/aboutDialog.jsx";
 
-import PubSub from "../event/pubSub.js";
-import Events from "../event/events.js";
+import { PubSub, Events } from "../event/pubSub.js";
 
 export default class GUI {
 	constructor(dTile) {
