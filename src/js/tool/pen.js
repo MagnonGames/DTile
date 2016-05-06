@@ -24,6 +24,9 @@ export default class Pen {
 			this._editor.currentLayerId,
 			x, y
 		));
+		
+		this._editor.renderer.update();
+		this._editor.renderer.render();
 	}
 
 	drag(e) {
