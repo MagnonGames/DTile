@@ -24,9 +24,7 @@ export class ToolManager {
 
 	setTool(newToolName) {
 		for (let tool in tools) {
-			console.log(tool, tools, tools[tool]);
 			if (tools[tool].name == newToolName) {
-				console.log(tool);
 				this.currentTool = tools[tool];
 			}
 		}

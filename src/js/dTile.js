@@ -10,7 +10,6 @@ const DTILE_VERSION = require("../../package.json").version;
 
 export default class DTile {
 	constructor() {
-	console.log(Events);
 		PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
 
 		this.gui = new GUI(this);
