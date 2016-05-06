@@ -5,10 +5,9 @@ import InputManager from "./input.js";
 import { PositionedTile, TileSelection } from "./selectionUtils.js";
 import MapRenderer from "./render/mapRenderer.js";
 
+import tools, { ToolManager } from "./tool/tools.js";
+
 import ActionLog from "./action/actionLog.js";
-import PaintAction from "./action/paintAction.js";
-import DragPaintAction from "./action/dragPaintAction.js";
-import FillAction from "./action/fillAction.js";
 
 import { PubSub, Events } from "./event/pubSub.js";
 
@@ -34,6 +33,8 @@ export default class Editor {
 
 		this.addLayerToCurrentMap("Layer 1");
 
+		this.toolManager = new ToolManager("pen", this);
+
 		PubSub.subscribe(Events.ADD_LAYER, this.addLayerToCurrentMap.bind(this));
 
 		PubSub.subscribe(Events.UNDO_REQUESTED, () => {
@@ -58,40 +59,13 @@ export default class Editor {
 
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
 		this.inputManager.on("click", e => {
-			this._clickAction(e);
+			this.toolManager.fireClick(e);
 		});
 		this.inputManager.on("drag", e => {
-			if (this.tool = "pen") {
-				let tilePos = this.renderer.unprojectToTile({ x: e.x, y: e.y }),
-					currentAction = this.getCurrentActionLog().getCurrentAction();
-
-				// If the last action isn't a drag action or the current action
-				// isn't a drag action, then make it one.
-				if (!this.dragAction || !(currentAction instanceof DragPaintAction)) {
-					this.getCurrentActionLog().add(new DragPaintAction(
-						tilePos.x,
-						tilePos.y,
-						this.currentLayerId,
-						this.selectedTiles
-					));
-
-					this.dragAction = true;
-				}
-
-				this.getCurrentActionLog().getCurrentAction().applyTile(
-					tilePos.x, tilePos.y, this.getCurrentMap()
-				);
-
-				if (this.getCurrentActionLog().getCurrentAction().needsUpdate) {
-					this.getCurrentActionLog().applyCurrent();
-
-					this.renderer.update();
-					this.renderer.render();
-				}
-			}
+			this.toolManager.fireDrag(e);
 		});
 		this.inputManager.on("up", e => {
-			this.dragAction = false;
+			this.toolManager.fireUp(e);
 		});
 		this.inputManager.on("scroll", function(e) {
 			if (!e.alt) { // Scroll
@@ -107,51 +81,6 @@ export default class Editor {
 		this.inputManager.on("move", function(e) {
 
 		}.bind(this));
-	}
-
-	_clickAction(e) {
-		this._getFocus();
-
-		let tilePos = this.renderer.unprojectToTile({ x: e.x, y: e.y });
-		if (tilePos.x > 0 && tilePos.x < this.getCurrentMap().width &&
-			tilePos.y > 0 && tilePos.y < this.getCurrentMap().height) {
-			if (e.button == 1 || (e.button == 0 && e.ctrl)) {
-				this.selectedTiles = new TileSelection(1, 1, [
-					new PositionedTile(0, 0, this.getCurrentLayer()
-						.getTile(tilePos.x, tilePos.y).tileId)
-				]);
-			} else if (e.button == 0) {
-				if (this.tool == "pen") {
-					this.paintAtPosition(tilePos.x, tilePos.y);
-				} else if (this.tool == "fill") {
-					this.getCurrentActionLog().add(new FillAction(
-						tilePos.x,
-						tilePos.y,
-						this.currentLayerId,
-						this.selectedTiles
-					));
-				}
-			} else if (e.button == 2) {
-				this.getCurrentLayer().getTile(tilePos.x, tilePos.y)
-					.setTileID(-1);
-			}
-
-			this.renderer.update();
-			this.renderer.render();
-		}
-	}
-
-	paintAtPosition(x, y) {
-		this.getCurrentActionLog().add(new PaintAction(
-			this.getCurrentLayer().getTilesFromArea(
-				x, y,
-				this.selectedTiles.width,
-				this.selectedTiles.height
-			),
-			this.selectedTiles,
-			this.currentLayerId,
-			x, y
-		));
 	}
 
 	updateLayerList() {
