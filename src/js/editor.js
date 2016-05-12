@@ -60,9 +60,11 @@ export default class Editor {
 		this.inputManager = new InputManager(this.renderer.getRenderer(), true);
 		this.inputManager.on("click", e => {
 			this.toolManager.fireClick(e);
+			this._getFocus();
 		});
 		this.inputManager.on("drag", e => {
 			this.toolManager.fireDrag(e);
+			this._getFocus();
 		});
 		this.inputManager.on("up", e => {
 			this.toolManager.fireUp(e);
@@ -77,6 +79,7 @@ export default class Editor {
 
 			this.renderer.update();
 			this.renderer.render();
+			this._getFocus();
 		}.bind(this));
 		this.inputManager.on("move", function(e) {
 
@@ -152,13 +155,8 @@ export default class Editor {
 	}
 
 	_getFocus() {
-		// For now, focus doesn't seem to work on canvas for some reason
-		// (chrome 47 ubuntu gnome), so the temporary fix until we get that
-		// working properly is to hack focus away from everything else.
-		let element = document.createElement("input");
-		document.body.appendChild(element);
-		element.focus();
-		document.body.removeChild(element);
+		console.log("blur");
+		document.activeElement.blur();
 	}
 
 	getElement() {
