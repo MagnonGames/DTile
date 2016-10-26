@@ -1,0 +1,7 @@
+{
+	"name": "DTile",
+	"short_name": "DTile",
+	"description": "The simple, non-clutter tilemap editor",
+	"start_url": "/",
+	"display": "standalone"
+}
