@@ -1,0 +1,25 @@
+{
+  "name": "dtile",
+  "version": "0.1.0",
+  "description": "[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=next)](https://travis-ci.org/theMagnon/DTile)",
+  "scripts": {
+    "test": "npm run lint && wct --skip-plugin sauce",
+    "lint": "eslint --ext .html,.js ./src"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^3.8.1",
+    "eslint-plugin-html": "^1.5.5",
+    "web-component-tester": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theMagnon/DTile.git"
+  },
+  "author": "magnonellie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theMagnon/DTile/issues"
+  },
+  "homepage": "https://github.com/theMagnon/DTile#readme"
+}
