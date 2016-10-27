@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
+
 <dom-module id="dtile-app">
 	<template>
 		<style>
@@ -7,19 +9,12 @@
 				display: block;
 			}
 		</style>
-		<h2>Hello [[prop1]]</h2>
+		<dtile-three-renderer></dtile-three-renderer>
 	</template>
 
 	<script>
 		Polymer({
-			is: "dtile-app",
-
-			properties: {
-				prop1: {
-					type: String,
-					value: "DTile"
-				}
-			}
+			is: "dtile-app"
 		});
 	</script>
 </dom-module>

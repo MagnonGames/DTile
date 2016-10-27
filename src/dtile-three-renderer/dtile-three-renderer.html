@@ -1,0 +1,29 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="dtile-three-renderer">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+		<canvas id="renderer"></canvas>
+	</template>
+
+	<script src="../../node_modules/dtile-three-renderer/out/js/build.js"></script>
+
+	<script>
+		/* globals dtileThreeRenderer */
+		Polymer({
+			is: "dtile-three-renderer",
+
+			attached: function() {
+				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer);
+			},
+
+			properties: {
+				map: Object
+			}
+		});
+	</script>
+</dom-module>
