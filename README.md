@@ -1,4 +1,6 @@
 # DTile - The simple, non-clutter tilemap editor
+[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=next)](https://travis-ci.org/theMagnon/DTile)
+
 DTile aims to be the best tilemap editor available today. It's made with Three.js, Polymer and ES2015, meaning it has a lot of potential, but is currently kind of slow and only runs on recent browsers (read: essentially only latest stable Chrome).
 
 ## Why another tilemap editor? Isn't Tiled enough?
