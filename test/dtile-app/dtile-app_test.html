@@ -11,7 +11,6 @@
 		<link rel="import" href="../../src/dtile-app/dtile-app.html">
 	</head>
 	<body>
-
 		<test-fixture id="basic">
 			<template>
 				<dtile-app></dtile-app>
@@ -20,12 +19,10 @@
 
 		<script>
 			suite("dtile-app", function() {
-
 				test("instantiating the element works", function() {
 					var element = fixture("basic");
 					assert.equal(element.is, "dtile-app");
 				});
-
 			});
 		</script>
 	</body>
