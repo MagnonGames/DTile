@@ -1,0 +1,18 @@
+{
+	"plugins": {
+		"sauce": {
+			"browsers": [
+				{
+					"browserName": "chrome",
+					"platform": "Windows 10",
+					"version": "dev"
+				},
+				{
+					"browserName": "safari",
+					"platform": "OS X 10.11",
+					"version": "10"
+				}
+			]
+		}
+	}
+}
