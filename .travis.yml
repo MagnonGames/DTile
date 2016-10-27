@@ -11,12 +11,12 @@ addons:
     - google-chrome-stable
   sauce_connect: true
 before_script:
-- npm install -g bower polylint eslint web-component-tester
+- npm install -g bower polylint
+- npm install
 - bower install
-- eslint ./src
 - polylint
 script:
-- xvfb-run wct --skip-plugin sauce
+- xvfb-run npm test
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s 'default' --skip-plugin local;fi
 env:
   global:
