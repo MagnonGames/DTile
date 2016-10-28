@@ -19,11 +19,12 @@
 
 		<script>
 			/* eslint-env mocha */
-			/* globals fixture, assert */
-			suite("dtile-app", function() {
-				test("instantiating the element works", function() {
+			/* globals fixture, expect */
+
+			describe("dtile-app", function() {
+				it("instantiates correctly", function() {
 					const element = fixture("basic");
-					assert.equal(element.is, "dtile-app");
+					expect(element.is).to.equal("dtile-app");
 				});
 			});
 		</script>
