@@ -18,6 +18,10 @@
 			is: "dtile-three-renderer",
 
 			attached: function() {
+				if (window.mocha) {
+					dtileThreeRenderer.Renderer.enableTesting();
+				}
+
 				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer);
 			},
 
