@@ -4,7 +4,7 @@
   "description": "[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=next)](https://travis-ci.org/theMagnon/DTile)",
   "scripts": {
     "test": "npm run lint && wct --skip-plugin sauce",
-    "lint": "eslint --ext .html,.js ./src"
+    "lint": "eslint --ext .html,.js ./src ./test"
   },
   "dependencies": {
     "dtile-three-renderer": "^0.1.0"

@@ -18,9 +18,11 @@
 		</test-fixture>
 
 		<script>
+			/* eslint-env mocha */
+			/* globals fixture, assert */
 			suite("dtile-app", function() {
 				test("instantiating the element works", function() {
-					var element = fixture("basic");
+					const element = fixture("basic");
 					assert.equal(element.is, "dtile-app");
 				});
 			});
