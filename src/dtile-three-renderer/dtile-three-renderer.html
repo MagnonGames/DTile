@@ -26,12 +26,20 @@
 				map: Object
 			},
 
+			observers: [
+				"changeMap(map)"
+			],
+
 			attached() {
 				if (window.mocha) {
 					dtileThreeRenderer.Renderer.enableTesting();
 				}
 
 				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
+			},
+
+			changeMap(map) {
+				this.renderer.changeMap(map);
 			}
 		});
 	</script>
