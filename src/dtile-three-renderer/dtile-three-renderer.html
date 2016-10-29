@@ -22,16 +22,16 @@
 		Polymer({
 			is: "dtile-three-renderer",
 
+			properties: {
+				map: Object
+			},
+
 			attached: function() {
 				if (window.mocha) {
 					dtileThreeRenderer.Renderer.enableTesting();
 				}
 
 				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
-			},
-
-			properties: {
-				map: Object
 			}
 		});
 	</script>
