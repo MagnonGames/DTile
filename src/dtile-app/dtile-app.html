@@ -70,8 +70,6 @@
 					const mapObject = JSON.parse(fileReader.result);
 
 					this._map = new dtileTilemap.TileMap(mapObject);
-					console.log("map were updates", this._map);
-
 					this.$.mapSpinner.active = false;
 				};
 
