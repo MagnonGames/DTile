@@ -7,6 +7,10 @@
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+
+<link rel="import" href="../../bower_components/file-input/file-input.html">
 
 <link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
 
@@ -23,6 +27,13 @@
 		</style>
 		<paper-drawer-panel>
 			<paper-header-panel drawer>
+				<paper-button raised>
+					<file-input id="mapFileInput" accept="application/json"
+						extensions="[&quot;json&quot;]" max-files="1" on-change="updateMap">
+					</file-input>
+					Open Map
+				</paper-button>
+				<paper-spinner id="mapSpinner"></paper-spinner>
 			</paper-header-panel>
 
 			<paper-header-panel main class="flex">
@@ -31,14 +42,41 @@
 					<span>DTile</span>
 				</paper-toolbar>
 
-				<dtile-three-renderer id="renderer"></dtile-three-renderer>
+				<dtile-three-renderer id="renderer" map="[[_map]]"></dtile-three-renderer>
 			</paper-header-panel>
 		</paper-drawer-panel>
 	</template>
 
+	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
+
 	<script>
+		/* globals dtileTilemap */
 		Polymer({
-			is: "dtile-app"
+			is: "dtile-app",
+
+			properties: {
+				_map: Object
+			},
+
+			updateMap() {
+				const mapFile = this.$.mapFileInput.files[0];
+				if (!mapFile) return;
+
+				this.$.mapSpinner.active = true;
+
+				const fileReader = new FileReader();
+
+				fileReader.onload = () => {
+					const mapObject = JSON.parse(fileReader.result);
+
+					this._map = new dtileTilemap.TileMap(mapObject);
+					console.log("map were updates", this._map);
+
+					this.$.mapSpinner.active = false;
+				};
+
+				fileReader.readAsText(mapFile);
+			}
 		});
 	</script>
 </dom-module>
