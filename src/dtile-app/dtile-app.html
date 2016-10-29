@@ -58,6 +58,10 @@
 				_map: Object
 			},
 
+			listeners: {
+				"renderer.tap": "rendererTap"
+			},
+
 			updateMap() {
 				const mapFile = this.$.mapFileInput.files[0];
 				if (!mapFile) return;
@@ -74,6 +78,21 @@
 				};
 
 				fileReader.readAsText(mapFile);
+			},
+
+			rendererTap(e) {
+				const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
+				if (!pos) return;
+				const tile = this._map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
+				if (tile) tile.tileId = -1;
+				this.$.renderer.update({ tiles: true });
+			},
+
+			_toLocalRendererPos(pos) {
+				const rect = this.$.renderer.getBoundingClientRect();
+				pos.x -= rect.left;
+				pos.y -= rect.top;
+				return pos;
 			}
 		});
 	</script>

@@ -40,6 +40,14 @@
 
 			changeMap(map) {
 				this.renderer.changeMap(map);
+			},
+
+			getTileAtMouse(position, layerId) {
+				return this.renderer.getTileAtMouse(position, layerId);
+			},
+
+			update(toUpdate) {
+				this.renderer.update(toUpdate);
 			}
 		});
 	</script>
