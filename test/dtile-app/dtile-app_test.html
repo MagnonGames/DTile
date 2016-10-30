@@ -25,6 +25,26 @@
 					const element = fixture("basic");
 					expect(element.is).to.equal("dtile-app");
 				});
+
+				it("scrolls properly when zoomed in", () => {
+					const element = fixture("basic").$.renderer;
+					const event = new WheelEvent("wheel", { deltaX: -2, deltaY: -2 });
+					element.zoom = 1;
+					element.dispatchEvent(event);
+
+					expect(element.panX).to.be.below(0);
+					expect(element.panY).to.be.below(0);
+				});
+
+				it("scrolls properly when zoomed out", () => {
+					const element = fixture("basic").$.renderer;
+					const event = new WheelEvent("wheel", { deltaX: -2, deltaY: -2 });
+					element.zoom = 0;
+					element.dispatchEvent(event);
+
+					expect(element.panX).to.be.below(0);
+					expect(element.panY).to.be.below(0);
+				});
 			});
 		</script>
 	</body>
