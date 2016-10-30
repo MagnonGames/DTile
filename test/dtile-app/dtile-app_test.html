@@ -45,6 +45,23 @@
 					expect(element.panX).to.be.below(0);
 					expect(element.panY).to.be.below(0);
 				});
+
+				it("zooms in properly", () => {
+					const element = fixture("basic").$.renderer;
+					const event = new WheelEvent("wheel", { deltaY: 2, ctrlKey: true });
+					element.zoom = 1;
+					element.dispatchEvent(event);
+
+					expect(element.zoom).to.be.below(1);
+				});
+				it("zooms out properly", () => {
+					const element = fixture("basic").$.renderer;
+					const event = new WheelEvent("wheel", { deltaY: -2, ctrlKey: true });
+					element.zoom = 0;
+					element.dispatchEvent(event);
+
+					expect(element.zoom).to.be.above(0);
+				});
 			});
 		</script>
 	</body>
