@@ -14,7 +14,7 @@ before_script:
 - npm install -g bower polylint
 - npm install
 - bower install
-- polylint --no-follow-dependencies
+- polylint --no-recursion
 script:
 - xvfb-run npm test
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s 'default' --skip-plugin local;fi
