@@ -35,7 +35,6 @@
 					expect(element.panX).to.be.below(0);
 					expect(element.panY).to.be.below(0);
 				});
-
 				it("scrolls properly when zoomed out", () => {
 					const element = fixture("basic").$.renderer;
 					const event = new WheelEvent("wheel", { deltaX: -2, deltaY: -2 });
