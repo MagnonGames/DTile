@@ -19,15 +19,35 @@
 
 	<script>
 		/* globals dtileThreeRenderer */
+		const MAX_ZOOM = 1,
+			MIN_ZOOM = 0.001;
+
 		Polymer({
 			is: "dtile-three-renderer",
 
 			properties: {
-				map: Object
+				map: Object,
+
+				panX: {
+					type: Number,
+					value: 0,
+					reflectToAttribute: true
+				},
+				panY: {
+					type: Number,
+					value: 0,
+					reflectToAttribute: true
+				},
+				zoom: {
+					type: Number,
+					value: 1,
+					reflectToAttribute: true
+				}
 			},
 
 			observers: [
-				"changeMap(map)"
+				"changeMap(map)",
+				"updateCamera(panX, panY, zoom)"
 			],
 
 			attached() {
@@ -36,6 +56,8 @@
 				}
 
 				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
+
+				this.updateCamera(this.panX, this.panY, this.zoom);
 			},
 
 			changeMap(map) {
@@ -46,7 +68,23 @@
 				return this.renderer.getTileAtMouse(position, layerId);
 			},
 
+			updateCamera(panX, panY, zoom) {
+				if (!this.renderer) return;
+
+				this.renderer.camera.zoom = Math.pow(zoom, 2) * (MAX_ZOOM - MIN_ZOOM) + MIN_ZOOM;
+				this.renderer.camera.position.set(
+					panX,
+					panY,
+					this.renderer.camera.position.z
+				);
+
+				this.update({
+					camera: true
+				});
+			},
+
 			update(toUpdate) {
+				// TODO: Somehow throttle this with requestAnimationFrame
 				this.renderer.update(toUpdate);
 			}
 		});

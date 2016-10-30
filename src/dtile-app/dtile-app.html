@@ -59,7 +59,8 @@
 			},
 
 			listeners: {
-				"renderer.tap": "rendererTap"
+				"renderer.tap": "rendererTap",
+				"renderer.wheel": "rendererScroll"
 			},
 
 			updateMap() {
@@ -74,6 +75,7 @@
 					const mapObject = JSON.parse(fileReader.result);
 
 					this._map = new dtileTilemap.TileMap(mapObject);
+					this.$.renderer.update({ tiles: true });
 					this.$.mapSpinner.active = false;
 				};
 
@@ -86,6 +88,20 @@
 				const tile = this._map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
 				if (tile) tile.tileId = -1;
 				this.$.renderer.update({ tiles: true });
+			},
+
+			rendererScroll(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				if (e.ctrlKey) {
+					this.$.renderer.zoom = Math.max(0, Math.min(1, this.$.renderer.zoom + e.deltaY * -0.0003));
+				} else {
+					const invZoom = this.$.renderer.zoom * -1 + 1;
+					this.$.renderer.panX += e.deltaX * invZoom * 0.5;
+					this.$.renderer.panY += e.deltaY * invZoom * 0.5;
+				}
+				this.$.renderer.update({ camera: true });
 			},
 
 			_toLocalRendererPos(pos) {
