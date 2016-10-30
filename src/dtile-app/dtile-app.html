@@ -97,7 +97,8 @@
 				if (e.ctrlKey) {
 					this.$.renderer.zoom = Math.max(0, Math.min(1, this.$.renderer.zoom + e.deltaY * -0.0003));
 				} else {
-					const invZoom = this.$.renderer.zoom * -1 + 1;
+					// Add .001 to make sure invZoom !== 0
+					const invZoom = this.$.renderer.zoom * -1 + 1.001;
 					this.$.renderer.panX += e.deltaX * invZoom * 0.5;
 					this.$.renderer.panY += e.deltaY * invZoom * 0.5;
 				}
