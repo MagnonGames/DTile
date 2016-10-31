@@ -20,7 +20,7 @@ script:
 - xvfb-run npm test
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s 'default' --skip-plugin local;fi
 after_script:
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; npm run deploy;fi
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then npm run deploy;fi
 env:
   global:
   - GH_REF: github.com/theMagnon/DTile.git
