@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=next)](https://travis-ci.org/theMagnon/DTile)",
   "scripts": {
-    "deploy": "gh-pages-deploy-sh ./build/unbundled/",
+    "deploy": "gh-pages-deploy-sh ./build/unbundled",
     "test": "npm run lint && wct --skip-plugin sauce",
     "lint": "eslint --ext .html,.js ./src ./test"
   },
