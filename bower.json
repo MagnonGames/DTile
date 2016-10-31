@@ -12,7 +12,10 @@
     "iron-icons": "PolymerElements/iron-icons#^1.1.3",
     "file-input": "^2.0.0",
     "paper-button": "PolymerElements/paper-button#^1.0.14",
-    "paper-spinner": "PolymerElements/paper-spinner#^1.2.1"
+    "paper-spinner": "PolymerElements/paper-spinner#^1.2.1",
+    "paper-listbox": "PolymerElements/paper-listbox#^1.1.2",
+    "paper-item": "PolymerElements/paper-item#^1.2.1",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.12"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

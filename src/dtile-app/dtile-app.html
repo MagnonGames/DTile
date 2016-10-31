@@ -2,6 +2,7 @@
 
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
@@ -9,6 +10,8 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/all-imports.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
@@ -27,12 +30,14 @@
 		</style>
 		<paper-drawer-panel>
 			<paper-header-panel drawer>
-				<paper-button raised>
-					<file-input id="mapFileInput" accept="application/json"
-						extensions="[&quot;json&quot;]" max-files="1" on-change="updateMap">
-					</file-input>
-					Open Map
-				</paper-button>
+				<paper-listbox selectable=".nothing">
+					<paper-icon-item>
+						<iron-icon icon="add" item-icon></iron-icon>
+						<file-input id="mapFileInput" accept="application/json"
+							extensions="[&quot;json&quot;]" max-files="1" on-change="updateMap">
+						</file-input>
+						Import Map
+					</paper-icon-item>
 				<paper-spinner id="mapSpinner"></paper-spinner>
 			</paper-header-panel>
 
