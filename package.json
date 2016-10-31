@@ -15,6 +15,9 @@
   "devDependencies": {
     "eslint": "^3.8.1",
     "eslint-plugin-html": "^1.5.5",
+    "gulp": "^3.9.1",
+    "gulp-crisper": "^1.1.0",
+    "gulp-vulcanize": "^6.1.0",
     "web-component-tester": "^5.0.0"
   },
   "repository": {
