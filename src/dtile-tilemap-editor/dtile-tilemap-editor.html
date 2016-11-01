@@ -1,0 +1,63 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
+
+<dom-module id="dtile-tilemap-editor">
+	<template>
+		<style>
+			:host {
+				display: block;
+				position: relative;
+				width: 100%;
+				height: 100%;
+				background: transparent;
+			}
+		</style>
+		<dtile-three-renderer id="renderer" map="[[map]]"></dtile-three-renderer>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-tilemap-editor",
+
+			properties: {
+				map: Object
+			},
+
+			listeners: {
+				"renderer.tap": "rendererTap",
+				"renderer.wheel": "rendererScroll"
+			},
+
+			rendererTap(e) {
+				const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
+				if (!pos) return;
+				const tile = this._map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
+				if (tile) tile.tileId = -1;
+				this.$.renderer.update({ tiles: true });
+			},
+
+			rendererScroll(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				if (e.ctrlKey) {
+					this.$.renderer.zoom = Math.max(0, Math.min(1, this.$.renderer.zoom + e.deltaY * -0.0003));
+				} else {
+					// Add .001 to make sure invZoom !== 0
+					const invZoom = this.$.renderer.zoom * -1 + 1.001;
+					this.$.renderer.panX += e.deltaX * invZoom * 0.5;
+					this.$.renderer.panY += e.deltaY * invZoom * 0.5;
+				}
+				this.$.renderer.update({ camera: true });
+			},
+
+			_toLocalRendererPos(pos) {
+				const rect = this.$.renderer.getBoundingClientRect();
+				pos.x -= rect.left;
+				pos.y -= rect.top;
+				return pos;
+			}
+		});
+	</script>
+</dom-module>

@@ -14,13 +14,19 @@
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
-<link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
+<link rel="import" href="../dtile-tilemap-editor/dtile-tilemap-editor.html">
 
 <dom-module id="dtile-app">
 	<template>
 		<style>
 			:host {
 				display: block;
+			}
+
+			#tilemapContainer {
+				display: block;
+				width: 100%;
+				height: 100%;
 			}
 
 			#renderer {
@@ -64,8 +70,8 @@
 					</app-toolbar>
 				</app-header>
 
-				<div>
-					<dtile-three-renderer id="renderer" map="[[_map]]"></dtile-three-renderer>
+				<div id="tilemapContainer">
+					<dtile-tilemap-editor id="renderer" map="[[_map]]"></dtile-tilemap-editor>
 				</div>
 			</app-header-layout>
 		</app-drawer-panel>
@@ -80,11 +86,6 @@
 
 			properties: {
 				_map: Object
-			},
-
-			listeners: {
-				"renderer.tap": "rendererTap",
-				"renderer.wheel": "rendererScroll"
 			},
 
 			toggleMainDrawer() {
@@ -103,42 +104,11 @@
 					const mapObject = JSON.parse(fileReader.result);
 
 					this._map = new dtileTilemap.TileMap(mapObject);
-					this.$.renderer.update({ tiles: true });
 					this.$.mapSpinner.active = false;
 					this.$.mainDrawer.close();
 				};
 
 				fileReader.readAsText(mapFile);
-			},
-
-			rendererTap(e) {
-				const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
-				if (!pos) return;
-				const tile = this._map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
-				if (tile) tile.tileId = -1;
-				this.$.renderer.update({ tiles: true });
-			},
-
-			rendererScroll(e) {
-				e.preventDefault();
-				e.stopPropagation();
-
-				if (e.ctrlKey) {
-					this.$.renderer.zoom = Math.max(0, Math.min(1, this.$.renderer.zoom + e.deltaY * -0.0003));
-				} else {
-					// Add .001 to make sure invZoom !== 0
-					const invZoom = this.$.renderer.zoom * -1 + 1.001;
-					this.$.renderer.panX += e.deltaX * invZoom * 0.5;
-					this.$.renderer.panY += e.deltaY * invZoom * 0.5;
-				}
-				this.$.renderer.update({ camera: true });
-			},
-
-			_toLocalRendererPos(pos) {
-				const rect = this.$.renderer.getBoundingClientRect();
-				pos.x -= rect.left;
-				pos.y -= rect.top;
-				return pos;
 			}
 		});
 	</script>
