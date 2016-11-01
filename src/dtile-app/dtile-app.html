@@ -19,8 +19,17 @@
 <dom-module id="dtile-app">
 	<template>
 		<style>
+			/* Google Fonts */
+			@font-face {
+				font-family: 'Noto Sans';
+				font-style: normal;
+				font-weight: 400;
+				src: local('Noto Sans'), local('NotoSans'), url(https://fonts.gstatic.com/s/notosans/v6/LeFlHvsZjXu2c3ZRgBq9nKCWcynf_cDxXwCLxiixG1c.ttf) format('truetype');
+			}
+
 			:host {
 				display: block;
+				font-family: 'Noto Sans', sans-serif;
 			}
 
 			#tilemapContainer {
