@@ -13,7 +13,7 @@
 				background: transparent;
 			}
 		</style>
-		<dtile-three-renderer id="renderer" map="[[map]]"></dtile-three-renderer>
+		<dtile-three-renderer id="renderer" map="[[map]]" outline="[[outline]]"></dtile-three-renderer>
 	</template>
 
 	<script>
@@ -21,7 +21,8 @@
 			is: "dtile-tilemap-editor",
 
 			properties: {
-				map: Object
+				map: Object,
+				outline: Boolean
 			},
 
 			listeners: {

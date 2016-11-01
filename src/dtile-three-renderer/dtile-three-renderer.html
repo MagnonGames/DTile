@@ -28,6 +28,12 @@
 			properties: {
 				map: Object,
 
+				outline: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+
 				panX: {
 					type: Number,
 					value: 0,
@@ -49,7 +55,8 @@
 
 			observers: [
 				"changeMap(map)",
-				"updateCamera(panX, panY, zoom)"
+				"updateCamera(panX, panY, zoom)",
+				"setOutline(outline)"
 			],
 
 			attached() {
@@ -84,6 +91,13 @@
 				this.update({
 					camera: true
 				});
+			},
+
+			setOutline(outline) {
+				if (!this.renderer) return;
+
+				this.renderer.outlineEnabled = outline;
+				this.update({ tiles: true });
 			},
 
 			update(toUpdate) {

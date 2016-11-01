@@ -11,6 +11,7 @@
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-item/all-imports.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
@@ -55,6 +56,11 @@
 
 		<app-drawer-layout fullbleed>
 			<app-drawer swipe-open align="end">
+				<paper-listbox selectable=".nothing">
+					<paper-item>
+						<paper-checkbox checked="{{showOutline}}">Show Wireframe</paper-checkbox>
+					</paper-item>
+				</paper-listbox>
 				Layer and tileselection coming to this drawer soon!
 			</app-drawer>
 
@@ -80,7 +86,7 @@
 				</app-header>
 
 				<div id="tilemapContainer">
-					<dtile-tilemap-editor id="renderer" map="[[_map]]"></dtile-tilemap-editor>
+					<dtile-tilemap-editor id="renderer" map="[[_map]]" outline="[[showOutline]]"></dtile-tilemap-editor>
 				</div>
 			</app-header-layout>
 		</app-drawer-panel>
@@ -94,7 +100,8 @@
 			is: "dtile-app",
 
 			properties: {
-				_map: Object
+				_map: Object,
+				showOutline: Boolean
 			},
 
 			toggleMainDrawer() {
