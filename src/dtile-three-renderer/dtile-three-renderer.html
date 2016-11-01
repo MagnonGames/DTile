@@ -100,6 +100,10 @@
 				this.update({ tiles: true });
 			},
 
+			setTint(x, y, layerId, tint) {
+				this.renderer.getTile(x, y, layerId).tint = tint;
+			},
+
 			update(toUpdate) {
 				// What all this does is essentially just making sure that we
 				// don't update the renderer more than once a frame which would

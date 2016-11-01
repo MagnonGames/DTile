@@ -60,6 +60,9 @@
 					<paper-item>
 						<paper-checkbox checked="{{showOutline}}">Show Wireframe</paper-checkbox>
 					</paper-item>
+					<paper-item>
+						<paper-checkbox checked="{{selectionEnabled}}">Enable Selection</paper-checkbox>
+					</paper-item>
 				</paper-listbox>
 				Layer and tileselection coming to this drawer soon!
 			</app-drawer>
@@ -86,7 +89,9 @@
 				</app-header>
 
 				<div id="tilemapContainer">
-					<dtile-tilemap-editor id="renderer" map="[[_map]]" outline="[[showOutline]]"></dtile-tilemap-editor>
+					<dtile-tilemap-editor id="renderer" map="[[_map]]"
+						outline="[[showOutline]]" selection-enabled="[[selectionEnabled]]">
+					</dtile-tilemap-editor>
 				</div>
 			</app-header-layout>
 		</app-drawer-panel>
@@ -101,7 +106,8 @@
 
 			properties: {
 				_map: Object,
-				showOutline: Boolean
+				showOutline: Boolean,
+				selectionEnabled: Boolean
 			},
 
 			toggleMainDrawer() {
