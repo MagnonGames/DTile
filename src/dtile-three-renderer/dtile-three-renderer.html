@@ -42,7 +42,9 @@
 					type: Number,
 					value: 0.15,
 					reflectToAttribute: true
-				}
+				},
+
+				_toUpdate: Array
 			},
 
 			observers: [
@@ -56,6 +58,7 @@
 				}
 
 				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
+				this._toUpdate = [];
 
 				this.updateCamera(this.panX, this.panY, this.zoom);
 			},
@@ -84,8 +87,25 @@
 			},
 
 			update(toUpdate) {
-				// TODO: Somehow throttle this with requestAnimationFrame
-				this.renderer.update(toUpdate);
+				// What all this does is essentially just making sure that we
+				// don't update the renderer more than once a frame which would
+				// cause multiple unnecessary renders.
+				let shouldRequest = this._toUpdate.length <= 0;
+
+				for (let update in toUpdate) {
+					this._toUpdate.push(update);
+				}
+
+				if (shouldRequest) {
+					requestAnimationFrame(() => {
+						let toUpdate = {};
+						for (let update of this._toUpdate) {
+							toUpdate[update] = true;
+						}
+						this._toUpdate = [];
+						this.renderer.update(toUpdate);
+					});
+				}
 			}
 		});
 	</script>
