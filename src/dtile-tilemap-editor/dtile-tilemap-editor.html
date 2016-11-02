@@ -18,7 +18,7 @@
 				z-index: 10;
 			}
 		</style>
-		<dtile-selection id="selection" enabled=[[selectionEnabled]]></dtile-selection>
+		<dtile-selection id="selection" enabled=[[_isSelecting(currentTool)]]></dtile-selection>
 		<dtile-three-renderer id="renderer" map="[[map]]" outline="[[outline]]"></dtile-three-renderer>
 	</template>
 
@@ -29,7 +29,12 @@
 			properties: {
 				map: Object,
 				outline: Boolean,
-				selectionEnabled: Boolean,
+
+				currentTool: {
+					type: String,
+					value: "pen",
+					reflectToAttribute: true
+				},
 
 				currentSelection: {
 					type: Array,
@@ -46,12 +51,18 @@
 				"selection.select": "onSelection"
 			},
 
+			_isSelecting() {
+				return this.currentTool === "selection";
+			},
+
 			rendererTap(e) {
-				const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
-				if (!pos) return;
-				const tile = this.map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
-				if (tile) tile.tileId = -1;
-				this.$.renderer.update({ tiles: true });
+				if (this.currentTool === "pen") {
+					const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
+					if (!pos) return;
+					const tile = this.map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
+					if (tile) tile.tileId = -1;
+					this.$.renderer.update({ tiles: true });
+				}
 			},
 
 			rendererScroll(e) {

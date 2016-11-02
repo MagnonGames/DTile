@@ -12,6 +12,8 @@
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-item/all-imports.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
@@ -61,7 +63,10 @@
 						<paper-checkbox checked="{{showOutline}}">Show Wireframe</paper-checkbox>
 					</paper-item>
 					<paper-item>
-						<paper-checkbox checked="{{selectionEnabled}}">Enable Selection</paper-checkbox>
+						<paper-radio-group selected="{{currentTool}}">
+							<paper-radio-button name="pen">Pen</paper-radio-button>
+							<paper-radio-button name="selection">Selection</paper-radio-button>
+						</paper-radio-group>
 					</paper-item>
 				</paper-listbox>
 				Layer and tileselection coming to this drawer soon!
@@ -90,7 +95,7 @@
 
 				<div id="tilemapContainer">
 					<dtile-tilemap-editor id="renderer" map="[[_map]]"
-						outline="[[showOutline]]" selection-enabled="[[selectionEnabled]]">
+						outline="[[showOutline]]" current-tool="[[currentTool]]">
 					</dtile-tilemap-editor>
 				</div>
 			</app-header-layout>
@@ -107,7 +112,7 @@
 			properties: {
 				_map: Object,
 				showOutline: Boolean,
-				selectionEnabled: Boolean
+				currentTool: String
 			},
 
 			toggleMainDrawer() {
