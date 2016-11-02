@@ -53,6 +53,16 @@
 			paper-icon-button + [main-title] {
 				margin-left: 24px;
 			}
+
+			footer {
+				pointer-events: none;
+				position: absolute;
+				bottom: 10px;
+				left: 0; right: 0;
+				text-align: center;
+				color: white;
+				opacity: 0.6;
+			}
 		</style>
 		<style is="custom-style" include="iron-positioning"></style>
 
@@ -98,6 +108,10 @@
 						outline="[[showOutline]]" current-tool="[[currentTool]]">
 					</dtile-tilemap-editor>
 				</div>
+
+				<footer>
+					Build: [[version]]
+				</footer>
 			</app-header-layout>
 		</app-drawer-panel>
 	</template>
@@ -112,7 +126,13 @@
 			properties: {
 				_map: Object,
 				showOutline: Boolean,
-				currentTool: String
+				currentTool: String,
+
+				version: {
+					type: String,
+					value: "__VERSION__",
+					readOnly: true
+				}
 			},
 
 			toggleMainDrawer() {

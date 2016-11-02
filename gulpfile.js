@@ -1,6 +1,7 @@
 const gulp = require("gulp");
 const vulcanize = require("gulp-vulcanize");
 const crisper = require("gulp-crisper");
+const replace = require("gulp-replace");
 
 gulp.task("build", function() {
 	return gulp.src("index.html")
@@ -9,8 +10,16 @@ gulp.task("build", function() {
 			inlineScripts: true,
 			inlineCss: true
 		}))
+		.pipe(replace("__VERSION__", getVersion()))
 		.pipe(crisper())
 		.pipe(gulp.dest("build/"));
 });
+
+function getVersion() {
+	const branch = process.env.TRAVIS_BRANCH;
+	const buildNo = process.env.TRAVIS_BUILD_NUMBER;
+	const commit = process.env.TRAVIS_COMMIT;
+	return branch + buildNo + " (" + commit + ")";
+}
 
 gulp.task("default", ["build"]);
