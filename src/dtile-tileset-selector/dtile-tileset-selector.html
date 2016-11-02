@@ -1,0 +1,120 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
+<link rel="import" href="../dtile-selection/dtile-selection.html">
+<link rel="import" href="../dtile-scroll-behavior/dtile-scroll-behavior.html">
+<link rel="import" href="../dtile-tile-select-behavior/dtile-tile-select-behavior.html">
+
+<dom-module id="dtile-tileset-selector">
+	<template>
+		<style>
+			:host {
+				display: block;
+				position: relative;
+				width: 100%;
+				height: 100%;
+				background: transparent;
+			}
+
+			dtile-selection {
+				z-index: 10;
+			}
+		</style>
+		<dtile-selection id="selection" enabled></dtile-selection>
+		<dtile-three-renderer id="renderer" map="[[_currentTilesetMap]]"
+			outline="[[outline]]" pan-x="[[panX]]" pan-y="[[panY]]"
+			zoom="[[zoom]]"></dtile-three-renderer>
+	</template>
+
+	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
+
+	<script>
+		/* globals DTile, dtileTilemap */
+		Polymer({
+			is: "dtile-tileset-selector",
+
+			properties: {
+				map: Object,
+				tilesetId: {
+					type: Number,
+					value: 0
+				},
+				outline: Boolean,
+
+				_currentTilesetMap: Object
+			},
+
+			behaviors: [
+				DTile.ScrollBehavior,
+				DTile.TileSelectBehavior
+			],
+
+			observers: [
+				"_updateTileset(map, tilesetId)"
+			],
+
+			getTilePosition(x, y, transformToLocal) {
+				return this.$.renderer.getTileAtMouse(
+					transformToLocal
+						? this._toLocalRendererPos({ x, y })
+						: { x, y },
+					0
+				);
+			},
+
+			setTileSelected(x, y, selected) {
+				this.$.renderer.setTint(x, y, 0, selected ? this.$.selection.color : false);
+			},
+
+			_updateTileset(map, tilesetId) {
+				const dimensions = map.tilesets[tilesetId].type === "image"
+					? this._getImageDimensions(map.tilesets[tilesetId].path)
+					: { width: 25 * map.tileWidth, height: 25 * map.tileHeight };
+
+				this._generateMap(
+					dimensions.width / map.tileWidth,
+					dimensions.height / map.tileHeight
+				);
+			},
+
+			_generateMap(tilesetWidth, tilesetHeight) {
+				const tiles = [];
+
+				for (let id = 0; id < tilesetWidth * tilesetHeight; id++) {
+					tiles.push(id + ":0");
+				}
+
+				const tileset = this.map.tilesets[this.tilesetId];
+				this._currentTilesetMap = new dtileTilemap.TileMap({
+					width: tilesetWidth,
+					height: tilesetHeight,
+					tileWidth: this.map.tileWidth,
+					tileHeight: this.map.tileHeight,
+					tilesets: [{
+						path: tileset.path,
+						type: tileset.type
+					}],
+					layers: [{
+						tiles
+					}]
+				});
+			},
+
+			_getImageDimensions(path) {
+				const image = document.createElement("img");
+				image.src = path;
+				return {
+					width: image.width,
+					height: image.height
+				};
+			},
+
+			_toLocalRendererPos(pos) {
+				const rect = this.$.renderer.getBoundingClientRect();
+				pos.x -= rect.left;
+				pos.y -= rect.top;
+				return pos;
+			}
+		});
+	</script>
+</dom-module>

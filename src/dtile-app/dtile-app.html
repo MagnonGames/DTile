@@ -18,6 +18,7 @@
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
 <link rel="import" href="../dtile-tilemap-editor/dtile-tilemap-editor.html">
+<link rel="import" href="../dtile-tileset-selector/dtile-tileset-selector.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -79,7 +80,8 @@
 						</paper-radio-group>
 					</paper-item>
 				</paper-listbox>
-				Layer and tileselection coming to this drawer soon!
+				Layer selection coming to this drawer soon!
+				<dtile-tileset-selector map="[[_map]]" tilesetId="0"></dtile-tileset-selector>
 			</app-drawer>
 
 			<app-drawer id="mainDrawer" swipe-open>
