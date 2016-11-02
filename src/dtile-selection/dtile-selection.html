@@ -50,7 +50,8 @@
 			},
 
 			listeners: {
-				"container.track": "handleTrack"
+				"container.track": "handleTrack",
+				"container.tap": "handleTap"
 			},
 
 			observers: [
@@ -91,6 +92,12 @@
 					this.$.selection.style.width = `${rect.width}px`;
 					this.$.selection.style.height = `${rect.height}px`;
 				}
+			},
+
+			handleTap() {
+				this._fireSelectEvent({
+					x: 0, y: 0, width: 0, height: 0
+				});
 			},
 
 			_toLocalPos(pos) {

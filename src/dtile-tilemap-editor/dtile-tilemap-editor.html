@@ -84,6 +84,11 @@
 			},
 
 			onSelection(e) {
+				if (e.detail.width === 0 && e.detail.height === 0) {
+					this.changeSelection([]);
+					return;
+				}
+
 				const endPos = { x: e.detail.x + e.detail.width, y: e.detail.y + e.detail.height };
 				const tilePos1 = this.$.renderer.getTileAtMouse(e.detail, 0);
 				const tilePos2 = this.$.renderer.getTileAtMouse(endPos, 0);
