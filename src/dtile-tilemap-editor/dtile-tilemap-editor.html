@@ -2,6 +2,7 @@
 
 <link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
 <link rel="import" href="../dtile-selection/dtile-selection.html">
+<link rel="import" href="../dtile-scroll-behavior/dtile-scroll-behavior.html">
 
 <dom-module id="dtile-tilemap-editor">
 	<template>
@@ -19,10 +20,12 @@
 			}
 		</style>
 		<dtile-selection id="selection" enabled=[[_isSelecting(currentTool)]]></dtile-selection>
-		<dtile-three-renderer id="renderer" map="[[map]]" outline="[[outline]]"></dtile-three-renderer>
+		<dtile-three-renderer id="renderer" map="[[map]]" outline="[[outline]]"
+			pan-x="[[panX]]" pan-y="[[panY]]" zoom="[[zoom]]"></dtile-three-renderer>
 	</template>
 
 	<script>
+		/* globals DTile */
 		Polymer({
 			is: "dtile-tilemap-editor",
 
@@ -44,12 +47,12 @@
 				}
 			},
 
+			behaviors: [
+				DTile.ScrollBehavior
+			],
+
 			listeners: {
 				"renderer.tap": "rendererTap",
-				"renderer.wheel": "rendererScroll",
-
-				// Scrolling while selecting
-				"selection.wheel": "rendererScroll",
 
 				"selection.select": "onSelection"
 			},
@@ -66,21 +69,6 @@
 					if (tile) tile.tileId = -1;
 					this.$.renderer.update({ tiles: true });
 				}
-			},
-
-			rendererScroll(e) {
-				e.preventDefault();
-				e.stopPropagation();
-
-				if (e.ctrlKey) {
-					this.$.renderer.zoom = Math.max(0, Math.min(1, this.$.renderer.zoom + e.deltaY * -0.0003));
-				} else {
-					// Add .001 to make sure invZoom !== 0
-					const invZoom = this.$.renderer.zoom * -1 + 1.001;
-					this.$.renderer.panX += e.deltaX * invZoom * 0.5;
-					this.$.renderer.panY += e.deltaY * invZoom * 0.5;
-				}
-				this.$.renderer.update({ camera: true });
 			},
 
 			onSelection(e) {

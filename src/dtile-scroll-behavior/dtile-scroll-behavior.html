@@ -1,0 +1,41 @@
+<script>
+	window.DTile = window.DTile || {};
+
+	window.DTile.ScrollBehavior = {
+		properties: {
+			panX: {
+				type: Number,
+				value: 0,
+				notify: true
+			},
+			panY: {
+				type: Number,
+				value: 0,
+				notify: true
+			},
+			zoom: {
+				type: Number,
+				value: 0.15,
+				notify: true
+			}
+		},
+
+		listeners: {
+			wheel: "_handleWheel"
+		},
+
+		_handleWheel(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			if (e.ctrlKey) {
+				this.zoom = Math.max(0, Math.min(1, this.zoom + e.deltaY * -0.0003));
+			} else {
+				// Add .001 to make sure invZoom !== 0
+				const invZoom = this.zoom * -1 + 1.001;
+				this.panX += e.deltaX * invZoom * 0.5;
+				this.panY += e.deltaY * invZoom * 0.5;
+			}
+		}
+	};
+</script>
