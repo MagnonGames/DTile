@@ -3,6 +3,7 @@
 <link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
 <link rel="import" href="../dtile-selection/dtile-selection.html">
 <link rel="import" href="../dtile-scroll-behavior/dtile-scroll-behavior.html">
+<link rel="import" href="../dtile-tile-select-behavior/dtile-tile-select-behavior.html">
 
 <dom-module id="dtile-tilemap-editor">
 	<template>
@@ -37,24 +38,16 @@
 					type: String,
 					value: "pen",
 					reflectToAttribute: true
-				},
-
-				currentSelection: {
-					type: Array,
-					value: [],
-					readOnly: true,
-					notify: true
 				}
 			},
 
 			behaviors: [
-				DTile.ScrollBehavior
+				DTile.ScrollBehavior,
+				DTile.TileSelectBehavior
 			],
 
 			listeners: {
-				"renderer.tap": "rendererTap",
-
-				"selection.select": "onSelection"
+				"renderer.tap": "rendererTap"
 			},
 
 			_isSelecting() {
@@ -71,39 +64,17 @@
 				}
 			},
 
-			onSelection(e) {
-				if (e.detail.width === 0 && e.detail.height === 0) {
-					this.changeSelection([]);
-					return;
-				}
-
-				const endPos = { x: e.detail.x + e.detail.width, y: e.detail.y + e.detail.height };
-				const tilePos1 = this.$.renderer.getTileAtMouse(e.detail, 0);
-				const tilePos2 = this.$.renderer.getTileAtMouse(endPos, 0);
-
-				const selectionArray = [];
-				for (let x = tilePos1.x; x <= tilePos2.x; x++) {
-					for (let y = tilePos1.y; y <= tilePos2.y; y++) {
-						selectionArray.push({ x, y });
-					}
-				}
-				this.changeSelection(selectionArray);
+			getTilePosition(x, y, transformToLocal) {
+				return this.$.renderer.getTileAtMouse(
+					transformToLocal
+						? this._toLocalRendererPos({ x, y })
+						: { x, y },
+					0
+				);
 			},
 
-			changeSelection(selection) {
-				for (let selectedPosition of this.currentSelection) {
-					this.$.renderer.setTint(selectedPosition.x, selectedPosition.y,
-						0, false);
-				}
-				this.splice("currentSelection", 0, this.currentSelection.length);
-
-				for (let selectedPosition of selection) {
-					this.$.renderer.setTint(selectedPosition.x, selectedPosition.y,
-						0, this.$.selection.color);
-					this.push("currentSelection", selectedPosition);
-				}
-
-				this.$.renderer.update({ tiles: true });
+			setTileSelected(x, y, selected) {
+				this.$.renderer.setTint(x, y, 0, selected ? this.$.selection.color : false);
 			},
 
 			_toLocalRendererPos(pos) {

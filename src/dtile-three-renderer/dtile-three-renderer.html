@@ -102,6 +102,7 @@
 
 			setTint(x, y, layerId, tint) {
 				this.renderer.getTile(x, y, layerId).tint = tint;
+				this.update({ tiles: true });
 			},
 
 			update(toUpdate) {
