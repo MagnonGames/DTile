@@ -75,7 +75,7 @@
 					</paper-item>
 					<paper-item>
 						<paper-radio-group selected="{{currentTool}}">
-							<paper-radio-button name="pen" checked>Pen</paper-radio-button>
+							<paper-radio-button name="pen">Pen</paper-radio-button>
 							<paper-radio-button name="selection">Selection</paper-radio-button>
 						</paper-radio-group>
 					</paper-item>
@@ -130,7 +130,10 @@
 			properties: {
 				_map: Object,
 				showOutline: Boolean,
-				currentTool: String,
+				currentTool: {
+					type: String,
+					value: "pen"
+				},
 
 				version: {
 					type: String,
