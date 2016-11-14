@@ -81,7 +81,8 @@
 					</paper-item>
 				</paper-listbox>
 				Layer selection coming to this drawer soon!
-				<dtile-tileset-selector map="[[_map]]" tilesetId="0"></dtile-tileset-selector>
+				<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
+					tileset-id="0"></dtile-tileset-selector>
 			</app-drawer>
 
 			<app-drawer id="mainDrawer" swipe-open>
@@ -107,7 +108,8 @@
 
 				<div id="tilemapContainer">
 					<dtile-tilemap-editor id="renderer" map="[[_map]]"
-						outline="[[showOutline]]" current-tool="[[currentTool]]">
+						outline="[[showOutline]]" current-tool="[[currentTool]]"
+						current-tile-area="[[selectedTileArea]]">
 					</dtile-tilemap-editor>
 				</div>
 

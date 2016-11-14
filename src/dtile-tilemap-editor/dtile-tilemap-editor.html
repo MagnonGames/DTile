@@ -38,7 +38,9 @@
 					type: String,
 					value: "pen",
 					reflectToAttribute: true
-				}
+				},
+
+				currentTileArea: Object
 			},
 
 			behaviors: [
@@ -56,10 +58,10 @@
 
 			rendererTap(e) {
 				if (this.currentTool === "pen") {
+					if (!this.currentTileArea) return;
 					const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
 					if (!pos) return;
-					const tile = this.map.layers[0].getTileArea(pos.x, pos.y, 1, 1).tiles[0];
-					if (tile) tile.tileId = -1;
+					this.map.layers[0].insertTileArea(pos.x, pos.y, this.currentTileArea, true);
 					this.$.renderer.update({ tiles: true });
 				}
 			},

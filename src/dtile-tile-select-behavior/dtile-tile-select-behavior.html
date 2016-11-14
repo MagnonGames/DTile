@@ -53,6 +53,8 @@
 					selectedPosition.x, selectedPosition.y, true);
 				this.push("currentSelection", selectedPosition);
 			}
+
+			this.fire("tileSelectionChanged");
 		}
 	};
 </script>

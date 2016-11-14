@@ -41,7 +41,16 @@
 				},
 				outline: Boolean,
 
+				selectedTileArea: {
+					type: Object,
+					notify: true
+				},
+
 				_currentTilesetMap: Object
+			},
+
+			listeners: {
+				tileSelectionChanged: "_buildTileArea"
 			},
 
 			behaviors: [
@@ -114,6 +123,39 @@
 				pos.x -= rect.left;
 				pos.y -= rect.top;
 				return pos;
+			},
+
+			_buildTileArea() {
+				let minX, maxX, minY, maxY;
+				for (let selected of this.currentSelection) {
+					if (typeof minX === "undefined") {
+						minX = maxX = selected.x;
+						minY = maxY = selected.y;
+					} else {
+						minX = Math.min(minX, selected.x);
+						maxX = Math.max(maxX, selected.x);
+						minY = Math.min(minY, selected.y);
+						maxY = Math.max(maxY, selected.y);
+					}
+				}
+
+				const width = maxX - minX + 1;
+				const height = maxY - minY + 1;
+
+				let tiles = [];
+				for (let selected of this.currentSelection) {
+					tiles[(selected.y - minY) * width + selected.x - minX] = this._currentTilesetMap.layers[0]
+						.getTileArea(selected.x, selected.y, 1, 1).tiles[0].tileId;
+				}
+
+				tiles = tiles.map(id => {
+					return new dtileTilemap.Tile({
+						tileId: typeof id === "undefined" ? -1 : id,
+						tilesetId: this.tilesetId
+					});
+				});
+
+				this.selectedTileArea = new dtileTilemap.TileArea(width, height, tiles);
 			}
 		});
 	</script>
