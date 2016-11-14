@@ -34,6 +34,11 @@
 					value: false,
 					reflectToAttribute: true
 				},
+				tapSelect: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
 				selecting: {
 					type: Boolean,
 					value: false,
@@ -94,10 +99,15 @@
 				}
 			},
 
-			handleTap() {
-				this._fireSelectEvent({
-					x: 0, y: 0, width: 0, height: 0
-				});
+			handleTap(e) {
+				let rect;
+				if (!this.tapSelect) {
+					rect = { x: 0, y: 0, width: 0, height: 0 };
+				} else {
+					const pos = this._toLocalPos({ x: e.detail.x, y: e.detail.y });
+					rect = { x: pos.x, y: pos.y, width: 1, height: 1 };
+				}
+				this._fireSelectEvent(rect);
 			},
 
 			_toLocalPos(pos) {
