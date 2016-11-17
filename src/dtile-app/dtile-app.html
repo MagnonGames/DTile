@@ -21,6 +21,7 @@
 <link rel="import" href="../dtile-tilemap-editor/dtile-tilemap-editor.html">
 <link rel="import" href="../dtile-tileset-selector/dtile-tileset-selector.html">
 <link rel="import" href="../dtile-dialogs/dtile-tileset-import-dialog.html">
+<link rel="import" href="../dtile-dialogs/dtile-new-map-dialog.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -90,6 +91,10 @@
 
 			<app-drawer id="mainDrawer" swipe-open>
 				<paper-listbox selectable=".nothing">
+					<paper-icon-item on-tap="requestCreateMap">
+						<iron-icon icon="add" item-icon></iron-icon>
+						New Map
+					</paper-icon-item>
 					<paper-icon-item>
 						<iron-icon icon="add" item-icon></iron-icon>
 						<file-input id="mapFileInput" accept="application/json"
@@ -130,6 +135,7 @@
 		</app-drawer-layout>
 
 		<dtile-tileset-import-dialog id="tilesetImportDialog"></dtile-tileset-import-dialog>
+		<dtile-new-map-dialog id="mapCreateDialog"></dtile-new-map-dialog>
 	</template>
 
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
@@ -159,7 +165,8 @@
 			},
 
 			listeners: {
-				"tilesetImportDialog.tileset-import": "addTileset"
+				"tilesetImportDialog.tileset-import": "addTileset",
+				"mapCreateDialog.map-create": "createNewMap"
 			},
 
 			toggleMainDrawer() {
@@ -185,10 +192,19 @@
 				fileReader.readAsText(mapFile);
 			},
 
+			requestCreateMap() {
+				this.$.mapCreateDialog.open();
+				this.$.mainDrawer.close();
+			},
+
 			requestTilesetImport() {
 				this.$.tilesetImportDialog.setImage(this.$.tilesetFileInput.files[0]);
 				this.$.tilesetImportDialog.open();
 				this.$.mainDrawer.close();
+			},
+
+			createNewMap(e) {
+				this._map = new dtileTilemap.TileMap(e.detail);
 			},
 
 			addTileset(e) {
