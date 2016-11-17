@@ -76,6 +76,8 @@
 			},
 
 			_updateTileset(map, tilesetId) {
+				if (!map.tilesets[tilesetId]) return;
+
 				const dimensions = map.tilesets[tilesetId].type === "image"
 					? this._getImageDimensions(map.tilesets[tilesetId].path)
 					: { width: 25 * map.tileWidth, height: 25 * map.tileHeight };
