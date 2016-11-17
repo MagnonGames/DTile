@@ -9,7 +9,7 @@
     "lint": "eslint --ext .html,.js ./src ./test"
   },
   "dependencies": {
-    "dtile-three-renderer": "^0.6.0",
+    "dtile-three-renderer": "^0.6.1",
     "dtile-tilemap": "^0.3.2"
   },
   "devDependencies": {
