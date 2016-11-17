@@ -81,8 +81,8 @@
 					: { width: 25 * map.tileWidth, height: 25 * map.tileHeight };
 
 				this._generateMap(
-					dimensions.width / map.tileWidth,
-					dimensions.height / map.tileHeight
+					parseInt(dimensions.width / map.tileWidth),
+					parseInt(dimensions.height / map.tileHeight)
 				);
 			},
 
