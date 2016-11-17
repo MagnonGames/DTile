@@ -1,0 +1,89 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<dom-module id="dtile-tileset-import-dialog">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+		</style>
+
+		<paper-dialog opened="{{opened}}" with-backdrop>
+			<h2>Import Tileset</h2>
+			<paper-input id="nameInput" label="Name" autofocus auto-validate
+				error-message="Tileset has to have a name." required
+				value="{{tilesetName}}"></paper-input>
+			<img id="tilesetPreview" />
+			<div class="buttons">
+				<paper-button dialog-dismiss>Cancel</paper-button>
+				<paper-button dialog-confirm disabled="[[!_inputValid]]" on-tap="_fireImport">Import</paper-button>
+			</div>
+		</paper-dialog>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-tileset-import-dialog",
+
+			properties: {
+				opened: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				tilesetName: String,
+
+				_imageURL: String,
+
+				_inputValid: Boolean
+			},
+
+			observers: [
+				"_verifyInput(tilesetName)",
+				"_previewImage(_imageURL)"
+			],
+
+			setImage(file) {
+				if (!file) return;
+
+				const fileType = file.type.indexOf("image") !== -1 ? "image" : undefined;
+				if (fileType !== "image") return; // TODO: Should also accept JSON input (after that's implemented in dtile-tilemap)
+
+				const fileReader = new FileReader();
+
+				fileReader.onload = () => {
+					this._imageURL = fileReader.result;
+				};
+
+				fileReader.readAsDataURL(file);
+			},
+
+			open() {
+				this.opened = true;
+			},
+
+			reset() {
+				this._imageURL = "";
+				this.tilesetName = "";
+			},
+
+			_fireImport() {
+				this.fire("tileset-import", {
+					name: this.tilesetName,
+					imageURL: this._imageURL
+				});
+				this.reset();
+			},
+
+			_previewImage(url) {
+				this.$.tilesetPreview.src = url;
+			},
+
+			_verifyInput(tilesetName) {
+				this._inputValid = tilesetName.length > 0;
+			}
+		});
+	</script>
+</dom-module>

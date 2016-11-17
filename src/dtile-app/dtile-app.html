@@ -14,11 +14,13 @@
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
 <link rel="import" href="../dtile-tilemap-editor/dtile-tilemap-editor.html">
 <link rel="import" href="../dtile-tileset-selector/dtile-tileset-selector.html">
+<link rel="import" href="../dtile-dialogs/dtile-tileset-import-dialog.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -81,8 +83,9 @@
 					</paper-item>
 				</paper-listbox>
 				Layer selection coming to this drawer soon!
+				<paper-input value="{{currentTileset}}" type="number"></paper-input>
 				<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
-					tileset-id="0"></dtile-tileset-selector>
+					tileset-id="[[currentTileset]]"></dtile-tileset-selector>
 			</app-drawer>
 
 			<app-drawer id="mainDrawer" swipe-open>
@@ -93,6 +96,13 @@
 							extensions="[&quot;json&quot;]" max-files="1" on-change="updateMap">
 						</file-input>
 						Import Map
+					</paper-icon-item>
+					<paper-icon-item>
+						<iron-icon icon="add" item-icon></iron-icon>
+						<file-input id="tilesetFileInput" accept="image/*,application/json"
+						 	max-files="1" on-change="requestTilesetImport">
+						</file-input>
+						Import Tileset
 					</paper-icon-item>
 				</paper-listbox>
 				<paper-spinner id="mapSpinner"></paper-spinner>
@@ -117,7 +127,9 @@
 					Build: [[version]]
 				</footer>
 			</app-header-layout>
-		</app-drawer-panel>
+		</app-drawer-layout>
+
+		<dtile-tileset-import-dialog id="tilesetImportDialog"></dtile-tileset-import-dialog>
 	</template>
 
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
@@ -134,12 +146,20 @@
 					type: String,
 					value: "pen"
 				},
+				currentTileset: {
+					type: Number,
+					value: 0
+				},
 
 				version: {
 					type: String,
 					value: "__VERSION__",
 					readOnly: true
 				}
+			},
+
+			listeners: {
+				"tilesetImportDialog.tileset-import": "addTileset"
 			},
 
 			toggleMainDrawer() {
@@ -163,6 +183,21 @@
 				};
 
 				fileReader.readAsText(mapFile);
+			},
+
+			requestTilesetImport() {
+				this.$.tilesetImportDialog.setImage(this.$.tilesetFileInput.files[0]);
+				this.$.tilesetImportDialog.open();
+				this.$.mainDrawer.close();
+			},
+
+			addTileset(e) {
+				const tileset = new dtileTilemap.TileSet({
+					name: e.detail.name,
+					type: "image",
+					path: e.detail.imageURL
+				});
+				this._map.addTileset(tileset);
 			}
 		});
 	</script>
