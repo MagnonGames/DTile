@@ -198,6 +198,7 @@
 					path: e.detail.imageURL
 				});
 				this._map.addTileset(tileset);
+				this.$.renderer.fire("tileset-added");
 			}
 		});
 	</script>

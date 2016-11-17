@@ -49,7 +49,8 @@
 			],
 
 			listeners: {
-				"renderer.tap": "rendererTap"
+				"renderer.tap": "rendererTap",
+				"tileset-added": "_updateTilesets"
 			},
 
 			_isSelecting() {
@@ -62,7 +63,7 @@
 					const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
 					if (!pos) return;
 					this.map.layers[0].insertTileArea(pos.x, pos.y, this.currentTileArea, true);
-					this.$.renderer.update({ tiles: true });
+					this.$.renderer.update(["tiles"]);
 				}
 			},
 
@@ -84,6 +85,10 @@
 				pos.x -= rect.left;
 				pos.y -= rect.top;
 				return pos;
+			},
+
+			_updateTilesets() {
+				this.$.renderer.update(["tilesets"]);
 			}
 		});
 	</script>

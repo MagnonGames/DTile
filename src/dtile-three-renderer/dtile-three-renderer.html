@@ -88,21 +88,19 @@
 					this.renderer.camera.position.z
 				);
 
-				this.update({
-					camera: true
-				});
+				this.update(["camera"]);
 			},
 
 			setOutline(outline) {
 				if (!this.renderer) return;
 
 				this.renderer.outlineEnabled = outline;
-				this.update({ tiles: true });
+				this.update(["tiles"]);
 			},
 
 			setTint(x, y, layerId, tint) {
 				this.renderer.getTile(x, y, layerId).tint = tint;
-				this.update({ tiles: true });
+				this.update(["tiles"]);
 			},
 
 			update(toUpdate) {
@@ -111,18 +109,16 @@
 				// cause multiple unnecessary renders.
 				let shouldRequest = this._toUpdate.length <= 0;
 
-				for (let update in toUpdate) {
-					this._toUpdate.push(update);
+				for (let update of toUpdate) {
+					if (this._toUpdate.indexOf(update) === -1) {
+						this._toUpdate.push(update);
+					}
 				}
 
 				if (shouldRequest) {
 					requestAnimationFrame(() => {
-						let toUpdate = {};
-						for (let update of this._toUpdate) {
-							toUpdate[update] = true;
-						}
+						this.renderer.update(this._toUpdate);
 						this._toUpdate = [];
-						this.renderer.update(toUpdate);
 					});
 				}
 			}
