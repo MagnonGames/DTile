@@ -4,7 +4,9 @@
 	// Note: to implement this behavior, you need to have a getTilePosition function that
 	// takes in x, y (client positions) and returns { x, y } (tilemap positions)
 	// and setTileSelected function that takes in x, y, color which you can do
-	// whatever you want with.
+	// whatever you want with. It also needs a map and let it be known that I am
+	// aware that this is an ugly solution, but Polymer has it's fair share of
+	// limitations and this seems to be one of them.
 	window.DTile.TileSelectBehavior = {
 		properties: {
 			currentSelection: {
@@ -31,6 +33,17 @@
 			const endPos = { x: e.detail.x + e.detail.width, y: e.detail.y + e.detail.height };
 			const tilePos1 = this.getTilePosition(e.detail.x, e.detail.y);
 			const tilePos2 = this.getTilePosition(endPos.x, endPos.y);
+
+			// Make sure at least one position is inside the map
+			const width = this.map.width - 1, height = this.map.height - 1;
+			if (tilePos1.x < 0 && tilePos2.x < 0 || tilePos1.y < 0 && tilePos2.y < 0) return;
+			if (tilePos1.x > width && tilePos2.x > width || tilePos1.y > height && tilePos2.y > height) return;
+
+			// Clamp
+			tilePos1.x = Math.min(Math.max(tilePos1.x, 0), width);
+			tilePos1.y = Math.min(Math.max(tilePos1.y, 0), height);
+			tilePos2.x = Math.min(Math.max(tilePos2.x, 0), width);
+			tilePos2.y = Math.min(Math.max(tilePos2.y, 0), height);
 
 			const selectionArray = [];
 			for (let x = tilePos1.x; x <= tilePos2.x; x++) {
