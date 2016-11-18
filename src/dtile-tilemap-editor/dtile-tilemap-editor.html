@@ -53,6 +53,10 @@
 				"tileset-added": "_updateTilesets"
 			},
 
+			observers: [
+				"_mapChanged(map)"
+			],
+
 			_isSelecting() {
 				return this.currentTool === "selection";
 			},
@@ -88,6 +92,11 @@
 
 			_updateTilesets() {
 				this.$.renderer.update(["tilesets"]);
+			},
+
+			_mapChanged(map) {
+				this.mapWidth = map.width;
+				this.mapHeight = map.height;
 			}
 		});
 	</script>

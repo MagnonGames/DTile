@@ -4,9 +4,8 @@
 	// Note: to implement this behavior, you need to have a getTilePosition function that
 	// takes in x, y (client positions) and returns { x, y } (tilemap positions)
 	// and setTileSelected function that takes in x, y, color which you can do
-	// whatever you want with. It also needs a map and let it be known that I am
-	// aware that this is an ugly solution, but Polymer has it's fair share of
-	// limitations and this seems to be one of them.
+	// whatever you want with. I am aware that this is an ugly solution, but
+	// Polymer has it's fair share of limitations and this seems to be one of them.
 	window.DTile.TileSelectBehavior = {
 		properties: {
 			currentSelection: {
@@ -14,7 +13,10 @@
 				value: [],
 				readOnly: true,
 				notify: true
-			}
+			},
+
+			mapWidth: Number,
+			mapHeight: Number
 		},
 
 		listeners: {
@@ -34,7 +36,7 @@
 			const tilePos1 = this.getTilePosition(e.detail.x, e.detail.y);
 			const tilePos2 = this.getTilePosition(endPos.x, endPos.y);
 
-			const width = this.map.width - 1, height = this.map.height - 1;
+			const width = this.mapWidth - 1, height = this.mapHeight - 1;
 			// Make sure at least one position is inside the map
 			if (tilePos1.x < 0 && tilePos2.x < 0 || tilePos1.y < 0 && tilePos2.y < 0 ||
 				tilePos1.x > width && tilePos2.x > width || tilePos1.y > height && tilePos2.y > height) {

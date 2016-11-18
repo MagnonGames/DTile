@@ -85,6 +85,9 @@
 					parseInt(dimensions.width / map.tileWidth),
 					parseInt(dimensions.height / map.tileHeight)
 				);
+
+				this.mapWidth = this._currentTilesetMap.width;
+				this.mapHeight = this._currentTilesetMap.height;
 			},
 
 			_generateMap(tilesetWidth, tilesetHeight) {
