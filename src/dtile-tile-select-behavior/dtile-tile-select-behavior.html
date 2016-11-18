@@ -34,10 +34,13 @@
 			const tilePos1 = this.getTilePosition(e.detail.x, e.detail.y);
 			const tilePos2 = this.getTilePosition(endPos.x, endPos.y);
 
-			// Make sure at least one position is inside the map
 			const width = this.map.width - 1, height = this.map.height - 1;
-			if (tilePos1.x < 0 && tilePos2.x < 0 || tilePos1.y < 0 && tilePos2.y < 0) return;
-			if (tilePos1.x > width && tilePos2.x > width || tilePos1.y > height && tilePos2.y > height) return;
+			// Make sure at least one position is inside the map
+			if (tilePos1.x < 0 && tilePos2.x < 0 || tilePos1.y < 0 && tilePos2.y < 0 ||
+				tilePos1.x > width && tilePos2.x > width || tilePos1.y > height && tilePos2.y > height) {
+				this.changeSelection([]);
+				return;
+			}
 
 			// Clamp
 			tilePos1.x = Math.min(Math.max(tilePos1.x, 0), width);
