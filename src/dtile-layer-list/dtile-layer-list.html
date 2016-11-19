@@ -1,0 +1,120 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<dom-module id="dtile-layer-list">
+	<template>
+		<style>
+			:host {
+				display: block;
+				position: relative;
+				overflow: hidden;
+			}
+
+			#items {
+				width: 100%;
+				height: 100%;
+				position: relative;
+			}
+
+			paper-item {
+				user-select: none;
+				cursor: move;
+			}
+		</style>
+
+		<template is="dom-repeat" items="[[_reverseLayers]]" id="items">
+			<paper-item index$=[[index]]>[[item.name]]</paper-item>
+		</template>
+	</template>
+
+	<script>
+		Polymer({
+			properties: {
+				layers: Array,
+
+				_reverseLayers: {
+					type: Array,
+					computed: "_getReverseLayers(layers.*)"
+				},
+
+				_currentDragging: Object,
+				_currentDraggingIndex: Number,
+				_topMouseOffset: Number,
+				_topElementOffset: Number
+			},
+
+			listeners: {
+				track: "_handleTrack"
+			},
+
+			_handleTrack(e) {
+				if (e.detail.state === "start") {
+					const clientRect = this.getBoundingClientRect();
+					this._currentDragging = e.target;
+					this._topMouseOffset = e.detail.y;
+					this._topElementOffset = this._currentDragging.getBoundingClientRect().top - clientRect.top;
+
+					this.style.width = `${clientRect.width}px`;
+					this.style.height = `${clientRect.height}px`;
+
+					[...this.children].reverse().forEach(child => {
+						if (child.tagName !== "PAPER-ITEM") return;
+						if (child === this._currentDragging) {
+							this._currentDraggingIndex = child.getAttribute("index");
+						}
+						this._setStatic(child, clientRect);
+					});
+				} else if (e.detail.state === "track") {
+					const totalOffset = e.detail.y - this._topMouseOffset + this._topElementOffset;
+					this._currentDragging.style.top = `${totalOffset}px`;
+				} else if (e.detail.state === "end") {
+					for (let element of this.children) {
+						if (element.tagName !== "PAPER-ITEM") continue;
+						this._releaseStatic(element);
+					}
+					this.style.width = "auto";
+					this.style.height = "auto";
+
+					const finalTop = e.detail.y - this._topMouseOffset + this._topElementOffset;
+
+					let newIndex = finalTop / this.children[0].getBoundingClientRect().height;
+					newIndex = Math.min(Math.max(Math.round(newIndex), 0), this.layers.length - 1);
+					this._moveLayer(this._currentDraggingIndex, newIndex);
+				}
+			},
+
+			_setStatic(element, parentRect) {
+				const rect = element.getBoundingClientRect();
+				element.style.top = `${rect.top - parentRect.top}px`;
+				element.style.left = "0px";
+				element.style.width = "100%";
+				element.style.position = "absolute";
+			},
+
+			_releaseStatic(element) {
+				element.style.position = "relative";
+				element.style.top = "0px";
+				element.style.width = "auto";
+			},
+
+			_moveLayer(startIndex, newIndex) {
+				if (startIndex === newIndex) return;
+
+				// Since layers are rendered in reverse order, we need to respect
+				// that here.
+				startIndex = startIndex * -1 + this.layers.length - 1;
+				newIndex = newIndex * -1 + this.layers.length - 1;
+
+				const layer = this.splice("layers", startIndex, 1)[0];
+				this.splice("layers", newIndex, 0, layer);
+			},
+
+			_getReverseLayers() {
+				return this.layers.map((_, index, layers) => {
+					return layers[index * -1 + layers.length - 1];
+				});
+			}
+		});
+	</script>
+</dom-module>

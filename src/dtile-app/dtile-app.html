@@ -22,6 +22,7 @@
 <link rel="import" href="../dtile-tileset-selector/dtile-tileset-selector.html">
 <link rel="import" href="../dtile-dialogs/dtile-tileset-import-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-new-map-dialog.html">
+<link rel="import" href="../dtile-layer-list/dtile-layer-list.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -86,7 +87,7 @@
 						</paper-radio-group>
 					</paper-item>
 				</paper-listbox>
-				Layer selection coming to this drawer soon!
+				<dtile-layer-list layers="{{_map.layers}}"></dtile-layer-list>
 				<paper-input value="{{currentTileset}}" type="number"></paper-input>
 				<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
 					tileset-id="[[currentTileset]]"></dtile-tileset-selector>
