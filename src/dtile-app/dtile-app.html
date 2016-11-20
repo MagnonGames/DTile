@@ -171,7 +171,8 @@
 			listeners: {
 				"tilesetImportDialog.tileset-import": "addTileset",
 				"mapCreateDialog.map-create": "createNewMap",
-				"layerList.layers-changed": "updateLayers"
+				"layerList.layers-changed": "updateLayers",
+				"add-layer": "_addLayer"
 			},
 
 			toggleMainDrawer() {
@@ -224,6 +225,13 @@
 				});
 				this._map.addTileset(tileset);
 				this.$.renderer.fire("tileset-added");
+			},
+
+			_addLayer(e) {
+				this._map.createLayer({
+					name: e.detail.name
+				});
+				this.updateLayers();
 			}
 		});
 	</script>

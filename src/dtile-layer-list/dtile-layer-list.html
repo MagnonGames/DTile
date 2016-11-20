@@ -60,7 +60,7 @@
 
 		<div id="header">
 			<span id="title">Layers</span>
-			<paper-icon-button icon="add"></paper-icon-button>
+			<paper-icon-button icon="add" on-tap="_addLayer"></paper-icon-button>
 		</div>
 
 		<div id="items" role="listbox">
@@ -221,6 +221,19 @@
 				this.splice("layers", index, 1);
 
 				this._fireChangeEvent();
+			},
+
+			_addLayer() {
+				let count = 1;
+				this.layers.forEach(layer => {
+					if (layer.name.indexOf("Layer") === 0) count++;
+				});
+				this.fire("add-layer", { name: `Layer ${count}` });
+
+				// Force update
+				const layers = this.layers;
+				this.set("layers", []);
+				this.set("layers", layers);
 			},
 
 			_getReverseIndex(index) {
