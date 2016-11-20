@@ -151,6 +151,8 @@
 				const layer = this.splice("layers", index, 1);
 				layer.name = this._newLayerName;
 				this.splice("layers", index, 0, layer);
+
+				this._fireChangeEvent();
 			},
 
 			_validateRenameInput(name) {
@@ -181,12 +183,16 @@
 
 				const layer = this.splice("layers", startIndex, 1)[0];
 				this.splice("layers", newIndex, 0, layer);
+
+				this._fireChangeEvent();
 			},
 
 			_removeLayer(index) {
 				index = this._getReverseIndex(index);
 
 				this.splice("layers", index, 1);
+
+				this._fireChangeEvent();
 			},
 
 			_getReverseIndex(index) {
@@ -197,6 +203,10 @@
 				return this.layers.map((_, index, layers) => {
 					return layers[index * -1 + layers.length - 1];
 				});
+			},
+
+			_fireChangeEvent() {
+				this.fire("layers-changed");
 			}
 		});
 	</script>

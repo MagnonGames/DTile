@@ -87,7 +87,7 @@
 						</paper-radio-group>
 					</paper-item>
 				</paper-listbox>
-				<dtile-layer-list layers="{{_map.layers}}"></dtile-layer-list>
+				<dtile-layer-list layers="{{_map.layers}}" id="layerList"></dtile-layer-list>
 				<paper-input value="{{currentTileset}}" type="number"></paper-input>
 				<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
 					tileset-id="[[currentTileset]]"></dtile-tileset-selector>
@@ -170,7 +170,8 @@
 
 			listeners: {
 				"tilesetImportDialog.tileset-import": "addTileset",
-				"mapCreateDialog.map-create": "createNewMap"
+				"mapCreateDialog.map-create": "createNewMap",
+				"layerList.layers-changed": "updateLayers"
 			},
 
 			toggleMainDrawer() {
@@ -194,6 +195,10 @@
 				};
 
 				fileReader.readAsText(mapFile);
+			},
+
+			updateLayers() {
+				this.$.renderer.fire("update-map");
 			},
 
 			requestCreateMap() {

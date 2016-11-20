@@ -50,7 +50,8 @@
 
 			listeners: {
 				"renderer.tap": "rendererTap",
-				"tileset-added": "_updateTilesets"
+				"tileset-added": "_updateTilesets",
+				"update-map": "_updateMap"
 			},
 
 			observers: [
@@ -92,6 +93,10 @@
 
 			_updateTilesets() {
 				this.$.renderer.update(["tilesets"]);
+			},
+
+			_updateMap() {
+				this.$.renderer.update(["layers", "tiles"]);
 			},
 
 			_mapChanged(map) {
