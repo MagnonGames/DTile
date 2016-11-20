@@ -19,7 +19,12 @@ function getVersion() {
 	const branch = process.env.TRAVIS_BRANCH;
 	const buildNo = process.env.TRAVIS_BUILD_NUMBER;
 	const commit = process.env.TRAVIS_COMMIT;
-	return branch + buildNo + " (" + commit.substring(0, 7) + ")";
+
+	if (branch && buildNo && commit) {
+		return branch + buildNo + " (" + commit.substring(0, 7) + ")";
+	} else {
+		return "N/A";
+	}
 }
 
 gulp.task("default", ["build"]);
