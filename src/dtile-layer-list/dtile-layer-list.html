@@ -17,6 +17,20 @@
 				overflow: hidden;
 			}
 
+			#header {
+				display: flex;
+				padding-left: 16px;
+				padding-right: 8px;
+			}
+
+			#title {
+				text-align: left;
+				flex-grow: 1;
+				display: flex;
+				align-items: center;
+				font-size: 15px;
+			}
+
 			#items {
 				width: 100%;
 				height: 100%;
@@ -26,7 +40,8 @@
 			.layerItem {
 				user-select: none;
 				padding-right: 0;
-				cursor: default;;
+				cursor: default;
+				box-sizing: border-box;
 			}
 
 			.layerName {
@@ -37,7 +52,16 @@
 			#renameDialog > paper-input {
 				text-align: left;
 			}
+
+			paper-icon-button {
+				color: rgba(0, 0, 0, 0.54);
+			}
 		</style>
+
+		<div id="header">
+			<span id="title">Layers</span>
+			<paper-icon-button icon="add"></paper-icon-button>
+		</div>
 
 		<div id="items" role="listbox">
 			<template is="dom-repeat" items="[[_reverseLayers]]">
@@ -99,7 +123,7 @@
 
 			_handleTrack(e) {
 				if (e.detail.state === "start") {
-					const clientRect = this.getBoundingClientRect();
+					const clientRect = this.$.items.getBoundingClientRect();
 					let el = e.target;
 					while (el) {
 						if (el.tagName === "PAPER-ITEM") break;
@@ -109,8 +133,8 @@
 					this._topMouseOffset = e.detail.y;
 					this._topElementOffset = this._currentDragging.getBoundingClientRect().top - clientRect.top;
 
-					this.style.width = `${clientRect.width}px`;
-					this.style.height = `${clientRect.height}px`;
+					this.$.items.style.width = `${clientRect.width}px`;
+					this.$.items.style.height = `${clientRect.height}px`;
 
 					[...this.$.items.children].reverse().forEach(child => {
 						if (child.tagName !== "PAPER-ITEM") return;
@@ -127,8 +151,8 @@
 						if (element.tagName !== "PAPER-ITEM") continue;
 						this._releaseStatic(element);
 					}
-					this.style.width = "auto";
-					this.style.height = "auto";
+					this.$.items.style.width = "auto";
+					this.$.items.style.height = "auto";
 
 					const finalTop = e.detail.y - this._topMouseOffset + this._topElementOffset;
 
