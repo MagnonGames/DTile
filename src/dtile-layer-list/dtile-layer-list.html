@@ -4,6 +4,9 @@
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
 <dom-module id="dtile-layer-list">
 	<template>
@@ -39,6 +42,7 @@
 					<paper-menu-button horizontal-align="right" class="layerMenuButton" close-on-activate>
 						<paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
 						<paper-menu class="dropdown-content">
+							<paper-item on-tap="_requestRename">Rename</paper-item>
 							<paper-item on-tap="_handleRemove">Remove</paper-item>
 						</paper-menu>
 					</paper-menu-button>
@@ -46,6 +50,17 @@
 			</template>
 		</div>
 
+		<paper-dialog id="renameDialog" opened="{{_renameDialogOpened}}">
+			<h2>Rename Layer</h2>
+			<paper-input id="renameInput" label="Name" autofocus auto-validate
+				error-message="Layer has to have a name." required
+				value="{{_newLayerName}}"></paper-input>
+			<div class="buttons">
+				<paper-button dialog-dismiss>Cancel</paper-button>
+				<paper-button dialog-confirm disabled="[[!_renameInputValid]]"
+					on-tap="_handleRename">Rename</paper-button>
+			</div>
+		</paper-dialog>
 	</template>
 
 	<script>
@@ -55,18 +70,28 @@
 
 				_reverseLayers: {
 					type: Array,
-					computed: "_getReverseLayers(layers.*)"
+					computed: "_getReverseLayers(layers.*)",
+					notify: true
 				},
 
 				_currentDragging: Object,
 				_currentDraggingIndex: Number,
 				_topMouseOffset: Number,
-				_topElementOffset: Number
+				_topElementOffset: Number,
+
+				_renameDialogOpened: Boolean,
+				_renamingLayerIndex: Object,
+				_newLayerName: String,
+				_renameInputValid: Boolean
 			},
 
 			listeners: {
-				track: "_handleTrack"
+				"items.track": "_handleTrack"
 			},
+
+			observers: [
+				"_validateRenameInput(_newLayerName)"
+			],
 
 			_handleTrack(e) {
 				if (e.detail.state === "start") {
@@ -111,6 +136,25 @@
 
 			_handleRemove(e) {
 				this._removeLayer(e.model.index);
+			},
+
+			_requestRename(e) {
+				this._newLayerName = e.model.item.name;
+				this._renamingLayerIndex = e.model.index;
+				this._renameDialogOpened = true;
+			},
+
+			_handleRename() {
+				// Polymer doesn't update computed properties if you just set a
+				// sub-property. This was the best hack I managed to find for it.
+				const index = this._getReverseIndex(this._renamingLayerIndex);
+				const layer = this.splice("layers", index, 1);
+				layer.name = this._newLayerName;
+				this.splice("layers", index, 0, layer);
+			},
+
+			_validateRenameInput(name) {
+				this._renameInputValid = name.length > 0;
 			},
 
 			_setStatic(element, parentRect) {
