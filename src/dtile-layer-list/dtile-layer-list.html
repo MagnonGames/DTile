@@ -7,6 +7,7 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 
 <dom-module id="dtile-layer-list">
 	<template>
@@ -42,6 +43,20 @@
 				padding-right: 0;
 				cursor: default;
 				box-sizing: border-box;
+				transition: background 0.2s, color 0.2s;
+			}
+
+			.layerItem[selected] {
+				background: var(--primary-color);
+				color: white;
+			}
+
+			.layerItem[selected] * {
+				color: white;
+			}
+
+			.layerItem > paper-ripple {
+				color: var(--primary-color);
 			}
 
 			.layerName {
@@ -65,7 +80,8 @@
 
 		<div id="items" role="listbox">
 			<template is="dom-repeat" items="[[_reverseLayers]]">
-				<paper-item index$=[[index]] class="layerItem">
+				<paper-item index$=[[index]] class="layerItem" selected$="{{_isSelected(index, currentSelected)}}"
+					on-tap="_changeSelected">
 					<span class="layerName">[[item.name]]</span>
 					<paper-menu-button horizontal-align="right" class="layerMenuButton" close-on-activate>
 						<paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
@@ -74,6 +90,7 @@
 							<paper-item on-tap="_handleRemove">Remove</paper-item>
 						</paper-menu>
 					</paper-menu-button>
+					<paper-ripple></paper-ripple>
 				</paper-item>
 			</template>
 		</div>
@@ -95,6 +112,8 @@
 		Polymer({
 			properties: {
 				layers: Array,
+
+				currentSelected: Number,
 
 				_reverseLayers: {
 					type: Array,
@@ -212,6 +231,9 @@
 				const layer = this.splice("layers", startIndex, 1)[0];
 				this.splice("layers", newIndex, 0, layer);
 
+				// Move the selected index if needed
+				if (this.currentSelected === startIndex) this.currentSelected = newIndex;
+
 				this._fireChangeEvent();
 			},
 
@@ -244,6 +266,17 @@
 				return this.layers.map((_, index, layers) => {
 					return layers[index * -1 + layers.length - 1];
 				});
+			},
+
+			_isSelected(index, selected) {
+				// For some reason (and I have no idea why), comparing with ===
+				// didn't work here. Object.is seems to get the job done, but it
+				// does feel a bit hacky. ¯\_(ツ)_/¯
+				return Object.is(this._getReverseIndex(index), selected);
+			},
+
+			_changeSelected(e) {
+				this.currentSelected = this._getReverseIndex(e.model.index);
 			},
 
 			_fireChangeEvent() {
