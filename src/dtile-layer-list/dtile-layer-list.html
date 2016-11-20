@@ -113,7 +113,10 @@
 			properties: {
 				layers: Array,
 
-				currentSelected: Number,
+				currentSelected: {
+					type: Number,
+					notify: true
+				},
 
 				_reverseLayers: {
 					type: Array,

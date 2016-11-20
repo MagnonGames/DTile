@@ -87,7 +87,7 @@
 						</paper-radio-group>
 					</paper-item>
 				</paper-listbox>
-				<dtile-layer-list layers="{{_map.layers}}" id="layerList"></dtile-layer-list>
+				<dtile-layer-list layers="{{_map.layers}}" current-selected="{{currentLayer}}" id="layerList"></dtile-layer-list>
 				<paper-input value="{{currentTileset}}" type="number"></paper-input>
 				<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
 					tileset-id="[[currentTileset]]"></dtile-tileset-selector>
@@ -128,7 +128,8 @@
 				<div id="tilemapContainer">
 					<dtile-tilemap-editor id="renderer" map="[[_map]]"
 						outline="[[showOutline]]" current-tool="[[currentTool]]"
-						current-tile-area="[[selectedTileArea]]">
+						current-tile-area="[[selectedTileArea]]"
+						current-layer="[[currentLayer]]">
 					</dtile-tilemap-editor>
 				</div>
 
@@ -157,6 +158,10 @@
 					value: "pen"
 				},
 				currentTileset: {
+					type: Number,
+					value: 0
+				},
+				currentLayer: {
 					type: Number,
 					value: 0
 				},

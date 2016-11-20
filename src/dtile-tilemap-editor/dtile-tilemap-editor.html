@@ -40,6 +40,12 @@
 					reflectToAttribute: true
 				},
 
+				currentLayer: {
+					type: Number,
+					value: 0,
+					reflectToAttribute: true
+				},
+
 				currentTileArea: Object
 			},
 
@@ -65,9 +71,11 @@
 			rendererTap(e) {
 				if (this.currentTool === "pen") {
 					if (!this.currentTileArea) return;
-					const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail), 0);
+					const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail));
 					if (!pos) return;
-					this.map.layers[0].insertTileArea(pos.x, pos.y, this.currentTileArea, true);
+					this.map.layers[this.currentLayer].insertTileArea(
+						pos.x, pos.y, this.currentTileArea, true
+					);
 					this.$.renderer.update(["tiles"]);
 				}
 			},
@@ -81,7 +89,11 @@
 			},
 
 			setTileSelected(x, y, selected) {
-				this.$.renderer.setTint(x, y, 0, selected ? this.$.selection.color : false);
+				this.$.renderer.setTint(
+					x, y,
+					this.currentLayer,
+					selected ? this.$.selection.color : false
+				);
 			},
 
 			_toLocalRendererPos(pos) {
