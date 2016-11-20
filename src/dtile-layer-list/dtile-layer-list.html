@@ -1,6 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="dtile-layer-list">
 	<template>
@@ -17,18 +20,32 @@
 				position: relative;
 			}
 
-			paper-item {
+			.layerItem {
 				user-select: none;
-				cursor: move;
+				padding-right: 0;
+				cursor: default;;
+			}
+
+			.layerName {
+				text-align: left;
+				flex-grow: 1;
 			}
 		</style>
 
-		<div id="items">
+		<div id="items" role="listbox">
 			<template is="dom-repeat" items="[[_reverseLayers]]">
-				<paper-item index$=[[index]]>[[item.name]]</paper-item>
+				<paper-item index$=[[index]] class="layerItem">
+					<span class="layerName">[[item.name]]</span>
+					<paper-menu-button horizontal-align="right" class="layerMenuButton" close-on-activate>
+						<paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+						<paper-menu class="dropdown-content">
+							<paper-item on-tap="_handleRemove">Remove</paper-item>
+						</paper-menu>
+					</paper-menu-button>
+				</paper-item>
 			</template>
 		</div>
-		
+
 	</template>
 
 	<script>
@@ -54,7 +71,12 @@
 			_handleTrack(e) {
 				if (e.detail.state === "start") {
 					const clientRect = this.getBoundingClientRect();
-					this._currentDragging = e.target;
+					let el = e.target;
+					while (el) {
+						if (el.tagName === "PAPER-ITEM") break;
+						el = el.parentElement;
+					}
+					this._currentDragging = el;
 					this._topMouseOffset = e.detail.y;
 					this._topElementOffset = this._currentDragging.getBoundingClientRect().top - clientRect.top;
 
@@ -87,6 +109,10 @@
 				}
 			},
 
+			_handleRemove(e) {
+				this._removeLayer(e.model.index);
+			},
+
 			_setStatic(element, parentRect) {
 				const rect = element.getBoundingClientRect();
 				element.style.top = `${rect.top - parentRect.top}px`;
@@ -106,11 +132,21 @@
 
 				// Since layers are rendered in reverse order, we need to respect
 				// that here.
-				startIndex = startIndex * -1 + this.layers.length - 1;
-				newIndex = newIndex * -1 + this.layers.length - 1;
+				startIndex = this._getReverseIndex(startIndex);
+				newIndex = this._getReverseIndex(newIndex);
 
 				const layer = this.splice("layers", startIndex, 1)[0];
 				this.splice("layers", newIndex, 0, layer);
+			},
+
+			_removeLayer(index) {
+				index = this._getReverseIndex(index);
+
+				this.splice("layers", index, 1);
+			},
+
+			_getReverseIndex(index) {
+				return index * -1 + this.layers.length - 1;
 			},
 
 			_getReverseLayers() {
