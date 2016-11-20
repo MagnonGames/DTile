@@ -23,9 +23,12 @@
 			}
 		</style>
 
-		<template is="dom-repeat" items="[[_reverseLayers]]" id="items">
-			<paper-item index$=[[index]]>[[item.name]]</paper-item>
-		</template>
+		<div id="items">
+			<template is="dom-repeat" items="[[_reverseLayers]]">
+				<paper-item index$=[[index]]>[[item.name]]</paper-item>
+			</template>
+		</div>
+		
 	</template>
 
 	<script>
@@ -58,7 +61,7 @@
 					this.style.width = `${clientRect.width}px`;
 					this.style.height = `${clientRect.height}px`;
 
-					[...this.children].reverse().forEach(child => {
+					[...this.$.items.children].reverse().forEach(child => {
 						if (child.tagName !== "PAPER-ITEM") return;
 						if (child === this._currentDragging) {
 							this._currentDraggingIndex = child.getAttribute("index");
@@ -69,7 +72,7 @@
 					const totalOffset = e.detail.y - this._topMouseOffset + this._topElementOffset;
 					this._currentDragging.style.top = `${totalOffset}px`;
 				} else if (e.detail.state === "end") {
-					for (let element of this.children) {
+					for (let element of this.$.items.children) {
 						if (element.tagName !== "PAPER-ITEM") continue;
 						this._releaseStatic(element);
 					}
@@ -78,7 +81,7 @@
 
 					const finalTop = e.detail.y - this._topMouseOffset + this._topElementOffset;
 
-					let newIndex = finalTop / this.children[0].getBoundingClientRect().height;
+					let newIndex = finalTop / this.$.items.children[0].getBoundingClientRect().height;
 					newIndex = Math.min(Math.max(Math.round(newIndex), 0), this.layers.length - 1);
 					this._moveLayer(this._currentDraggingIndex, newIndex);
 				}
