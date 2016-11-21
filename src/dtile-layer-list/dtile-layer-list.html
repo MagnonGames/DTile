@@ -79,7 +79,7 @@
 		</div>
 
 		<div id="items" role="listbox">
-			<template is="dom-repeat" items="[[_reverseLayers]]">
+			<template id="itemsRepeater" is="dom-repeat" items="[[_reverseLayers]]">
 				<paper-item index$=[[index]] class="layerItem" selected$="{{_isSelected(index, currentSelected)}}"
 					on-tap="_changeSelected">
 					<span class="layerName">[[item.name]]</span>
@@ -238,6 +238,7 @@
 
 				// Move the selected index if needed
 				if (this.currentSelected === startIndex) this.currentSelected = newIndex;
+				else if (this.currentSelected === newIndex) this.currentSelected = startIndex;
 
 				this._fireChangeEvent();
 			},
@@ -261,6 +262,8 @@
 				const layers = this.layers;
 				this.set("layers", []);
 				this.set("layers", layers);
+
+				this.currentSelected = this.layers.length - 1;
 			},
 
 			_getReverseIndex(index) {
@@ -277,6 +280,7 @@
 				// For some reason (and I have no idea why), comparing with ===
 				// didn't work here. Object.is seems to get the job done, but it
 				// does feel a bit hacky. ¯\_(ツ)_/¯
+				console.log(index, Object.is(this._getReverseIndex(index), selected));
 				return Object.is(this._getReverseIndex(index), selected);
 			},
 
