@@ -159,7 +159,7 @@
 				},
 				currentTileset: {
 					type: Number,
-					value: 0
+					value: -1
 				},
 				currentLayer: {
 					type: Number,
@@ -230,6 +230,8 @@
 				});
 				this._map.addTileset(tileset);
 				this.$.renderer.fire("tileset-added");
+
+				this.currentTileset = this._map.tilesets.length - 1;
 			},
 
 			_addLayer(e) {
