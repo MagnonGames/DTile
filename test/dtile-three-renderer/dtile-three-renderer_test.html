@@ -37,21 +37,6 @@
 						done();
 					});
 				});
-
-				it("selects a tile properly", done => {
-					const element = fixture("basic");
-					getMap().then(map => {
-						// Since a tilemap loads somewhere in the middle, we just
-						// check that the top-left corner doesn't have a tile.
-						// Checking for an actual tile would be very difficult,
-						// but if you have an idea, PR please. =D
-						element.map = map;
-						const position = element.getTileAtMouse({ x: 0, y: 0 }, 0);
-						expect(position.x).to.be.below(0);
-						expect(position.y).to.be.below(0);
-						done();
-					});
-				});
 			});
 
 			function getMap() {
