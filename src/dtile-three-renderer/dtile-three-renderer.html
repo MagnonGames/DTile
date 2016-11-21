@@ -68,6 +68,15 @@
 				this._toUpdate = [];
 
 				this.updateCamera(this.panX, this.panY, this.zoom);
+
+				this._sizeListener = this.updateSize.bind(this);
+				window.addEventListener("resize", this._sizeListener);
+			},
+
+			detached() {
+				// TODO: We should probably dispose a lot of stuff here.
+
+				window.removeEventListener("resize", this._sizeListener);
 			},
 
 			changeMap(map) {
@@ -89,6 +98,10 @@
 				);
 
 				this.update(["camera"]);
+			},
+
+			updateSize() {
+				this.update(["size", "camera"]);
 			},
 
 			setOutline(outline) {
