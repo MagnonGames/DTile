@@ -177,8 +177,13 @@
 				"tilesetImportDialog.tileset-import": "addTileset",
 				"mapCreateDialog.map-create": "createNewMap",
 				"layerList.layers-changed": "updateLayers",
-				"add-layer": "_addLayer"
+				"add-layer": "_addLayer",
+				"map-changed": "_mapUpdated"
 			},
+
+			observers: [
+				"_mapUpdated(_map)"
+			],
 
 			toggleMainDrawer() {
 				this.$.mainDrawer.toggle();
@@ -195,7 +200,7 @@
 				fileReader.onload = () => {
 					const mapObject = JSON.parse(fileReader.result);
 
-					this._map = new dtileTilemap.TileMap(mapObject);
+					this._setMap(new dtileTilemap.TileMap(mapObject));
 					this.$.mapSpinner.active = false;
 					this.$.mainDrawer.close();
 				};
@@ -219,7 +224,7 @@
 			},
 
 			createNewMap(e) {
-				this._map = new dtileTilemap.TileMap(e.detail);
+				this._setMap(new dtileTilemap.TileMap(e.detail));
 			},
 
 			addTileset(e) {
@@ -230,8 +235,21 @@
 				});
 				this._map.addTileset(tileset);
 				this.$.renderer.fire("tileset-added");
+				this.fire("map-changed");
 
 				this.currentTileset = this._map.tilesets.length - 1;
+			},
+
+			_setMap(map) {
+				const mapUpdated = () => this._mapUpdated();
+				const proxy = {
+					set(target, key, value) {
+						target[key] = value;
+						mapUpdated();
+					}
+				};
+
+				this._map = new Proxy(map, proxy);
 			},
 
 			_addLayer(e) {
@@ -239,6 +257,10 @@
 					name: e.detail.name
 				});
 				this.updateLayers();
+			},
+
+			_mapUpdated() {
+				// TODO: Wait a little, if then no activity, save.
 			}
 		});
 	</script>

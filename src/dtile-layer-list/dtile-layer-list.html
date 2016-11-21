@@ -264,6 +264,8 @@
 				this.set("layers", layers);
 
 				this.currentSelected = this.layers.length - 1;
+
+				this.fire("map-changed");
 			},
 
 			_getReverseIndex(index) {
@@ -289,6 +291,7 @@
 
 			_fireChangeEvent() {
 				this.fire("layers-changed");
+				this.fire("map-changed");
 			}
 		});
 	</script>
