@@ -280,7 +280,6 @@
 				// For some reason (and I have no idea why), comparing with ===
 				// didn't work here. Object.is seems to get the job done, but it
 				// does feel a bit hacky. ¯\_(ツ)_/¯
-				console.log(index, Object.is(this._getReverseIndex(index), selected));
 				return Object.is(this._getReverseIndex(index), selected);
 			},
 
