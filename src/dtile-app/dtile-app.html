@@ -62,6 +62,13 @@
 				margin-left: 24px;
 			}
 
+			#rightDrawer {
+				z-index: 10;
+				--app-drawer-content-container: {
+					padding-top: 184px; /* 120px is default (apparently) and the toolbar is 64px */
+				}
+			}
+
 			footer {
 				pointer-events: none;
 				position: absolute;
@@ -74,25 +81,7 @@
 		</style>
 		<style is="custom-style" include="iron-positioning"></style>
 
-		<app-drawer-layout fullbleed>
-			<app-drawer swipe-open align="end">
-				<paper-listbox selectable=".nothing">
-					<paper-item>
-						<paper-checkbox checked="{{showOutline}}">Show Wireframe</paper-checkbox>
-					</paper-item>
-					<paper-item>
-						<paper-radio-group selected="{{currentTool}}">
-							<paper-radio-button name="pen">Pen</paper-radio-button>
-							<paper-radio-button name="selection">Selection</paper-radio-button>
-						</paper-radio-group>
-					</paper-item>
-				</paper-listbox>
-				<dtile-layer-list layers="{{_map.layers}}" current-selected="{{currentLayer}}" id="layerList"></dtile-layer-list>
-				<paper-input value="{{currentTileset}}" type="number"></paper-input>
-				<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
-					tileset-id="[[currentTileset]]"></dtile-tileset-selector>
-			</app-drawer>
-
+		<app-drawer-layout fullbleed force-narrow>
 			<app-drawer id="mainDrawer" swipe-open>
 				<paper-listbox selectable=".nothing">
 					<paper-icon-item on-tap="requestCreateMap">
@@ -118,7 +107,7 @@
 			</app-drawer>
 
 			<app-header-layout fullbleed>
-				<app-header fixed shadow>
+				<app-header shadow>
 					<app-toolbar>
 						<paper-icon-button icon="menu" on-tap="toggleMainDrawer"></paper-icon-button>
 						<div main-title>DTile</div>
@@ -132,6 +121,26 @@
 						current-layer="[[currentLayer]]">
 					</dtile-tilemap-editor>
 				</div>
+
+				<iron-media-query query="(max-width: 960px)" query-matches="{{smallScreen}}"></iron-media-query>
+				<app-drawer id="rightDrawer" align="end" opened="[[!smallScreen]]"
+					swipe-open="[[smallScreen]]" persistent="[[!smallScreen]]">
+					<paper-listbox selectable=".nothing">
+						<paper-item>
+							<paper-checkbox checked="{{showOutline}}">Show Wireframe</paper-checkbox>
+						</paper-item>
+						<paper-item>
+							<paper-radio-group selected="{{currentTool}}">
+								<paper-radio-button name="pen">Pen</paper-radio-button>
+								<paper-radio-button name="selection">Selection</paper-radio-button>
+							</paper-radio-group>
+						</paper-item>
+					</paper-listbox>
+					<dtile-layer-list layers="{{_map.layers}}" current-selected="{{currentLayer}}" id="layerList"></dtile-layer-list>
+					<paper-input value="{{currentTileset}}" type="number"></paper-input>
+					<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
+						tileset-id="[[currentTileset]]"></dtile-tileset-selector>
+				</app-drawer>
 
 				<footer>
 					Build: [[version]]
@@ -165,6 +174,8 @@
 					type: Number,
 					value: 0
 				},
+
+				smallScreen: Boolean,
 
 				version: {
 					type: String,

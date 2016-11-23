@@ -21,7 +21,8 @@
     "paper-input": "PolymerElements/paper-input#^1.1.20",
     "paper-menu-button": "PolymerElements/paper-menu-button#^1.5.2",
     "paper-menu": "PolymerElements/paper-menu#^1.2.2",
-    "paper-ripple": "PolymerElements/paper-ripple#^1.0.10"
+    "paper-ripple": "PolymerElements/paper-ripple#^1.0.10",
+    "iron-media-query": "PolymerElements/iron-media-query#^1.0.8"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
