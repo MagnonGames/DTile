@@ -23,6 +23,7 @@
 <link rel="import" href="../dtile-dialogs/dtile-tileset-import-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-new-map-dialog.html">
 <link rel="import" href="../dtile-layer-list/dtile-layer-list.html">
+<link rel="import" href="../dtile-tool-selector/dtile-tool-selector.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -125,17 +126,8 @@
 				<iron-media-query query="(max-width: 960px)" query-matches="{{smallScreen}}"></iron-media-query>
 				<app-drawer id="rightDrawer" align="end" opened="[[!smallScreen]]"
 					swipe-open="[[smallScreen]]" persistent="[[!smallScreen]]">
-					<paper-listbox selectable=".nothing">
-						<paper-item>
-							<paper-checkbox checked="{{showOutline}}">Show Wireframe</paper-checkbox>
-						</paper-item>
-						<paper-item>
-							<paper-radio-group selected="{{currentTool}}">
-								<paper-radio-button name="pen">Pen</paper-radio-button>
-								<paper-radio-button name="selection">Selection</paper-radio-button>
-							</paper-radio-group>
-						</paper-item>
-					</paper-listbox>
+					<dtile-tool-selector current-tool="{{currentTool}}"
+						wireframe="{{showOutline}}"></dtile-tool-selector>
 					<dtile-layer-list layers="{{_map.layers}}" current-selected="{{currentLayer}}" id="layerList"></dtile-layer-list>
 					<paper-input value="{{currentTileset}}" type="number"></paper-input>
 					<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"

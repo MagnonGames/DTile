@@ -1,0 +1,139 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
+
+<link rel="import" href="./dtile-tool-icons.html">
+
+<dom-module id="dtile-tool-selector">
+	<template>
+		<style>
+			:host {
+				display: block;
+				--icon-size: 40px;
+			}
+
+			#container {
+				display: flex;
+				align-items: center;
+				height: var(--icon-size);
+				padding: 10px;
+			}
+
+			#tools, #toggles {
+				height: var(--icon-size);
+			}
+
+			#tools {
+				flex-grow: 1;
+				text-align: left;
+			}
+
+			paper-icon-button {
+				width: var(--icon-size);
+				height: var(--icon-size);
+				transition: background-color 0.2s;
+				border-radius: 50%;
+			}
+
+			paper-icon-button[active] {
+				background-color: var(--primary-color);
+				color: white;
+			}
+
+			.divisor {
+				width: 1px;
+				height: 50%;
+				background-color: rgba(0, 0, 0, 0.45);
+				margin: 5px;
+			}
+		</style>
+		<div id="container">
+			<div id="tools">
+				<template id="toolRepeater" is="dom-repeat" items="{{_tools}}">
+					<paper-icon-button icon="[[item.1]]" on-tap="_changeTool"
+						id="[[item.0]]" active="[[_isToolActive(item.0)]]"></paper-icon-button>
+				</template>
+			</div>
+			<span class="divisor"></span>
+			<div id="toggles">
+				<template is="dom-repeat" items="{{_toggles}}">
+					<paper-icon-button icon="[[item.1]]" on-tap="_actOnToggle"
+						toggles></paper-icon-button>
+				</template>
+			</div>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-tool-selector",
+
+			properties: {
+				currentTool: {
+					type: String,
+					notify: true,
+					reflectToAttribute: true
+				},
+				wireframe: {
+					type: Boolean,
+					notify: true
+				},
+
+				_tools: {
+					type: Array,
+					readOnly: true,
+					value: [
+						// KV pairs. [name, icon]
+						["pen", "tool:pen"],
+						["selection", "tool:select"]
+					]
+				},
+				_toggles: {
+					type: Array,
+					readOnly: true,
+					value: [
+						// KV pairs. [name, icon]
+						["wireframe", "tool:wireframe"]
+					]
+				}
+			},
+
+			observers: [
+				"_updateTool(currentTool)"
+			],
+
+			_updateTool(tool) {
+				if (this._previousTool) {
+					this.$$(`#${this._previousTool}`).active = false;
+				}
+				this._previousTool = tool;
+				const toolButton = this.$$(`#${tool}`);
+				if (toolButton) toolButton.active = true;
+			},
+
+			_changeTool(e) {
+				if (this.currentTool === e.model.item[0]) {
+					this._findPaperIconButton(e.target).active = true;
+				}
+				this.currentTool = e.model.item[0];
+			},
+
+			_actOnToggle(e) {
+				this.set(e.model.item[0], this._findPaperIconButton(e.target).active);
+			},
+
+			_isToolActive(name) {
+				return this.currentTool === name;
+			},
+
+			_findPaperIconButton(element) {
+				let el = element;
+				while (el) {
+					if (el.tagName === "PAPER-ICON-BUTTON") return el;
+					el = el.parentElement;
+				}
+			}
+		});
+	</script>
+</dom-module>
