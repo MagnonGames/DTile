@@ -15,6 +15,7 @@
 <link rel="import" href="../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
@@ -69,6 +70,15 @@
 					padding-top: 184px; /* 120px is default (apparently) and the toolbar is 64px */
 				}
 				--app-drawer-width: 350px;
+			}
+
+			#tilesetIdSelector, #tilesetIdSelector paper-menu-button {
+				padding: 0 16px;
+				box-sizing: border-box;
+				width: 100%;
+				--paper-menu-button-dropdown: {
+					width: calc(100% - 32px);
+				}
 			}
 
 			footer {
@@ -130,7 +140,13 @@
 					<dtile-tool-selector current-tool="{{currentTool}}"
 						wireframe="{{showOutline}}"></dtile-tool-selector>
 					<dtile-layer-list layers="{{_map.layers}}" current-selected="{{currentLayer}}" id="layerList"></dtile-layer-list>
-					<paper-input value="{{currentTileset}}" type="number"></paper-input>
+					<paper-dropdown-menu label="Tileset" id="tilesetIdSelector">
+						<paper-listbox class="dropdown-content" selected="{{currentTileset}}">
+							<template is="dom-repeat" items="{{_map.tilesets}}">
+								<paper-item>[[item.name]]</paper-item>
+							</template>
+						</paper-listbox>
+					</paper-dropdown-menu>
 					<dtile-tileset-selector map="[[_map]]" selected-tile-area="{{selectedTileArea}}"
 						tileset-id="[[currentTileset]]"></dtile-tileset-selector>
 				</app-drawer>
@@ -242,6 +258,10 @@
 				this.fire("map-changed");
 
 				this.currentTileset = this._map.tilesets.length - 1;
+
+				this.notifySplices("_map.tilesets", [
+					{ index: this.currentTileset, addedCount: 1, removed: [], object: this._map.tilesets, type: "splice" }
+				]);
 			},
 
 			_setMap(map) {
