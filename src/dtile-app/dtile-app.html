@@ -16,6 +16,7 @@
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
 
@@ -41,10 +42,21 @@
 
 			:host {
 				display: block;
+				width: 100%;
+				height: 100%;
 				font-family: 'Noto Sans', sans-serif;
+
+				background: var(--page-background-color);
 
 				--primary-color: var(--paper-blue-grey-500);
 				--accent-color: var(--paper-cyan-a200);
+
+				--primary-text-color: var(--light-theme-text-color);
+				--secondary-text-color: rgba(0, 0, 0, 0.84);
+				--contrasting-text-color: white;
+
+				--primary-background-color: var(--paper-grey-50);
+				--page-background-color: #303030;
 			}
 
 			#tilemapContainer {
@@ -53,12 +65,8 @@
 				height: 100%;
 			}
 
-			#renderer {
-				background: #303030;
-			}
-
 			app-toolbar {
-				color: white;
+				color: var(--contrasting-text-color);
 				background: var(--primary-color);
 			}
 
@@ -66,9 +74,16 @@
 				margin-left: 24px;
 			}
 
+			app-drawer {
+				--app-drawer-content-container: {
+					background: var(--primary-background-color);
+				}
+			}
+
 			#rightDrawer {
 				z-index: 10;
 				--app-drawer-content-container: {
+					background: var(--primary-background-color);
 					padding-top: 184px; /* 120px is default (apparently) and the toolbar is 64px */
 				}
 				--app-drawer-width: 350px;

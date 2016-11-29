@@ -16,6 +16,8 @@
 				display: block;
 				position: relative;
 				overflow: hidden;
+
+				color: var(--primary-text-color);
 			}
 
 			#header {
@@ -30,7 +32,7 @@
 				display: flex;
 				align-items: center;
 				font-size: 14px;
-				color: rgba(0, 0, 0, 0.45);
+				color: var(--secondary-color);
 				font-weight: bold;
 			}
 
@@ -50,11 +52,11 @@
 
 			.layerItem[selected] {
 				background: var(--primary-color);
-				color: white;
+				color: var(--contrasting-text-color);
 			}
 
 			.layerItem[selected] > paper-input, .layerItem[selected] paper-icon-button {
-				color: white;
+				color: var(--contrasting-text-color);
 			}
 
 			.layerItem > paper-ripple {
@@ -71,7 +73,7 @@
 			}
 
 			paper-icon-button {
-				color: rgba(0, 0, 0, 0.54);
+				color: var(--secondary-color);
 			}
 		</style>
 

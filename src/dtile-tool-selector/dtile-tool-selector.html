@@ -11,6 +11,8 @@
 			:host {
 				display: block;
 				--icon-size: 40px;
+
+				color: var(--primary-text-color);
 			}
 
 			#container {
@@ -38,13 +40,13 @@
 
 			paper-icon-button[active] {
 				background-color: var(--primary-color);
-				color: white;
+				color: var(--contrasting-text-color);
 			}
 
 			.divisor {
 				width: 1px;
 				height: 50%;
-				background-color: rgba(0, 0, 0, 0.45);
+				background-color: var(--secondary-text-color);
 				margin: 5px;
 			}
 		</style>
