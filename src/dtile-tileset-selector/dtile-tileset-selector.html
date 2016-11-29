@@ -77,17 +77,22 @@
 			_updateTileset(map, tilesetId) {
 				if (!map.tilesets[tilesetId]) return;
 
-				const dimensions = map.tilesets[tilesetId].type === "image"
-					? this._getImageDimensions(map.tilesets[tilesetId].path)
-					: { width: 25 * map.tileWidth, height: 25 * map.tileHeight };
+				this._getImageDimensions(map.tilesets[tilesetId].virtualPath).then(dimensions => {
+					if (!dimensions) {
+						dimensions = {
+							width: 25 * map.tileWidth,
+							height: 25 * map.tileHeight
+						};
+					}
 
-				this._generateMap(
-					parseInt(dimensions.width / map.tileWidth),
-					parseInt(dimensions.height / map.tileHeight)
-				);
+					this._generateMap(
+						parseInt(dimensions.width / map.tileWidth),
+						parseInt(dimensions.height / map.tileHeight)
+					);
 
-				this.mapWidth = this._currentTilesetMap.width;
-				this.mapHeight = this._currentTilesetMap.height;
+					this.mapWidth = this._currentTilesetMap.width;
+					this.mapHeight = this._currentTilesetMap.height;
+				});
 			},
 
 			_generateMap(tilesetWidth, tilesetHeight) {
@@ -104,7 +109,7 @@
 					tileWidth: this.map.tileWidth,
 					tileHeight: this.map.tileHeight,
 					tilesets: [{
-						path: tileset.path,
+						virtualPath: tileset.virtualPath,
 						type: tileset.type
 					}],
 					layers: [{
@@ -114,12 +119,18 @@
 			},
 
 			_getImageDimensions(path) {
-				const image = document.createElement("img");
-				image.src = path;
-				return {
-					width: image.width,
-					height: image.height
-				};
+				return new Promise((resolve, reject) => {
+					if (!path) resolve();
+
+					const image = document.createElement("img");
+					image.onload = () => {
+						resolve({
+							width: image.width,
+							height: image.height
+						});
+					};
+					image.src = path;
+				});
 			},
 
 			_toLocalRendererPos(pos) {

@@ -25,6 +25,8 @@
 <link rel="import" href="../dtile-dialogs/dtile-new-map-dialog.html">
 <link rel="import" href="../dtile-layer-list/dtile-layer-list.html">
 <link rel="import" href="../dtile-tool-selector/dtile-tool-selector.html">
+<link rel="import" href="../dtile-storage/dtile-storage.html">
+<link rel="import" href="../dtile-status-indicator/dtile-status-indicator.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -123,6 +125,7 @@
 					<app-toolbar>
 						<paper-icon-button icon="menu" on-tap="toggleMainDrawer"></paper-icon-button>
 						<div main-title>DTile</div>
+						<dtile-status-indicator status="[[saveStatus]]"></dtile-status-indicator>
 					</app-toolbar>
 				</app-header>
 
@@ -159,6 +162,8 @@
 
 		<dtile-tileset-import-dialog id="tilesetImportDialog"></dtile-tileset-import-dialog>
 		<dtile-new-map-dialog id="mapCreateDialog"></dtile-new-map-dialog>
+
+		<dtile-storage id="storage" map="{{_map}}"></dtile-storage>
 	</template>
 
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
@@ -169,6 +174,12 @@
 			is: "dtile-app",
 
 			properties: {
+				maps: {
+					type: Array,
+					value: []
+				},
+				currentMapIndex: Number,
+
 				_map: Object,
 				showOutline: Boolean,
 				currentTool: {
@@ -198,10 +209,13 @@
 				"mapCreateDialog.map-create": "createNewMap",
 				"layerList.layers-changed": "updateLayers",
 				"add-layer": "_addLayer",
-				"map-changed": "_mapUpdated"
+				"map-changed": "_mapUpdated",
+				"storage.save-done": "_saveDone",
+				"storage.save-failed": "_saveFailed"
 			},
 
 			observers: [
+				"_switchMap(currentMapIndex)",
 				"_mapUpdated(_map)"
 			],
 
@@ -220,7 +234,9 @@
 				fileReader.onload = () => {
 					const mapObject = JSON.parse(fileReader.result);
 
-					this._setMap(new dtileTilemap.TileMap(mapObject));
+					this.createNewMap({
+						detail: new dtileTilemap.TileMap(mapObject)
+					});
 					this.$.mapSpinner.active = false;
 					this.$.mainDrawer.close();
 				};
@@ -244,14 +260,15 @@
 			},
 
 			createNewMap(e) {
-				this._setMap(new dtileTilemap.TileMap(e.detail));
+				this.push("maps", new dtileTilemap.TileMap(e.detail));
+				this.currentMapIndex = this.maps.length - 1;
 			},
 
 			addTileset(e) {
 				const tileset = new dtileTilemap.TileSet({
 					name: e.detail.name,
 					type: "image",
-					path: e.detail.imageURL
+					virtualPath: e.detail.imageURL
 				});
 				this._map.addTileset(tileset);
 				this.$.renderer.fire("tileset-added");
@@ -262,6 +279,10 @@
 				this.notifySplices("_map.tilesets", [
 					{ index: this.currentTileset, addedCount: 1, removed: [], object: this._map.tilesets, type: "splice" }
 				]);
+			},
+
+			_switchMap(index) {
+				this._setMap(this.maps[index]);
 			},
 
 			_setMap(map) {
@@ -284,7 +305,23 @@
 			},
 
 			_mapUpdated() {
-				// TODO: Wait a little, if then no activity, save.
+				this.saveStatus = "activity";
+				if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
+				this.saveTimeout = window.setTimeout(() => {
+					this.$.storage.save();
+				}, 1500);
+			},
+
+			_saveStarted() {
+				this.saveStatus = "activity";
+			},
+
+			_saveDone() {
+				this.saveStatus = "done";
+			},
+
+			_saveFailed() {
+				this.saveStatus = "failed";
 			}
 		});
 	</script>

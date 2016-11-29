@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="dtile-storage">
+	<template>
+		<style>
+			:host {
+				display: none;
+			}
+		</style>
+	</template>
+
+	<script src="../../node_modules/localforage/dist/localforage.min.js"></script>
+	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
+
+	<script>
+		/* globals localforage, dtileTilemap */
+		Polymer({
+			is: "dtile-storage",
+
+			properties: {
+				map: {
+					type: Object,
+					notify: true
+				}
+			},
+
+			attached() {
+				localforage.getItem("config-last-map").then(map => {
+					if (map) {
+						this.restoreMap(name);
+					}
+				});
+			},
+
+			save() {
+				this.fire("save-start");
+				const promises = [];
+				promises.push(localforage.setItem("map-" + this.map.name, this.map.getJSON()));
+				promises.push(localforage.setItem("config-last-map", this.map.name));
+				promises.concat(this.map.tilesets.map(tileset => {
+					if (tileset.type === "test") return;
+					return fetch(tileset.virtualPath).then(image => {
+						return image.blob();
+					}).then(blob => {
+						// We need to store the image blob with the tileset and
+						// the easiest way I found to do it was by just assigning
+						// it to the tileset and then deleting it afterwards.
+						tileset.blob = blob;
+						return localforage.setItem(
+							"tileset-" + tileset.name, tileset);
+					}).then(() => {
+						delete tileset.blob;
+					});
+				}));
+				Promise.all(promises).then(() => {
+					this.fire("save-done");
+				}).catch(e => {
+					this.fire("save-failed", e);
+				});
+			},
+
+			restoreMap(name) {
+				localforage.iterate((value, key) => {
+					if (key.startsWith("map-")) {
+						return JSON.parse(value);
+					}
+				}).then(map => {
+					return new dtileTilemap.TileMap(map);
+				}).then(map => {
+					Promise.all(map.tilesets.map(tileset => {
+						if (tileset.type === "image") {
+							return this.requestTileset(tileset.name);
+						}
+					})).then(tilesets => {
+						tilesets.forEach((tileset, index) => {
+							if (!tileset) return;
+							map.tilesets[index].virtualPath = URL.createObjectURL(tileset.blob);
+						});
+						this.map = map;
+					});
+				});
+			},
+
+			requestTileset(name) {
+				return localforage.getItem("tileset-" + name);
+			},
+
+			clear() {
+				localforage.clear();
+			}
+		});
+	</script>
+</dom-module>

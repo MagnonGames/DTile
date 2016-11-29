@@ -9,8 +9,9 @@
     "lint": "eslint --ext .html,.js ./src ./test"
   },
   "dependencies": {
-    "dtile-three-renderer": "^0.7.0",
-    "dtile-tilemap": "^0.3.2"
+    "dtile-three-renderer": "^0.8.1",
+    "dtile-tilemap": "^0.5.1",
+    "localforage": "^1.4.3"
   },
   "devDependencies": {
     "eslint": "^3.8.1",
