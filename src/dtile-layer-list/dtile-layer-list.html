@@ -234,15 +234,22 @@
 
 				// Since layers are rendered in reverse order, we need to respect
 				// that here.
-				startIndex = this._getReverseIndex(startIndex);
-				newIndex = this._getReverseIndex(newIndex);
+				const reverseStartIndex = this._getReverseIndex(startIndex);
+				const reverseNewIndex = this._getReverseIndex(newIndex);
 
-				const layer = this.splice("layers", startIndex, 1)[0];
-				this.splice("layers", newIndex, 0, layer);
+				const layer = this.splice("layers", reverseStartIndex, 1)[0];
+				this.splice("layers", reverseNewIndex, 0, layer);
 
 				// Move the selected index if needed
-				if (this.currentSelected === startIndex) this.currentSelected = newIndex;
-				else if (this.currentSelected === newIndex) this.currentSelected = startIndex;
+				if (this.currentSelected === reverseStartIndex) this.currentSelected = reverseNewIndex;
+				else if (this.currentSelected === reverseNewIndex) this.currentSelected = reverseStartIndex;
+
+				const apply = () => {
+						this._moveLayer(startIndex, newIndex);
+					}, reverse = () => {
+						this._moveLayer(newIndex, startIndex);
+					};
+				this.fire("edit-action", { apply, reverse });
 
 				this._fireChangeEvent();
 			},
