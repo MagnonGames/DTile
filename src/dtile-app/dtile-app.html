@@ -29,6 +29,7 @@
 <link rel="import" href="../dtile-tool-selector/dtile-tool-selector.html">
 <link rel="import" href="../dtile-storage/dtile-storage.html">
 <link rel="import" href="../dtile-status-indicator/dtile-status-indicator.html">
+<link rel="import" href="../dtile-action-manager/dtile-action-manager.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -140,6 +141,8 @@
 					<app-toolbar>
 						<paper-icon-button icon="menu" on-tap="toggleMainDrawer"></paper-icon-button>
 						<div main-title>DTile</div>
+						<paper-icon-button icon="undo" on-tap="_undo"></paper-icon-button>
+						<paper-icon-button icon="redo" on-tap="_redo"></paper-icon-button>
 						<dtile-status-indicator status="[[saveStatus]]"></dtile-status-indicator>
 					</app-toolbar>
 				</app-header>
@@ -180,6 +183,7 @@
 		<dtile-map-import-dialog id="mapImportDialog"></dtile-map-import-dialog>
 
 		<dtile-storage id="storage" map="{{_map}}"></dtile-storage>
+		<dtile-action-manager id="actionManager"></dtile-action-manager>
 	</template>
 
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
@@ -229,7 +233,9 @@
 				"add-layer": "_addLayer",
 				"map-changed": "_mapUpdated",
 				"storage.save-done": "_saveDone",
-				"storage.save-failed": "_saveFailed"
+				"storage.save-failed": "_saveFailed",
+
+				"edit-action": "_addAction"
 			},
 
 			observers: [
@@ -342,6 +348,20 @@
 
 			_importMap(e) {
 				this.createNewMap(e.detail);
+			},
+
+			_addAction(e) {
+				this.$.actionManager.add(e.detail);
+			},
+
+			_undo() {
+				this.$.actionManager.undo();
+				this.$.renderer.fire("update-map");
+			},
+
+			_redo() {
+				this.$.actionManager.redo();
+				this.$.renderer.fire("update-map");
 			}
 		});
 	</script>
