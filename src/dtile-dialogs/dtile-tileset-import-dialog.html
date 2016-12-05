@@ -23,7 +23,10 @@
 		</paper-dialog>
 	</template>
 
+	<script src="./tilesetImporter.js"></script>
+
 	<script>
+		/* globals TilesetImporter */
 		Polymer({
 			is: "dtile-tileset-import-dialog",
 
@@ -46,18 +49,12 @@
 			],
 
 			setImage(file) {
-				if (!file) return;
-
-				const fileType = file.type.indexOf("image") !== -1 ? "image" : undefined;
-				if (fileType !== "image") return; // TODO: Should also accept JSON input (after that's implemented in dtile-tilemap)
-
-				const fileReader = new FileReader();
-
-				fileReader.onload = () => {
-					this._imageURL = fileReader.result;
-				};
-
-				fileReader.readAsDataURL(file);
+				TilesetImporter.import(file).then(tileset => {
+					this._imageURL = tileset;
+				}).catch(() => {
+					// TODO: Proper error handling
+					console.error("Failed to import tileset");
+				});
 			},
 
 			open() {

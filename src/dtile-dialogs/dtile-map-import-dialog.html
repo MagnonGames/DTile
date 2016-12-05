@@ -1,0 +1,153 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../../bower_components/file-input/file-input.html">
+
+<dom-module id="dtile-map-import-dialog">
+	<template>
+		<style>
+			:host {
+				display: block;
+
+				--container-height: 150px;
+			}
+
+			#help {
+				padding-top: 10px;
+			}
+
+			#tilesetScrollPane {
+				max-height: 50vh;
+				overflow-y: auto;
+			}
+
+			.tilesetContainer {
+				position: relative;
+				display: block;
+				width: 300px;
+				height: var(--container-height);
+				padding-left: var(--container-height);
+			}
+
+			.previewImage {
+				position: absolute;
+				left: 0;
+				top: 0;
+				bottom: 0;
+				max-width: var(--container-height);
+				max-height: var(--container-height);
+			}
+
+			.name, .path {
+				display: block;
+				padding: 0 10px;
+			}
+
+			.importButton {
+				position: absolute;
+				bottom: 10px;
+				right: 10px;
+			}
+		</style>
+
+		<paper-dialog opened="{{opened}}">
+			<h2>Import Map</h2>
+			<span id="help">Tilesets need to be manually imported</span>
+			<div id="tilesetScrollPane">
+				<template is="dom-repeat" items="{{map.tilesets}}">
+					<div class="tilesetContainer">
+						<img class="previewImage" index$="[[index]]">
+						<h3 class="name">[[item.name]]</h3>
+						<span class="path">[[item.path]]</span>
+						<paper-button disabled="{{_isTilesetImported(_imported, item.type, item.name)}}"
+							class="importButton">
+							<file-input class="tilesetFileInput" accept="image/*,application/json"
+								max-files="1" on-change="_requestTilesetImport">
+							</file-input>
+							Open Image
+						</paper-button>
+					</div>
+				</template>
+			</div>
+			<div class="buttons">
+				<paper-button dialog-dismiss>Cancel</paper-button>
+				<paper-button disabled="[[_tilesetsMissing]]" on-tap="_import">Import</paper-button>
+			</div>
+		</paper-dialog>
+	</template>
+
+	<script src="./tilesetImporter.js"></script>
+
+	<script>
+		/* globals TilesetImporter */
+		Polymer({
+			is: "dtile-map-import-dialog",
+
+			properties: {
+				map: {
+					type: Object
+				},
+				opened: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+
+				_imported: {
+					type: Array,
+					value: []
+				},
+				_tilesetsMissing: {
+					type: Boolean
+				}
+			},
+
+			observers: [
+				"_setTilesetMissing(_imported.*, map)"
+			],
+
+			open() {
+				this.opened = true;
+			},
+
+			_isTilesetImported(importedArray, type, name, path) {
+				if (type === "test") {
+					return true;
+				}
+				return importedArray.indexOf(name) >= 0;
+			},
+
+			_requestTilesetImport(e) {
+				TilesetImporter.import(e.target.files[0]).then(tileset => {
+					this.push("_imported", e.model.item.name);
+
+					this.set(`map.tilesets.${e.model.index}.virtualPath`, tileset);
+					this.querySelector(`.previewImage[index="${e.model.index}"]`).src = tileset;
+				}).catch(e => {
+					// TODO: Proper error handling
+					console.error("Failed to import tileset", e);
+				});
+			},
+
+			_setTilesetMissing() {
+				let missing = false;
+
+				this.map.tilesets.forEach(tileset => {
+					if (tileset.type !== "test") {
+						if (this._imported.indexOf(tileset.name) < 0) {
+							missing = true;
+							return;
+						}
+					}
+				});
+				this._tilesetsMissing = missing;
+			},
+
+			_import() {
+				this.fire("add-map", this.map);
+				this.opened = false;
+			}
+		});
+	</script>
+</dom-module>

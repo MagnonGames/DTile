@@ -24,6 +24,7 @@
 <link rel="import" href="../dtile-tileset-selector/dtile-tileset-selector.html">
 <link rel="import" href="../dtile-dialogs/dtile-tileset-import-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-new-map-dialog.html">
+<link rel="import" href="../dtile-dialogs/dtile-map-import-dialog.html">
 <link rel="import" href="../dtile-layer-list/dtile-layer-list.html">
 <link rel="import" href="../dtile-tool-selector/dtile-tool-selector.html">
 <link rel="import" href="../dtile-storage/dtile-storage.html">
@@ -120,7 +121,7 @@
 					<paper-icon-item>
 						<iron-icon icon="add" item-icon></iron-icon>
 						<file-input id="mapFileInput" accept="application/json"
-							extensions="[&quot;json&quot;]" max-files="1" on-change="updateMap">
+							extensions="[&quot;json&quot;]" max-files="1" on-change="_requestMapImport">
 						</file-input>
 						Import Map
 					</paper-icon-item>
@@ -132,7 +133,6 @@
 						Import Tileset
 					</paper-icon-item>
 				</paper-listbox>
-				<paper-spinner id="mapSpinner"></paper-spinner>
 			</app-drawer>
 
 			<app-header-layout fullbleed>
@@ -177,6 +177,7 @@
 
 		<dtile-tileset-import-dialog id="tilesetImportDialog"></dtile-tileset-import-dialog>
 		<dtile-new-map-dialog id="mapCreateDialog"></dtile-new-map-dialog>
+		<dtile-map-import-dialog id="mapImportDialog"></dtile-map-import-dialog>
 
 		<dtile-storage id="storage" map="{{_map}}"></dtile-storage>
 	</template>
@@ -223,7 +224,7 @@
 
 			listeners: {
 				"tilesetImportDialog.tileset-import": "addTileset",
-				"mapCreateDialog.map-create": "createNewMap",
+				"add-map": "createAndAddMap",
 				"layerList.layers-changed": "updateLayers",
 				"add-layer": "_addLayer",
 				"map-changed": "_mapUpdated",
@@ -238,27 +239,6 @@
 
 			toggleMainDrawer() {
 				this.$.mainDrawer.toggle();
-			},
-
-			updateMap() {
-				const mapFile = this.$.mapFileInput.files[0];
-				if (!mapFile) return;
-
-				this.$.mapSpinner.active = true;
-
-				const fileReader = new FileReader();
-
-				fileReader.onload = () => {
-					const mapObject = JSON.parse(fileReader.result);
-
-					this.createNewMap({
-						detail: new dtileTilemap.TileMap(mapObject)
-					});
-					this.$.mapSpinner.active = false;
-					this.$.mainDrawer.close();
-				};
-
-				fileReader.readAsText(mapFile);
 			},
 
 			updateLayers() {
@@ -276,7 +256,7 @@
 				this.$.mainDrawer.close();
 			},
 
-			createNewMap(e) {
+			createAndAddMap(e) {
 				this.push("maps", new dtileTilemap.TileMap(e.detail));
 				this.currentMapIndex = this.maps.length - 1;
 			},
@@ -339,6 +319,29 @@
 
 			_saveFailed() {
 				this.saveStatus = "failed";
+			},
+
+			_requestMapImport(e) {
+				const mapFile = this.$.mapFileInput.files[0];
+				if (!mapFile) return;
+
+				const fileReader = new FileReader();
+
+				fileReader.onload = () => {
+					const mapObject = JSON.parse(fileReader.result);
+					const map = new dtileTilemap.TileMap(mapObject);
+
+					this.$.mapImportDialog.map = map;
+					this.$.mapImportDialog.open();
+
+					this.$.mainDrawer.close();
+				};
+
+				fileReader.readAsText(mapFile);
+			},
+
+			_importMap(e) {
+				this.createNewMap(e.detail);
 			}
 		});
 	</script>
