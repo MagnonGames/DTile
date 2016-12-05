@@ -9,6 +9,7 @@ addons:
     - google-chrome
     packages:
     - google-chrome-stable
+    - oracle-java8-installer
   sauce_connect: true
 before_script:
 - npm install -g bower polylint
