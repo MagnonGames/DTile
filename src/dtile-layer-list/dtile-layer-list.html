@@ -83,9 +83,9 @@
 		</div>
 
 		<div id="items" role="listbox">
-			<template id="itemsRepeater" is="dom-repeat" items="[[_reverseLayers]]">
-				<paper-item index$=[[index]] class="layerItem" selected$="{{_isSelected(index, currentSelected)}}"
-					on-tap="_changeSelected">
+			<template id="itemsRepeater" is="dom-repeat" items="{{layers}}" sort="_sortLayers">
+				<paper-item class="layerItem" selected$="{{_isSelected(item, currentSelected)}}"
+					on-tap="_changeSelected" on-track="_handleTrack">
 					<span class="layerName">[[item.name]]</span>
 					<paper-menu-button horizontal-align="right" class="layerMenuButton" close-on-activate>
 						<paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
@@ -124,12 +124,6 @@
 					notify: true
 				},
 
-				_reverseLayers: {
-					type: Array,
-					computed: "_getReverseLayers(layers.*)",
-					notify: true
-				},
-
 				_currentDragging: Object,
 				_currentDraggingIndex: Number,
 				_topMouseOffset: Number,
@@ -141,13 +135,25 @@
 				_renameInputValid: Boolean
 			},
 
-			listeners: {
-				"items.track": "_handleTrack"
-			},
-
 			observers: [
 				"_validateRenameInput(_newLayerName)"
 			],
+
+			moveLayer(startIndex, newIndex) {
+				const didMove = this._moveLayer(startIndex, newIndex);
+				if (!didMove) return;
+
+				const apply = () => {
+						this._moveLayer(startIndex, newIndex);
+					}, reverse = () => {
+						this._moveLayer(newIndex, startIndex);
+					};
+				this.fire("edit-action", { apply, reverse });
+			},
+
+			_sortLayers(layer1, layer2) {
+				return this.layers.indexOf(layer1) < this.layers.indexOf(layer2);
+			},
 
 			_handleTrack(e) {
 				if (e.detail.state === "start") {
@@ -158,6 +164,7 @@
 						el = el.parentElement;
 					}
 					this._currentDragging = el;
+					this._currentDraggingIndex = e.model.index;
 					this._topMouseOffset = e.detail.y;
 					this._topElementOffset = this._currentDragging.getBoundingClientRect().top - clientRect.top;
 
@@ -166,9 +173,6 @@
 
 					[...this.$.items.children].reverse().forEach(child => {
 						if (child.tagName !== "PAPER-ITEM") return;
-						if (child === this._currentDragging) {
-							this._currentDraggingIndex = child.getAttribute("index");
-						}
 						this._setStatic(child, clientRect);
 					});
 				} else if (e.detail.state === "track") {
@@ -186,27 +190,26 @@
 
 					let newIndex = finalTop / this.$.items.children[0].getBoundingClientRect().height;
 					newIndex = Math.min(Math.max(Math.round(newIndex), 0), this.layers.length - 1);
-					this._moveLayer(this._currentDraggingIndex, newIndex);
+					this.moveLayer(
+						this._currentDraggingIndex * -1 + this.layers.length - 1,
+						newIndex * -1 + this.layers.length - 1
+					);
 				}
 			},
 
 			_handleRemove(e) {
-				this._removeLayer(e.model.index);
+				this._removeLayer(e.model.item);
 			},
 
 			_requestRename(e) {
 				this._newLayerName = e.model.item.name;
-				this._renamingLayerIndex = e.model.index;
+				this._renamingLayer = e.model.item;
 				this._renameDialogOpened = true;
 			},
 
 			_handleRename() {
-				// Polymer doesn't update computed properties if you just set a
-				// sub-property. This was the best hack I managed to find for it.
-				const index = this._getReverseIndex(this._renamingLayerIndex);
-				const layer = this.splice("layers", index, 1);
-				layer.name = this._newLayerName;
-				this.splice("layers", index, 0, layer);
+				const index = this._getRealIndex(this._renamingLayer);
+				this.set(`layers.${index}.name`, this._newLayerName);
 
 				this._fireChangeEvent();
 			},
@@ -229,33 +232,33 @@
 				element.style.width = "auto";
 			},
 
-			_moveLayer(startIndex, newIndex) {
-				if (startIndex === newIndex) return;
-
-				// Since layers are rendered in reverse order, we need to respect
-				// that here.
-				const reverseStartIndex = this._getReverseIndex(startIndex);
-				const reverseNewIndex = this._getReverseIndex(newIndex);
-
-				const layer = this.splice("layers", reverseStartIndex, 1)[0];
-				this.splice("layers", reverseNewIndex, 0, layer);
-
-				// Move the selected index if needed
-				if (this.currentSelected === reverseStartIndex) this.currentSelected = reverseNewIndex;
-				else if (this.currentSelected === reverseNewIndex) this.currentSelected = reverseStartIndex;
-
-				const apply = () => {
-						this._moveLayer(startIndex, newIndex);
-					}, reverse = () => {
-						this._moveLayer(newIndex, startIndex);
-					};
-				this.fire("edit-action", { apply, reverse });
-
-				this._fireChangeEvent();
+			_forceUpdate() {
+				const layers = this.layers;
+				this.set("layers", []);
+				this.set("layers", layers);
+				this.$.itemsRepeater.render();
 			},
 
-			_removeLayer(index) {
-				index = this._getReverseIndex(index);
+			_moveLayer(startIndex, newIndex) {
+				if (startIndex === newIndex) return false;
+
+				const layer = this.splice("layers", startIndex, 1)[0];
+				this.splice("layers", newIndex, 0, layer);
+
+				// Move the selected index if needed
+				if (this.currentSelected === startIndex) this.currentSelected = newIndex;
+				else if (this.currentSelected === newIndex) this.currentSelected = startIndex;
+
+				// For some reason, Polymer has weird behavior with splice not
+				// updating dom-repeat correctly which I didn't manage to find a
+				// fix for. Hence the force update.
+				this._forceUpdate();
+				this._fireChangeEvent();
+				return true;
+			},
+
+			_removeLayer(layer) {
+				const index = this._getRealIndex(layer);
 
 				this.splice("layers", index, 1);
 
@@ -269,35 +272,22 @@
 				});
 				this.fire("add-layer", { name: `Layer ${count}` });
 
-				// Force update
-				const layers = this.layers;
-				this.set("layers", []);
-				this.set("layers", layers);
-
 				this.currentSelected = this.layers.length - 1;
+				this._forceUpdate();
 
 				this.fire("map-changed");
 			},
 
-			_getReverseIndex(index) {
-				return index * -1 + this.layers.length - 1;
+			_getRealIndex(layer) {
+				return this.layers.indexOf(layer);
 			},
 
-			_getReverseLayers() {
-				return this.layers.map((_, index, layers) => {
-					return layers[index * -1 + layers.length - 1];
-				});
-			},
-
-			_isSelected(index, selected) {
-				// For some reason (and I have no idea why), comparing with ===
-				// didn't work here. Object.is seems to get the job done, but it
-				// does feel a bit hacky. ¯\_(ツ)_/¯
-				return Object.is(this._getReverseIndex(index), selected);
+			_isSelected(layer, selected) {
+				return this._getRealIndex(layer) === selected;
 			},
 
 			_changeSelected(e) {
-				this.currentSelected = this._getReverseIndex(e.model.index);
+				this.currentSelected = this._getRealIndex(e.model.item);
 			},
 
 			_fireChangeEvent() {
