@@ -128,7 +128,10 @@
 				const data = this.map.takeDataBuffer();
 
 				const applyTilesFromDataBuffer = useNewTiles => {
-					for (let [layerId, tileId, oldData, newData] of data) {
+					for (let i = useNewTiles ? 0 : data.length - 1;
+						useNewTiles ? i < data.length : i >= 0;
+						useNewTiles ? i++ : i--) {
+						let [layerId, tileId, oldData, newData] = data[i];
 						const tile = this.map.layers[layerId].tiles[tileId];
 
 						// While dtile-tilemap normally discourages assigning
