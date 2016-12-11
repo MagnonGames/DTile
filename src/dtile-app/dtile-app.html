@@ -304,6 +304,11 @@
 				this._map.createLayer({
 					name: e.detail.name
 				});
+				this.notifySplices("_map.layers", [
+					{ index: this._map.layers.length - 1, addedCount: 1, removed: [],
+						object: this._map.layers, type: "splice" }
+				]);
+
 				this.updateLayers();
 			},
 
