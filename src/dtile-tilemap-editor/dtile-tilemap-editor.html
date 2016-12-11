@@ -79,10 +79,9 @@
 						);
 
 						this.$.renderer.update(["tiles"]);
-
-						this.fire("map-changed");
 					}
 				} else if (e.detail.state === "end") {
+					this.fire("map-changed");
 					this._addTileEditAction();
 				}
 			},
@@ -143,6 +142,7 @@
 						tile.tileId = useNewTiles ? newData[0] : oldData[0];
 						tile.tilesetId = useNewTiles ? newData[1] : oldData[1];
 					}
+					this.fire("map-changed");
 				};
 
 				this.fire("edit-action", {
