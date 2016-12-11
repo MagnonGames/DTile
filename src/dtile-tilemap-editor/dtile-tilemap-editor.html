@@ -55,6 +55,7 @@
 			],
 
 			listeners: {
+				"renderer.tap": "_rendererTap",
 				"renderer.track": "_rendererTrack",
 				"tileset-added": "_updateTilesets",
 				"update-map": "_updateMap"
@@ -68,22 +69,38 @@
 				return this.currentTool === "selection";
 			},
 
+			_rendererTap(e) {
+				if (this.currentTool === "pen") {
+					this._mousePaint(e.detail);
+					this.fire("map-changed");
+					this._addTileEditAction();
+				}
+			},
+
 			_rendererTrack(e) {
 				if (e.detail.state === "track") {
 					if (this.currentTool === "pen") {
-						if (!this.currentTileArea) return;
-						const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail));
-						if (!pos) return;
-						this.map.layers[this.currentLayer].insertTileArea(
-							pos.x, pos.y, this.currentTileArea, true
-						);
-
-						this.$.renderer.update(["tiles"]);
+						this._mousePaint(e.detail);
 					}
 				} else if (e.detail.state === "end") {
 					this.fire("map-changed");
 					this._addTileEditAction();
 				}
+			},
+
+			_mousePaint(detail) {
+				if (!this.currentTileArea) return;
+				const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(detail));
+				if (!pos) return;
+				this.paintAt(pos.x, pos.y, this.currentLayer, this.currentTileArea);
+			},
+
+			paintAt(x, y, layerId, tileArea) {
+				this.map.layers[layerId].insertTileArea(
+					x, y, tileArea, true
+				);
+
+				this.$.renderer.update(["tiles"]);
 			},
 
 			getTilePosition(x, y, transformToLocal) {
