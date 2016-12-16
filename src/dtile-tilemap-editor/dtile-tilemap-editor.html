@@ -74,6 +74,13 @@
 					this._mousePaint(e.detail);
 					this.fire("map-changed");
 					this._addTileEditAction();
+				} else if (this.currentTool === "fill") {
+					const pos = this.$.renderer.getTileAtMouse(this._toLocalRendererPos(e.detail));
+					this.map.layers[this.currentLayer].fillAt(pos.x, pos.y, this.currentTileArea);
+
+					this.fire("map-changed");
+					this._addTileEditAction();
+					this.$.renderer.update(["tiles"]);
 				}
 			},
 
