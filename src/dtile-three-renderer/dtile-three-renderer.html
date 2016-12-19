@@ -50,13 +50,25 @@
 					reflectToAttribute: true
 				},
 
+				debugEnabled: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				profilingEnabled: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+
 				_toUpdate: Array
 			},
 
 			observers: [
 				"changeMap(map)",
 				"updateCamera(panX, panY, zoom)",
-				"setOutline(outline)"
+				"setOutline(outline)",
+				"setDebug(debugEnabled, profilingEnabled)"
 			],
 
 			attached() {
@@ -65,6 +77,7 @@
 				}
 
 				this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
+				this.setDebug(this.debugEnabled);
 				this._toUpdate = [];
 
 				this.updateCamera(this.panX, this.panY, this.zoom);
@@ -114,6 +127,12 @@
 			setTint(x, y, layerId, tint) {
 				this.renderer.getTile(x, y, layerId).tint = tint;
 				this.update(["tiles"]);
+			},
+
+			setDebug(enabled, profiling) {
+				if (!this.renderer) return;
+				this.renderer.debugMode = enabled;
+				this.renderer.runProfile = profiling;
 			},
 
 			update(toUpdate) {
