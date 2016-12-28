@@ -1,0 +1,240 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+
+<dom-module id="dtile-property-dialog">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+
+			#propertyContainer {
+				max-height: 50vh;
+				overflow-y: auto;
+			}
+
+			#toolbar {
+				display: flex;
+				margin-top: 0;
+			}
+
+			#toolbar .spacer {
+				flex-grow: 1;
+			}
+		</style>
+
+		<paper-dialog id="dialog" opened="{{opened}}" with-backdrop>
+			<h2>Property Editor</h2>
+
+			<div id="propertyContainer">
+				<template is="dom-repeat" items="{{_editingProperties}}">
+					<property-field key="{{item.key}}" value="{{item.value}}"
+						on-remove="_removeField"></property-field>
+				</template>
+			</div>
+
+			<div id="toolbar">
+				<span class="spacer"></span>
+				<paper-icon-button icon="add" on-click="_requestAdd"></paper-icon-button>
+			</div>
+
+			<div class="buttons">
+				<paper-button dialog-dismiss>Cancel</paper-button>
+				<paper-button on-tap="_applyProperties" dialog-dismiss>Apply</paper-button>
+			</div>
+		</paper-dialog>
+	</template>
+	<script>
+		Polymer({
+			is: "dtile-property-dialog",
+
+			properties: {
+				propertyObjects: {
+					type: Array,
+					value: []
+				},
+				opened: {
+					type: Boolean,
+					value: false
+				},
+
+				_editingProperties: {
+					type: Array,
+					value: []
+				}
+			},
+
+			observers: [
+				"_computeProperties(propertyObjects)",
+				"_notifyResize(_editingProperties.*)",
+				"_notifyOpened(opened)"
+			],
+
+			_computeProperties() {
+				this._editingProperties = [];
+
+				const properties = new Map();
+
+				this.propertyObjects.forEach(propertyObject => {
+					propertyObject.getAll().forEach(kvPair => {
+						const property = properties.get(kvPair[0]) || {};
+
+						property.values = property.values || [];
+						property.values.forEach(value => {
+							if (value !== kvPair[1]) {
+								property.valueDifference = true;
+							}
+						});
+						if (!property.valueDifference) property.values.push(kvPair[1]);
+
+						properties.set(kvPair[0], property);
+					});
+				});
+
+				properties.forEach((value, key) => {
+					const indifferent = this.propertyObjects.length <= 1 ||
+						!value.valueDifference &&
+						value.values.length === this.propertyObjects.length;
+
+					this.push("_editingProperties", {
+						key,
+						value: indifferent ? value.values[0] : undefined
+					});
+				});
+			},
+
+			_notifyResize() {
+				this.$.dialog.notifyResize();
+			},
+
+			_notifyOpened() {
+				Polymer.updateStyles();
+			},
+
+			_removeField(e) {
+				this.splice("_editingProperties", e.model.index, 1);
+			},
+
+			_requestAdd() {
+				this.push("_editingProperties", {
+					key: "",
+					value: ""
+				});
+			},
+
+			_applyProperties() {
+				this._editingProperties.forEach(property => {
+					this.propertyObjects.forEach(propertyObject => {
+						const { key, value } = property;
+						if (typeof key === "undefined" || typeof value === "undefined") return;
+						propertyObject.set(property.key, property.value);
+					});
+				});
+			}
+		});
+	</script>
+</dom-module>
+
+<dom-module id="property-field">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+
+			paper-input {
+				display: inline-block;
+				width: 250px;
+			}
+
+			paper-input:first-of-type {
+				width: 150px;
+			}
+
+			paper-input[differs] {
+				--paper-input-container-color: var(--paper-red-500);
+				--paper-input-container-input-color: var(--secondary-text-color);
+			}
+		</style>
+
+		<paper-input value="{{key}}"></paper-input>
+		<paper-input id="valueInput" value="{{_displayValue}}"
+			differs$="{{_valueDiffers}}"></paper-input>
+
+		<paper-menu-button horizontal-align="right" close-on-activate>
+			<paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
+			<paper-menu class="dropdown-content">
+				<paper-icon-item on-tap="_requestRemove">
+					<iron-icon icon="delete" item-icon></iron-icon> Remove
+				</paper-icon-item>
+			</paper-menu>
+		</paper-menu-button>
+	</template>
+
+	<script>
+		Polymer({
+			is: "property-field",
+
+			properties: {
+				key: {
+					type: String,
+					notify: true
+				},
+				value: {
+					type: Object,
+					notify: true
+				},
+
+				_displayValue: {
+					type: String
+				},
+				_valueDiffers: {
+					type: Boolean,
+					computed: "_isUndefined(value)",
+					notify: true
+				}
+			},
+
+			listeners: {
+				"valueInput.blur": "recalculateStyles"
+			},
+
+			observers: [
+				"_setDisplayValue(value)",
+				"_setValue(_displayValue)"
+			],
+
+			_setDisplayValue(value) {
+				this._displayValue = typeof value === "undefined" ? "*" : value;
+				if (value !== this._displayValue) this.recalculateStyles();
+			},
+
+			_setValue(value) {
+				if (typeof this.value === "undefined" && value === "*") return;
+				this.value = value;
+			},
+
+			_requestRemove() {
+				this.fire("remove");
+			},
+
+			_isUndefined(value) {
+				return typeof value === "undefined";
+			},
+
+			recalculateStyles() {
+				Polymer.updateStyles();
+			}
+		});
+	</script>
+</dom-module>
