@@ -237,7 +237,9 @@
 				"storage.save-done": "_saveDone",
 				"storage.save-failed": "_saveFailed",
 
-				"edit-action": "_addAction"
+				"edit-action": "_addAction",
+
+				"show-properties": "_showProperties"
 			},
 
 			observers: [
@@ -369,6 +371,11 @@
 			_redo() {
 				this.$.actionManager.redo();
 				this.$.renderer.fire("update-map");
+			},
+
+			_showProperties({ detail: { propertyObjects } }) {
+				this.$.propertyDialog.propertyObject = propertyObjects;
+				this.$.propertyDialog.opened = true;
 			}
 		});
 	</script>

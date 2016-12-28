@@ -1,9 +1,12 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
 <link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
 <link rel="import" href="../dtile-selection/dtile-selection.html">
 <link rel="import" href="../dtile-scroll-behavior/dtile-scroll-behavior.html">
 <link rel="import" href="../dtile-tile-select-behavior/dtile-tile-select-behavior.html">
+<link rel="import" href="../dtile-context-menu/dtile-context-menu.html">
 
 <dom-module id="dtile-tilemap-editor">
 	<template>
@@ -19,10 +22,18 @@
 			dtile-selection {
 				z-index: 10;
 			}
+
+			#context {
+				z-index: 20;
+			}
 		</style>
 		<dtile-selection id="selection" enabled=[[_isSelecting(currentTool)]]></dtile-selection>
 		<dtile-three-renderer id="renderer" map="[[map]]" outline="[[outline]]"
 			pan-x="[[panX]]" pan-y="[[panY]]" zoom="[[zoom]]"></dtile-three-renderer>
+
+		<dtile-context-menu id="context">
+			<paper-item on-click="_openPropertiesForSelected">Properties</paper-item>
+		</dtile-context-menu>
 	</template>
 
 	<script>
@@ -58,7 +69,9 @@
 				"renderer.tap": "_rendererTap",
 				"renderer.track": "_rendererTrack",
 				"tileset-added": "_updateTilesets",
-				"update-map": "_updateMap"
+				"update-map": "_updateMap",
+
+				"contextmenu": "_displayContext"
 			},
 
 			observers: [
@@ -177,6 +190,24 @@
 					reverse() {
 						applyTilesFromDataBuffer(false);
 					}
+				});
+			},
+
+			_displayContext(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				const box = this.getBoundingClientRect();
+
+				this.$.context.open(e.clientX - box.left, e.clientY - box.top);
+			},
+
+			_openPropertiesForSelected() {
+				this.fire("show-properties", {
+					propertyObjects: this.currentSelection.map(({ x, y }) => {
+						const layer = this.map.layers[this.currentLayer];
+						return layer.tiles[layer.getTileIndex(x, y)].properties;
+					})
 				});
 			}
 		});
