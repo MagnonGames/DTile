@@ -1,0 +1,114 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
+
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+
+<dom-module id="dtile-context-menu">
+	<template>
+		<style>
+			:host {
+				display: block;
+				position: absolute;
+				top: 0; right: 0; bottom: 0; left: 0;
+			}
+
+			:host[hidden] {
+				display: none;
+			}
+
+			#material {
+				z-index: 1000;
+				position: absolute;
+			}
+
+			#menu {
+				min-width: 150px;
+			}
+		</style>
+
+		<paper-material id="material" elevation="3">
+			<paper-menu id="menu" selectable="[none]">
+				<content></content>
+			</paper-menu>
+		</paper-material>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-context-menu",
+
+			properties: {
+				withBackdrop: {
+					type: Boolean,
+					value: true
+				},
+
+				hidden: {
+					type: Boolean,
+					value: true,
+					reflectToAttribute: true
+				}
+			},
+
+			open(x, y) {
+				this.hidden = false;
+
+				this.$.material.style.left = `${x}px`;
+				this.$.material.style.top = `${y}px`;
+
+				this._attachListeners();
+			},
+
+			close() {
+				this.hidden = true;
+
+				this._removeListeners();
+			},
+
+			_attachListeners() {
+				this._toggleListener(true, "mousedown");
+				this._toggleListener(true, "mouseup");
+				this._toggleListener(true, "mousemove");
+
+				this._closeCallback = this.closeCallback || this.close.bind(this);
+				this.querySelectorAll("#menu *").forEach(el => {
+					el.addEventListener("click", this._closeCallback);
+				});
+			},
+			_removeListeners() {
+				this._toggleListener(false, "mousedown");
+				this._toggleListener(false, "mouseup");
+				this._toggleListener(false, "mousemove");
+
+				this.querySelectorAll("#menu *").forEach(el => {
+					el.removeEventListener("click", this.closeCallback);
+				});
+			},
+			_toggleListener(on, event) {
+				this._preventCallback = this._preventCallback || this._prevent.bind(this);
+				window[`${on ? "add" : "remove"}EventListener`](event, this._preventCallback);
+			},
+
+			_prevent(e) {
+				// If target is a decendant of this, let it get its events.
+				let el = e.target.parentElement;
+				while (el) {
+					if (el === this) return;
+					el = el.parentElement;
+				}
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				// Close if mouse didn't move when clicked.
+				switch (e.type) {
+					case "mousedown": this.moved = false; break;
+					case "mousemove": this.moved = true; break;
+					case "mouseup": if (!this.moved) this.close(); break;
+				}
+			}
+		});
+	</script>
+</dom-module>
