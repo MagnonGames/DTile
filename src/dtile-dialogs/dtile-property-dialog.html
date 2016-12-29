@@ -75,13 +75,13 @@
 			},
 
 			observers: [
-				"_computeProperties(propertyObjects)",
+				"_computeProperties(propertyObjects, _editingProperties)",
 				"_notifyResize(_editingProperties.*)",
 				"_notifyOpened(opened)"
 			],
 
 			_computeProperties() {
-				this._editingProperties = [];
+				this.splice("_editingProperties", 0, this._editingProperties.length);
 
 				const properties = new Map();
 
