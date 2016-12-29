@@ -85,7 +85,6 @@
 
 			_handleMouseMove({ clientX: x, clientY: y }) {
 				this._mousePos = { x, y };
-				this.fire("key-focus");
 			},
 
 			_handleKey({ detail: { key, code } }) {

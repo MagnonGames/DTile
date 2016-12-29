@@ -241,7 +241,7 @@
 
 				"show-properties": "_showProperties",
 
-				"key-focus": "_setKeyFocus"
+				"mousemove": "_handleMouseMove"
 			},
 
 			observers: [
@@ -389,12 +389,19 @@
 				this.$.propertyDialog.opened = true;
 			},
 
-			_setKeyFocus(e) {
-				this._keyFocused = e.target;
-			},
 			_handleKey(e) {
-				e.preventDefault();
-				e.stopPropagation();
+				const stop = () => {
+					e.preventDefault();
+					e.stopPropagation();
+				};
+				const isEditorDecendant = (() => {
+					let el = this._keyFocused;
+					while (el) {
+						if (el === this.$.renderer) return true;
+						el = el.parentElement;
+					}
+					return false;
+				})();
 
 				if (e.ctrlKey && e.code === "KeyZ") {
 					if (e.shiftKey) {
@@ -402,22 +409,27 @@
 					} else {
 						this._undo();
 					}
-					return;
+					stop(); return;
 				}
 
-				if (e.code === "KeyA") { // Pen
-					this.currentTool = "pen"; return;
-				} else if (e.code === "KeyS") { // Fill
-					this.currentTool = "fill"; return;
-				} else if (e.code === "KeyD") { // Select
-					this.currentTool = "selection"; return;
+				if (isEditorDecendant) {
+					if (e.code === "KeyA") { // Pen
+						this.currentTool = "pen"; return;
+					} else if (e.code === "KeyS") { // Fill
+						this.currentTool = "fill"; return;
+					} else if (e.code === "KeyD") { // Select
+						this.currentTool = "selection"; return;
+					}
 				}
 
 				if (!this._keyFocused) return;
-				this._keyFocused.fire("virtual-key-down", {
+				this.fire("virtual-key-down", {
 					key: e.key,
 					code: e.code
-				});
+				}, { node: this._keyFocused });
+			},
+			_handleMouseMove(e) {
+				this._keyFocused = e.target;
 			}
 		});
 	</script>
