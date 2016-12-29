@@ -405,6 +405,14 @@
 					return;
 				}
 
+				if (e.code === "KeyA") { // Pen
+					this.currentTool = "pen"; return;
+				} else if (e.code === "KeyS") { // Fill
+					this.currentTool = "fill"; return;
+				} else if (e.code === "KeyD") { // Select
+					this.currentTool = "selection"; return;
+				}
+
 				if (!this._keyFocused) return;
 				this._keyFocused.fire("virtual-key-down", {
 					key: e.key,
