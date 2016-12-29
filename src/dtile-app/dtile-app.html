@@ -393,9 +393,19 @@
 				this._keyFocused = e.target;
 			},
 			_handleKey(e) {
-				if (!this._keyFocused) return;
 				e.preventDefault();
 				e.stopPropagation();
+
+				if (e.ctrlKey && e.code === "KeyZ") {
+					if (e.shiftKey) {
+						this._redo();
+					} else {
+						this._undo();
+					}
+					return;
+				}
+
+				if (!this._keyFocused) return;
 				this._keyFocused.fire("virtual-key-down", {
 					key: e.key,
 					code: e.code
