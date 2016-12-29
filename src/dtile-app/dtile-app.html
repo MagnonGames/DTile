@@ -239,13 +239,24 @@
 
 				"edit-action": "_addAction",
 
-				"show-properties": "_showProperties"
+				"show-properties": "_showProperties",
+
+				"key-focus": "_setKeyFocus"
 			},
 
 			observers: [
 				"_switchMap(currentMapIndex)",
 				"_mapUpdated(_map)"
 			],
+
+			attached() {
+				this._keyEvent = this._keyEvent || this._handleKey.bind(this);
+				window.addEventListener("keypress", this._keyEvent);
+			},
+			detached() {
+				if (!this._keyEvent) return;
+				window.removeEventListener("keypress", this._keyEvent);
+			},
 
 			toggleMainDrawer() {
 				this.$.mainDrawer.toggle();
@@ -376,6 +387,19 @@
 			_showProperties({ detail: { propertyObjects } }) {
 				this.$.propertyDialog.propertyObjects = propertyObjects;
 				this.$.propertyDialog.opened = true;
+			},
+
+			_setKeyFocus(e) {
+				this._keyFocused = e.target;
+			},
+			_handleKey(e) {
+				if (!this._keyFocused) return;
+				e.preventDefault();
+				e.stopPropagation();
+				this._keyFocused.fire("virtual-key-down", {
+					key: e.key,
+					code: e.code
+				});
 			}
 		});
 	</script>

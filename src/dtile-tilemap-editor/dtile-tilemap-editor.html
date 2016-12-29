@@ -71,7 +71,8 @@
 				"tileset-added": "_updateTilesets",
 				"update-map": "_updateMap",
 
-				"contextmenu": "_displayContext"
+				"mousemove": "_handleMouseMove",
+				"virtual-key-down": "_handleKey"
 			},
 
 			observers: [
@@ -80,6 +81,19 @@
 
 			_isSelecting() {
 				return this.currentTool === "selection";
+			},
+
+			_handleMouseMove({ clientX: x, clientY: y }) {
+				this._mousePos = { x, y };
+				this.fire("key-focus");
+			},
+
+			_handleKey({ detail: { key, code } }) {
+				switch (code) {
+					case "Space":
+						this._displayContext(this._mousePos.x, this._mousePos.y);
+						break;
+				}
 			},
 
 			_rendererTap(e) {
@@ -193,13 +207,9 @@
 				});
 			},
 
-			_displayContext(e) {
-				e.preventDefault();
-				e.stopPropagation();
-
+			_displayContext(x, y) {
 				const box = this.getBoundingClientRect();
-
-				this.$.context.open(e.clientX - box.left, e.clientY - box.top);
+				this.$.context.open(x - box.left, y - box.top);
 			},
 
 			_openPropertiesForSelected() {
