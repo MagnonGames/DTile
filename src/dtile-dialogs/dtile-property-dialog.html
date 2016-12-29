@@ -118,7 +118,9 @@
 			},
 
 			_notifyOpened() {
-				Polymer.updateStyles();
+				this.querySelectorAll("property-field").forEach(el => {
+					el.recalculateStyles();
+				});
 			},
 
 			_removeField(e) {
@@ -217,8 +219,8 @@
 			],
 
 			_setDisplayValue(value) {
-				this._displayValue = typeof value === "undefined" ? "*" : value;
 				if (value !== this._displayValue) this.recalculateStyles();
+				this._displayValue = typeof value === "undefined" ? "*" : value;
 			},
 
 			_setValue(value) {
@@ -235,7 +237,7 @@
 			},
 
 			recalculateStyles() {
-				Polymer.updateStyles();
+				this.updateStyles();
 			}
 		});
 	</script>
