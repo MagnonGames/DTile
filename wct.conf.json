@@ -6,11 +6,6 @@
 					"browserName": "chrome",
 					"platform": "Windows 10",
 					"version": "dev"
-				},
-				{
-					"browserName": "microsoftedge",
-					"platform": "Windows 10",
-					"version": ""
 				}
 			]
 		}
