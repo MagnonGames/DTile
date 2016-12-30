@@ -3,7 +3,7 @@ const vulcanize = require("gulp-vulcanize");
 const crisper = require("gulp-crisper");
 const replace = require("gulp-replace");
 
-gulp.task("build", function() {
+gulp.task("code", function() {
 	return gulp.src("index.html")
 		.pipe(vulcanize({
 			stripComments: true,
@@ -13,6 +13,11 @@ gulp.task("build", function() {
 		.pipe(replace("__VERSION__", getVersion()))
 		.pipe(crisper())
 		.pipe(gulp.dest("build/"));
+});
+
+gulp.task("image", () => {
+	return gulp.src("img/**/*.png")
+		.pipe(gulp.dest("build/img/"));
 });
 
 function getVersion() {
@@ -27,4 +32,4 @@ function getVersion() {
 	}
 }
 
-gulp.task("default", ["build"]);
+gulp.task("default", ["code", "image"]);
