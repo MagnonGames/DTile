@@ -20,6 +20,11 @@ gulp.task("image", () => {
 		.pipe(gulp.dest("build/img/"));
 });
 
+gulp.task("meta", () => {
+	return gulp.src("manifest.json")
+		.pipe(gulp.dest("build/"));
+});
+
 function getVersion() {
 	const branch = process.env.TRAVIS_BRANCH;
 	const buildNo = process.env.TRAVIS_BUILD_NUMBER;
@@ -32,4 +37,4 @@ function getVersion() {
 	}
 }
 
-gulp.task("default", ["code", "image"]);
+gulp.task("default", ["code", "image", "meta"]);

@@ -3,5 +3,7 @@
 	"short_name": "DTile",
 	"description": "The simple, non-clutter tilemap editor",
 	"start_url": "/",
-	"display": "standalone"
+	"display": "standalone",
+	"background_color": "#303030",
+	"theme_color": "#9C27B0"
 }
