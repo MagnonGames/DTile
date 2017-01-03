@@ -20,16 +20,18 @@
 				z-index: 10;
 			}
 		</style>
-		<dtile-selection id="selection" enabled tap-select></dtile-selection>
 		<dtile-three-renderer id="renderer" map="[[_currentTilesetMap]]"
 			outline="[[outline]]" pan-x="[[panX]]" pan-y="[[panY]]"
 			zoom="[[zoom]]"></dtile-three-renderer>
+		<dtile-selection id="selection"></dtile-selection>
 	</template>
 
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
+	<script src="../dtile-tilemap-editor/tool.js"></script>
+	<script src="../dtile-tilemap-editor/select-tool.js"></script>
 
 	<script>
-		/* globals DTile, dtileTilemap */
+		/* globals DTile, dtileTilemap, SelectTool */
 		Polymer({
 			is: "dtile-tileset-selector",
 
@@ -46,11 +48,17 @@
 					notify: true
 				},
 
-				_currentTilesetMap: Object
+				_currentTilesetMap: Object,
+				_selectTool: {
+					type: Object,
+					readOnly: true,
+					value: new SelectTool(true)
+				}
 			},
 
 			listeners: {
-				tileSelectionChanged: "_buildTileArea"
+				"tap": "_handleGesture",
+				"track": "_handleGesture"
 			},
 
 			behaviors: [
@@ -59,19 +67,38 @@
 			],
 
 			observers: [
-				"_updateTileset(map, tilesetId)"
+				"_updateTileset(map, tilesetId)",
+				"_showSelection(previousSelection.*, currentSelection.*)"
 			],
-
-			getTilePosition(x, y, transformToLocal) {
-				return this.$.renderer.getTileAtMouse(
-					transformToLocal
-						? this._toLocalRendererPos({ x, y })
-						: { x, y }
-				);
-			},
 
 			setTileSelected(x, y, selected) {
 				this.$.renderer.setTint(x, y, 0, selected ? this.$.selection.color : false);
+			},
+
+			_handleGesture(e) {
+				const localPosition = this._toLocalRendererPos(e.detail);
+				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
+
+				const { shiftKey, ctrlKey } = e.detail.sourceEvent;
+				const selection = this.$.selection;
+
+				this._selectTool[e.type]({
+					localPosition, tilePosition, shiftKey, ctrlKey,
+					state: e.detail.state,
+
+					startSelect: selection.startSelect.bind(selection),
+					updateSelect: selection.updateSelect.bind(selection),
+					endSelect: selection.endSelect.bind(selection),
+
+					deselectTiles: this.deselectTiles.bind(this),
+					selectTiles: this.selectTiles.bind(this),
+					getTilePositionFromLocal: this._getTilePosition.bind(this)
+				});
+				this.$.renderer.update(["tiles"]);
+			},
+
+			_getTilePosition(x, y) {
+				return this.$.renderer.getTileAtMouse({ x, y });
 			},
 
 			_updateTileset(map, tilesetId) {
@@ -116,6 +143,8 @@
 						tiles
 					}]
 				});
+
+				this._selectTool.map = this._currentTilesetMap;
 			},
 
 			_getImageDimensions(path) {
@@ -171,6 +200,15 @@
 				});
 
 				this.selectedTileArea = new dtileTilemap.TileArea(width, height, tiles);
+			},
+
+			_showSelection() {
+				this.previousSelection.forEach(pos => this.setTileSelected(pos.x, pos.y, false));
+				this.currentSelection.forEach(pos => this.setTileSelected(pos.x, pos.y, true));
+
+				if (this.currentSelection.length > 0) {
+					this._buildTileArea();
+				}
 			}
 		});
 	</script>

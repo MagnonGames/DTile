@@ -1,78 +1,45 @@
 <script>
 	window.DTile = window.DTile || {};
 
-	// Note: to implement this behavior, you need to have a getTilePosition function that
-	// takes in x, y (client positions) and returns { x, y } (tilemap positions)
-	// and setTileSelected function that takes in x, y, color which you can do
-	// whatever you want with. I am aware that this is an ugly solution, but
-	// Polymer has it's fair share of limitations and this seems to be one of them.
 	window.DTile.TileSelectBehavior = {
 		properties: {
 			currentSelection: {
 				type: Array,
-				value: [],
+				value: () => [],
 				readOnly: true,
 				notify: true
 			},
-
-			mapWidth: Number,
-			mapHeight: Number
+			previousSelection: {
+				type: Array,
+				value: () => [],
+				readOnly: true,
+				notify: true
+			}
 		},
 
 		listeners: {
 			select: "_handleSelect"
 		},
 
-		_handleSelect(e) {
-			e.preventDefault();
-			e.stopPropagation();
-
-			if (e.detail.width === 0 && e.detail.height === 0) {
-				this.changeSelection([]);
-				return;
+		deselectTiles(positions) {
+			this.splice("previousSelection", 0, this.previousSelection.length, ...this.currentSelection);
+			if (!positions) {
+				this.splice("currentSelection", 0, this.currentSelection.length);
+			} else {
+				positions.forEach(deselectPos => {
+					this.currentSelection.forEach((selectedPos, i) => {
+						if (deselectPos.x === selectedPos.x &&
+							deselectPos.y === selectedPos.y) {
+							this.splice("currentSelection", i, 1);
+						}
+					});
+				});
 			}
-
-			const endPos = { x: e.detail.x + e.detail.width, y: e.detail.y + e.detail.height };
-			const tilePos1 = this.getTilePosition(e.detail.x, e.detail.y);
-			const tilePos2 = this.getTilePosition(endPos.x, endPos.y);
-
-			const width = this.mapWidth - 1, height = this.mapHeight - 1;
-			// Make sure at least one position is inside the map
-			if (tilePos1.x < 0 && tilePos2.x < 0 || tilePos1.y < 0 && tilePos2.y < 0 ||
-				tilePos1.x > width && tilePos2.x > width || tilePos1.y > height && tilePos2.y > height) {
-				this.changeSelection([]);
-				return;
-			}
-
-			// Clamp
-			tilePos1.x = Math.min(Math.max(tilePos1.x, 0), width);
-			tilePos1.y = Math.min(Math.max(tilePos1.y, 0), height);
-			tilePos2.x = Math.min(Math.max(tilePos2.x, 0), width);
-			tilePos2.y = Math.min(Math.max(tilePos2.y, 0), height);
-
-			const selectionArray = [];
-			for (let x = tilePos1.x; x <= tilePos2.x; x++) {
-				for (let y = tilePos1.y; y <= tilePos2.y; y++) {
-					selectionArray.push({ x, y });
-				}
-			}
-			this.changeSelection(selectionArray);
 		},
 
-		changeSelection(selection) {
-			for (let selectedPosition of this.currentSelection) {
-				this.setTileSelected(
-					selectedPosition.x, selectedPosition.y, false);
-			}
-			this.splice("currentSelection", 0, this.currentSelection.length);
-
-			for (let selectedPosition of selection) {
-				this.setTileSelected(
-					selectedPosition.x, selectedPosition.y, true);
-				this.push("currentSelection", selectedPosition);
-			}
-
-			this.fire("tileSelectionChanged");
+		selectTiles(positions) {
+			this.splice("previousSelection", 0, 0, ...this.currentSelection);
+			this.splice("currentSelection", this.currentSelection.length, 0, ...positions);
 		}
 	};
 </script>
