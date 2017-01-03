@@ -36,8 +36,12 @@
 		</dtile-context-menu>
 	</template>
 
+	<script src="./tool.js"></script>
+	<script src="./pen-tool.js"></script>
+	<script src="./fill-tool.js"></script>
+
 	<script>
-		/* globals DTile */
+		/* globals DTile, PenTool, FillTool */
 		Polymer({
 			is: "dtile-tilemap-editor",
 
@@ -57,7 +61,16 @@
 					reflectToAttribute: true
 				},
 
-				currentTileArea: Object
+				currentTileArea: Object,
+
+				_tools: {
+					type: Object,
+					readonly: true,
+					value: new Map([
+						["pen", new PenTool()],
+						["fill", new FillTool()]
+					])
+				}
 			},
 
 			behaviors: [
@@ -66,8 +79,8 @@
 			],
 
 			listeners: {
-				"renderer.tap": "_rendererTap",
-				"renderer.track": "_rendererTrack",
+				"renderer.tap": "_handleGesture",
+				"renderer.track": "_handleGesture",
 				"tileset-added": "_updateTilesets",
 				"update-map": "_updateMap",
 
@@ -76,8 +89,17 @@
 			},
 
 			observers: [
-				"_mapChanged(map)"
+				"_mapChanged(map)",
+				"_updateTools(map, currentLayer, currentTileArea)"
 			],
+
+			_updateTools(map, layerId, tileArea) {
+				this._tools.forEach(tool => {
+					tool.map = map;
+					tool.layerId = layerId;
+					tool.tileArea = tileArea;
+				});
+			},
 
 			_isSelecting() {
 				return this.currentTool === "selection";
@@ -95,93 +117,22 @@
 				}
 			},
 
-			_rendererTap(e) {
+			_handleGesture(e) {
 				const localPosition = this._toLocalRendererPos(e.detail);
 				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
 
-				if (this.currentTool === "pen") {
-					this._paintOrigin = tilePosition;
-					if (!e.detail.sourceEvent.shiftKey || !this._lastPaintPosition) {
-						this._lastPaintPosition = tilePosition;
-					}
-					this._paintAt(tilePosition.x, tilePosition.y);
-					this._lastPaintPosition = tilePosition;
+				const { shiftKey, ctrlKey } = e.detail.sourceEvent;
 
-					this.fire("map-changed");
-					this._addTileEditAction();
-				} else if (this.currentTool === "fill") {
-					this.map.layers[this.currentLayer]
-						.fillAt(tilePosition.x, tilePosition.y, this.currentTileArea);
-
-					this.$.renderer.update(["tiles"]);
-					this.fire("map-changed");
-					this._addTileEditAction();
-				}
-			},
-
-			_rendererTrack(e) {
-				const localPosition = this._toLocalRendererPos(e.detail);
-				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
-
-				if (this.currentTool === "pen") {
-					if (e.detail.state === "start") {
-						this._paintOrigin = this._lastPaintPosition = tilePosition;
-						this._paintAt(tilePosition.x, tilePosition.y);
-					} else if (e.detail.state === "track") {
-						this._paintAt(tilePosition.x, tilePosition.y);
-						this._lastPaintPosition = tilePosition;
-					} else if (e.detail.state === "end") {
-						this.fire("map-changed");
-						this._addTileEditAction();
-					}
-				}
-			},
-
-			_paintAt(tileX, tileY) {
-				const paint = (tileX, tileY) => {
-					for (let lx = 0; lx < this.currentTileArea.width; lx++) {
-						for (let ly = 0; ly < this.currentTileArea.height; ly++) {
-							const x = tileX + lx;
-							const y = tileY + ly;
-							const tile = this.currentTileArea.getTilingTileData(
-								this._paintOrigin.x, this._paintOrigin.y,
-								x, y
-							);
-
-							if (x < 0 || y < 0 ||
-								x >= this.map.width ||
-								y >= this.map.height) continue;
-
-							this.map.layers[this.currentLayer].getTile(x, y)
-								.setData(tile.tileId, tile.tilesetId);
-						}
-					}
-				};
-
-				let x0 = this._lastPaintPosition.x,
-					y0 = this._lastPaintPosition.y,
-					x1 = tileX, y1 = tileY;
-				const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
-				const sx = (x0 < x1) ? 1 : -1, sy = (y0 < y1) ? 1 : -1;
-
-				let err = dx - dy;
-
-				while (true) {
-					paint(x0, y0);
-
-					if ((x0 === x1) && (y0 === y1)) break;
-					const e2 = err * 2;
-					if (e2 > -dy) {
-						err -= dy;
-						x0 += sx;
-					}
-					if (e2 < dx) {
-						err += dx;
-						y0 += sy;
-					}
-				}
-
+				const mapChanged = this._tools.get(this.currentTool)[e.type]({
+					localPosition, tilePosition, shiftKey, ctrlKey,
+					state: e.detail.state
+				});
 				this.$.renderer.update(["tiles"]);
+
+				if (mapChanged) {
+					this.fire("map-changed");
+					this._addTileEditAction();
+				}
 			},
 
 			getTilePosition(x, y) {

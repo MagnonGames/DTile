@@ -1,0 +1,24 @@
+/* globals Tool */
+window.FillTool = class extends Tool {
+	tap({ tilePosition }) {
+		if (!this.propertiesValid) return false;
+
+		this.fill(tilePosition);
+		return true;
+	}
+
+	track({ tilePosition, state }) {
+		if (!this.propertiesValid) return false;
+
+		if (state === "end") {
+			this.fill(tilePosition);
+			return true;
+		}
+		return false;
+	}
+
+	fill(tilePosition) {
+		this.map.layers[this.layerId]
+			.fillAt(tilePosition.x, tilePosition.y, this.tileArea);
+	}
+};
