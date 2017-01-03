@@ -17,8 +17,8 @@ window.SelectTool = class extends Tool {
 		return false;
 	}
 
-	track({ localPosition, state, shiftKey, startSelect, updateSelect, endSelect,
-		deselectTiles, selectTiles, getTilePositionFromLocal }) {
+	track({ localPosition, state, shiftKey, ctrlKey, startSelect, updateSelect,
+		endSelect, deselectTiles, selectTiles, getTilePositionFromLocal }) {
 		if (!this.map) return false;
 
 		if (state === "start") {
@@ -28,7 +28,7 @@ window.SelectTool = class extends Tool {
 		} else if (state === "end") {
 			const selection = endSelect(localPosition.x, localPosition.y);
 
-			if (!shiftKey) deselectTiles();
+			if (!shiftKey && !ctrlKey) deselectTiles();
 
 			const tilePos1 = getTilePositionFromLocal(selection.min.x, selection.min.y);
 			const tilePos2 = getTilePositionFromLocal(selection.max.x, selection.max.y);
@@ -47,7 +47,9 @@ window.SelectTool = class extends Tool {
 					selectionArray.push({ x, y });
 				}
 			}
-			selectTiles(selectionArray);
+
+			if (ctrlKey) deselectTiles(selectionArray);
+			else selectTiles(selectionArray);
 		}
 
 		return false;
