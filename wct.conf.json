@@ -5,7 +5,7 @@
 				{
 					"browserName": "chrome",
 					"platform": "Windows 10",
-					"version": "dev"
+					"version": "beta"
 				}
 			]
 		}
