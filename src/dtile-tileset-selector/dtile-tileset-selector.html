@@ -4,6 +4,7 @@
 <link rel="import" href="../dtile-selection/dtile-selection.html">
 <link rel="import" href="../dtile-scroll-behavior/dtile-scroll-behavior.html">
 <link rel="import" href="../dtile-tile-select-behavior/dtile-tile-select-behavior.html">
+<link rel="import" href="../dtile-button-gesture-behavior/dtile-button-gesture-behavior.html">
 
 <dom-module id="dtile-tileset-selector">
 	<template>
@@ -63,6 +64,7 @@
 
 			behaviors: [
 				DTile.ScrollBehavior,
+				DTile.ButtonGestureBehavior,
 				DTile.TileSelectBehavior
 			],
 
@@ -76,6 +78,8 @@
 			},
 
 			_handleGesture(e) {
+				if (e.detail.sourceEvent.button !== 0) return;
+
 				const localPosition = this._toLocalRendererPos(e.detail);
 				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
 
