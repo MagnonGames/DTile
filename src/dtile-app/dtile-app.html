@@ -134,6 +134,10 @@
 						</file-input>
 						Import Tileset
 					</paper-icon-item>
+					<paper-icon-item on-tap="exportMap">
+						<iron-icon icon="file-download" item-icon></iron-icon>
+						Export Map
+					</paper-icon-item>
 				</paper-listbox>
 			</app-drawer>
 
@@ -189,9 +193,10 @@
 	</template>
 
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
+	<script src="../../node_modules/file-saver/FileSaver.min.js"></script>
 
 	<script>
-		/* globals dtileTilemap */
+		/* globals dtileTilemap, saveAs */
 		Polymer({
 			is: "dtile-app",
 
@@ -297,6 +302,12 @@
 				this.notifySplices("_map.tilesets", [
 					{ index: this.currentTileset, addedCount: 1, removed: [], object: this._map.tilesets, type: "splice" }
 				]);
+			},
+
+			exportMap() {
+				const json = this._map.getJSON();
+				const blob = new Blob([json], { type: "text/plain;charset=utf-8" });
+				saveAs(blob, `${this._map.name}.json`);
 			},
 
 			_switchMap(index) {
