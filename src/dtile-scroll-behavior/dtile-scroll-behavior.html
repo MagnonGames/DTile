@@ -1,4 +1,6 @@
 <script>
+	const MMB_PAN_SENSITIVITY = 2;
+
 	window.DTile = window.DTile || {};
 
 	window.DTile.ScrollBehavior = {
@@ -21,7 +23,15 @@
 		},
 
 		listeners: {
-			wheel: "_handleWheel"
+			wheel: "_handleWheel",
+			track: "_handleTrackPan"
+		},
+
+		pan(dx, dy) {
+			// Add .001 to make sure invZoom !== 0
+			const invZoom = this.zoom * -1 + 1.001;
+			this.panX += dx * invZoom * 0.5;
+			this.panY += dy * invZoom * 0.5;
 		},
 
 		_handleWheel(e) {
@@ -31,10 +41,13 @@
 			if (e.ctrlKey) {
 				this.zoom = Math.max(0, Math.min(1, this.zoom + e.deltaY * -0.0003));
 			} else {
-				// Add .001 to make sure invZoom !== 0
-				const invZoom = this.zoom * -1 + 1.001;
-				this.panX += e.deltaX * invZoom * 0.5;
-				this.panY += e.deltaY * invZoom * 0.5;
+				this.pan(e.deltaX, e.deltaY);
+			}
+		},
+
+		_handleTrackPan(e) {
+			if (e.detail.sourceEvent.button === 1 && e.detail.state === "track") {
+				this.pan(e.detail.ddx * -MMB_PAN_SENSITIVITY, e.detail.ddy * -MMB_PAN_SENSITIVITY);
 			}
 		}
 	};

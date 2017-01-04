@@ -1,0 +1,82 @@
+<script>
+	window.DTile = window.DTile || {};
+
+	const makeDataObject = () => {
+		return {
+			firstPosition: { x: null, y: null },
+			previousPosition: { x: null, y: null },
+			previousState: null,
+			tracking: false
+		};
+	};
+
+	window.DTile.ButtonGestureBehavior = {
+		properties: {
+			_mouseData: {
+				type: Array,
+				value: () => [makeDataObject(), makeDataObject()]
+			}
+		},
+
+		listeners: {
+			"contextmenu": "_preventContextEvent",
+
+			"mousedown": "_handleIfNotLeftButton",
+			"mousemove": "_handleIfNotLeftButton",
+			"mouseup": "_handleIfNotLeftButton"
+		},
+
+		_preventContextEvent(e) {
+			e.preventDefault();
+		},
+
+		_handleIfNotLeftButton(e) {
+			if (e.button === 1 || e.button === 2) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				const data = this._mouseData[e.button - 1];
+
+				// FIXME: Firing custom events and pretending to be the real thing
+				// is kind of ugly. I feel like a custom gesture could have
+				// been a good choice here, but I have no idea how to implement it.
+				if (e.type === "mousedown") {
+					data.startPosition = { x: e.clientX, y: e.clienY };
+				} else if (e.type === "mousemove") {
+					if (data.previousState === "mousedown") {
+						this.fire("track", {
+							x: e.clientX, y: e.clientY,
+							state: "start", sourceEvent: e
+						});
+						data.tracking = true;
+					} else if (data.tracking) {
+						this.fire("track", {
+							x: e.clientX, y: e.clientY,
+							dx: e.clientX - data.firstPosition.x,
+							dy: e.clientY - data.firstPosition.y,
+							ddx: e.clientX - data.previousPosition.x,
+							ddy: e.clientY - data.previousPosition.y,
+							state: "track", sourceEvent: e
+						});
+					}
+				} else if (e.type === "mouseup") {
+					if (data.previousState === "mousedown") {
+						this.fire("tap", {
+							x: e.clientX, y: e.clientY,
+							sourceEvent: e
+						});
+					} else if (data.previousState === "mousemove") {
+						this.fire("track", {
+							x: e.clientX, y: e.clientY,
+							state: "end", sourceEvent: e
+						});
+						data.tracking = false;
+					}
+				}
+
+				data.previousPosition = { x: e.clientX, y: e.clientY };
+				data.previousState = e.type;
+			}
+		}
+	};
+</script>

@@ -6,6 +6,7 @@
 <link rel="import" href="../dtile-selection/dtile-selection.html">
 <link rel="import" href="../dtile-scroll-behavior/dtile-scroll-behavior.html">
 <link rel="import" href="../dtile-tile-select-behavior/dtile-tile-select-behavior.html">
+<link rel="import" href="../dtile-button-gesture-behavior/dtile-button-gesture-behavior.html">
 <link rel="import" href="../dtile-context-menu/dtile-context-menu.html">
 
 <dom-module id="dtile-tilemap-editor">
@@ -81,12 +82,13 @@
 
 			behaviors: [
 				DTile.ScrollBehavior,
+				DTile.ButtonGestureBehavior,
 				DTile.TileSelectBehavior
 			],
 
 			listeners: {
-				"renderer.tap": "_handleGesture",
-				"renderer.track": "_handleGesture",
+				"tap": "_handleGesture",
+				"track": "_handleGesture",
 				"tileset-added": "_updateTilesets",
 				"update-map": "_updateMap",
 
@@ -121,14 +123,16 @@
 			},
 
 			_handleGesture(e) {
+				if (e.detail.sourceEvent.button === 1) return;
+
 				const localPosition = this._toLocalRendererPos(e.detail);
 				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
 
-				const { shiftKey, ctrlKey } = e.detail.sourceEvent;
+				const { shiftKey, ctrlKey, button } = e.detail.sourceEvent;
 				const selection = this.$.selection;
 
 				const mapChanged = this._tools.get(this.currentTool)[e.type]({
-					localPosition, tilePosition, shiftKey, ctrlKey,
+					localPosition, tilePosition, shiftKey, ctrlKey, button,
 					state: e.detail.state,
 
 					startSelect: selection.startSelect.bind(selection),

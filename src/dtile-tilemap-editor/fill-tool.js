@@ -1,14 +1,14 @@
 /* globals Tool */
 window.FillTool = class extends Tool {
-	tap({ tilePosition }) {
-		if (!this.propertiesValid) return false;
+	tap({ tilePosition, button }) {
+		if (!this.propertiesValid || button) return false;
 
 		this.fill(tilePosition);
 		return true;
 	}
 
-	track({ tilePosition, state }) {
-		if (!this.propertiesValid) return false;
+	track({ tilePosition, state, button }) {
+		if (!this.propertiesValid || button) return false;
 
 		if (state === "end") {
 			this.fill(tilePosition);

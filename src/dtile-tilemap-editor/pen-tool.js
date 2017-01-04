@@ -7,27 +7,31 @@ window.PenTool = class extends Tool {
 		this._lastPaintPosition = null;
 	}
 
-	tap({ tilePosition, shiftKey }) {
+	tap({ tilePosition, shiftKey, button }) {
 		if (!this.propertiesValid) return false;
+
+		const shouldRemove = button === 2;
 
 		this._paintOrigin = tilePosition;
 		if (!shiftKey || !this._lastPaintPosition) {
 			this._lastPaintPosition = tilePosition;
 		}
-		this._paintTo(tilePosition.x, tilePosition.y);
+		this._paintTo(tilePosition.x, tilePosition.y, shouldRemove);
 		this._lastPaintPosition = tilePosition;
 
 		return true;
 	}
 
-	track({ tilePosition, state }) {
+	track({ tilePosition, state, button }) {
 		if (!this.propertiesValid) return false;
+
+		const shouldRemove = button === 2;
 
 		if (state === "start") {
 			this._paintOrigin = this._lastPaintPosition = tilePosition;
-			this._paintTo(tilePosition.x, tilePosition.y);
+			this._paintTo(tilePosition.x, tilePosition.y, shouldRemove);
 		} else if (state === "track") {
-			this._paintTo(tilePosition.x, tilePosition.y);
+			this._paintTo(tilePosition.x, tilePosition.y, shouldRemove);
 			this._lastPaintPosition = tilePosition;
 		} else if (state === "end") {
 			return true;
@@ -35,27 +39,29 @@ window.PenTool = class extends Tool {
 		return false;
 	}
 
-	paintAt(tileX, tileY) {
-		for (let lx = 0; lx < this.tileArea.width; lx++) {
-			for (let ly = 0; ly < this.tileArea.height; ly++) {
+	paintAt(tileX, tileY, shouldRemove) {
+		for (let lx = 0; lx < (shouldRemove ? 1 : this.tileArea.width); lx++) {
+			for (let ly = 0; ly < (shouldRemove ? 1 : this.tileArea.height); ly++) {
 				const x = tileX + lx;
 				const y = tileY + ly;
-				const tile = this.tileArea.getTilingTileData(
-					this._paintOrigin.x, this._paintOrigin.y,
-					x, y
-				);
+				const tile = shouldRemove
+					? { tileId: -1, tilesetId: -1 }
+					: this.tileArea.getTilingTileData(
+						this._paintOrigin.x, this._paintOrigin.y,
+						x, y
+					);
 
 				if (x < 0 || y < 0 ||
 					x >= this.map.width ||
 					y >= this.map.height) continue;
 
 				this.map.layers[this.layerId].getTile(x, y)
-					.setData(tile.tileId, tile.tilesetId);
+					.setData(tile.tileId, tile.tilesetId, shouldRemove);
 			}
 		}
 	}
 
-	_paintTo(tileX, tileY) {
+	_paintTo(tileX, tileY, shouldRemove) {
 		let x0 = this._lastPaintPosition.x,
 			y0 = this._lastPaintPosition.y,
 			x1 = tileX, y1 = tileY;
@@ -65,7 +71,7 @@ window.PenTool = class extends Tool {
 		let err = dx - dy;
 
 		while (true) {
-			this.paintAt(x0, y0);
+			this.paintAt(x0, y0, shouldRemove);
 
 			if ((x0 === x1) && (y0 === y1)) break;
 			const e2 = err * 2;

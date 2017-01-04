@@ -6,8 +6,8 @@ window.SelectTool = class extends Tool {
 		this.tapSelect = tapSelect;
 	}
 
-	tap({ tilePosition, deselectTiles, selectTiles }) {
-		if (!this.map) return false;
+	tap({ tilePosition, deselectTiles, selectTiles, button }) {
+		if (!this.map || button) return false;
 
 		deselectTiles();
 		if (this.tapSelect) {
@@ -18,8 +18,8 @@ window.SelectTool = class extends Tool {
 	}
 
 	track({ localPosition, state, shiftKey, ctrlKey, startSelect, updateSelect,
-		endSelect, deselectTiles, selectTiles, getTilePositionFromLocal }) {
-		if (!this.map) return false;
+		endSelect, deselectTiles, selectTiles, getTilePositionFromLocal, button }) {
+		if (!this.map || button) return false;
 
 		if (state === "start") {
 			startSelect(localPosition.x, localPosition.y);
