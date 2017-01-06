@@ -125,8 +125,45 @@
 			},
 
 			setTint(x, y, layerId, tint) {
-				this.renderer.getTile(x, y, layerId).tint = tint;
+				this.renderer.getTile(x, y, layerId).setTint(tint);
 				this.update(["tiles"]);
+			},
+
+			// Removes old ghost and applies the new one. Returns true if ghost
+			// did not change.
+			setGhost(x, y, layerId, tileArea) {
+				const last = this._lastGhost;
+
+				if (last && last.x === x && last.y === y && last.layerId === layerId &&
+					last.tileArea === tileArea) return true;
+
+				const apply = (x, y, layer, width, height, tileArea) => {
+					for (let lx = x; lx < x + width; lx++) {
+						for (let ly = y; ly < y + height; ly++) {
+							if (lx < 0 || ly < 0 || lx > this.map.width - 1 ||
+								ly > this.map.height - 1) continue;
+
+							const tile = tileArea
+								? tileArea.getTilingTileData(x, y, lx, ly)
+								: null;
+							this.renderer.getTile(lx, ly, layer).setGhost(tile);
+						}
+					}
+				};
+
+				if (last) {
+					const { x, y, width, height, layerId } = last;
+					apply(x, y, layerId, width, height);
+				}
+
+				apply(x, y, layerId, tileArea.width, tileArea.height, tileArea);
+
+				this._lastGhost = {
+					x, y,
+					layerId,
+					width: tileArea.width, height: tileArea.height,
+					tileArea
+				};
 			},
 
 			setDebug(enabled, profiling) {

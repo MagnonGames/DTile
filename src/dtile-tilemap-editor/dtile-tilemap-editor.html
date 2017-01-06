@@ -113,6 +113,23 @@
 
 			_handleMouseMove({ clientX: x, clientY: y }) {
 				this._mousePos = { x, y };
+
+				// getTileAtMouse only works if the renderer is initialized.
+				if (!this._rendererReady) {
+					if (this.$.renderer.renderer) this._rendererReady = true;
+					else return;
+				}
+
+				const localPosition = this._toLocalRendererPos({ x, y });
+				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
+
+				const changeGhost = () => {
+					const ghostChanged = !this.$.renderer.setGhost(
+						tilePosition.x, tilePosition.y, this.currentLayer, this.currentTileArea);
+					if (ghostChanged) this.$.renderer.update(["tiles"]);
+				};
+
+				requestAnimationFrame(changeGhost);
 			},
 
 			_handleKey({ detail: { key, code } }) {
