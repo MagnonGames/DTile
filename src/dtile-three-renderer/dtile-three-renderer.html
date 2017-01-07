@@ -33,6 +33,11 @@
 					value: false,
 					reflectToAttribute: true
 				},
+				backdrop: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
 
 				panX: {
 					type: Number,
@@ -67,7 +72,7 @@
 			observers: [
 				"changeMap(map)",
 				"updateCamera(panX, panY, zoom)",
-				"setOutline(outline)",
+				"setRenderValues(outline, backdrop)",
 				"setDebug(debugEnabled, profilingEnabled)"
 			],
 
@@ -94,6 +99,7 @@
 
 			changeMap(map) {
 				this.renderer.changeMap(map);
+				this.setRenderValues(this.outline, this.backdrop);
 			},
 
 			getTileAtMouse(position, layerId) {
@@ -117,10 +123,11 @@
 				this.update(["size", "camera"]);
 			},
 
-			setOutline(outline) {
+			setRenderValues(outline, backdrop) {
 				if (!this.renderer) return;
 
 				this.renderer.outlineEnabled = outline;
+				this.renderer.backdropEnabled = backdrop;
 				this.update(["tiles"]);
 			},
 
