@@ -1,5 +1,5 @@
 language: node_js
-sudo: required
+sudo: false
 dist: trusty
 node_js: stable
 addons:
@@ -10,7 +10,6 @@ addons:
     packages:
     - google-chrome-stable
     - oracle-java8-installer
-  sauce_connect: true
 before_script:
 - npm install -g bower polylint
 - bower install
@@ -18,7 +17,9 @@ before_script:
 script:
 - npm run build
 - xvfb-run npm test
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s 'default' --skip-plugin local;fi
+# Travis and Saucelabs seem to be having problems connecting with each other
+# right now. Therefore, external tests are disabled.
+#- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s 'default' --skip-plugin local;fi
 after_script:
 - if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then npm run deploy;fi
 env:
