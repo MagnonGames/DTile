@@ -110,9 +110,10 @@
 				if (!this.renderer) return;
 
 				this.renderer.camera.zoom = Math.pow(zoom, 2) * (MAX_ZOOM - MIN_ZOOM) + MIN_ZOOM;
+				const cameraUnit = dtileThreeRenderer.CAMERA_UNIT;
 				this.renderer.camera.position.set(
-					panX,
-					panY,
+					panX + this.renderer.width / cameraUnit * 2,
+					panY + this.renderer.height / cameraUnit * 2,
 					this.renderer.camera.position.z
 				);
 
