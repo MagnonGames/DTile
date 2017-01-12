@@ -14,7 +14,7 @@ window.SelectTool = class extends Tool {
 			selectTiles([tilePosition]);
 		}
 
-		return false;
+		return ["tiles"];
 	}
 
 	track({ localPosition, state, shiftKey, ctrlKey, startSelect, updateSelect,

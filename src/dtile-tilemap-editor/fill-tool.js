@@ -4,7 +4,7 @@ window.FillTool = class extends Tool {
 		if (!this.propertiesValid || button) return false;
 
 		this.fill(tilePosition);
-		return true;
+		return ["map", "tiles", "action"];
 	}
 
 	track({ tilePosition, state, button }) {
@@ -12,7 +12,7 @@ window.FillTool = class extends Tool {
 
 		if (state === "end") {
 			this.fill(tilePosition);
-			return true;
+			return ["map", "tiles", "tileaction"];
 		}
 		return false;
 	}

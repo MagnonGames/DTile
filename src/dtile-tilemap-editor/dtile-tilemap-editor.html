@@ -117,11 +117,7 @@
 				const toolEvent = this._buildToolEvent(e);
 				if (!toolEvent) return;
 
-				const mapChanged = this._fireEventOnTool("move", toolEvent);
-
-				if (mapChanged) {
-					this.fire("map-changed");
-				}
+				this._fireEventOnTool("move", toolEvent);
 			},
 
 			_handleKey({ detail: { key, code } }) {
@@ -138,13 +134,7 @@
 				const toolEvent = this._buildToolEvent(e);
 				if (!toolEvent) return;
 
-				const mapChanged = this._fireEventOnTool(e.type, toolEvent);
-				this.$.renderer.update(["tiles"]);
-
-				if (mapChanged) {
-					this.fire("map-changed");
-					this._addTileEditAction();
-				}
+				this._fireEventOnTool(e.type, toolEvent);
 			},
 
 			_fireEventOnTool(name, e) {
@@ -152,9 +142,14 @@
 				const callback = tool[name];
 
 				if (typeof callback === "function") {
-					return callback.call(tool, e);
-				} else {
-					return false;
+					const changed = callback.call(tool, e);
+
+					if (!changed) return;
+					for (let toUpdate of changed) {
+						if (toUpdate === "map") this.fire("map-changed");
+						else if (toUpdate === "tileaction") this._addTileEditAction();
+						else this.$.renderer.update([toUpdate]);
+					}
 				}
 			},
 
@@ -165,11 +160,16 @@
 					else return null;
 				}
 
-				const localPosition = this._toLocalRendererPos(e.detail);
+				const isUIEvent = e instanceof UIEvent;
+
+				const localPosition = this._toLocalRendererPos(
+					isUIEvent
+					? { x: e.clientX, y: e.clientY }
+					: e.detail
+				);
 				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
 
-				const { shiftKey, ctrlKey, button } =
-					e instanceof UIEvent ? e : e.detail.sourceEvent;
+				const { shiftKey, ctrlKey, button } = isUIEvent ? e : e.detail.sourceEvent;
 				const selection = this.$.selection;
 
 				return {
@@ -184,7 +184,7 @@
 					selectTiles: this.selectTiles.bind(this),
 					getTilePositionFromLocal: this.getTilePosition.bind(this),
 
-					changeGhost: () => requestAnimationFrame(this._setGhost.bind(this))
+					changeGhost: this._setGhost.bind(this)
 				};
 			},
 

@@ -7,6 +7,14 @@ window.PenTool = class extends Tool {
 		this._lastPaintPosition = null;
 	}
 
+	move({ tilePosition, changeGhost }) {
+		if (!this.propertiesValid) return false;
+
+		changeGhost(tilePosition.x, tilePosition.y);
+
+		return ["tiles"];
+	}
+
 	tap({ tilePosition, shiftKey, button }) {
 		if (!this.propertiesValid) return false;
 
@@ -19,7 +27,7 @@ window.PenTool = class extends Tool {
 		this._paintTo(tilePosition.x, tilePosition.y, shouldRemove);
 		this._lastPaintPosition = tilePosition;
 
-		return true;
+		return ["map", "tiles", "tileaction"];
 	}
 
 	track({ tilePosition, state, button }) {
@@ -34,9 +42,9 @@ window.PenTool = class extends Tool {
 			this._paintTo(tilePosition.x, tilePosition.y, shouldRemove);
 			this._lastPaintPosition = tilePosition;
 		} else if (state === "end") {
-			return true;
+			return ["map", "tiles", "tileaction"];
 		}
-		return false;
+		return ["tiles"];
 	}
 
 	paintAt(tileX, tileY, shouldRemove) {
