@@ -111,25 +111,17 @@
 				});
 			},
 
-			_handleMouseMove({ clientX: x, clientY: y }) {
-				this._mousePos = { x, y };
+			_handleMouseMove(e) {
+				this._mousePos = { x: e.clientX, y: e.clientY };
 
-				// getTileAtMouse only works if the renderer is initialized.
-				if (!this._rendererReady) {
-					if (this.$.renderer.renderer) this._rendererReady = true;
-					else return;
+				const toolEvent = this._buildToolEvent(e);
+				if (!toolEvent) return;
+
+				const mapChanged = this._fireEventOnTool("move", toolEvent);
+
+				if (mapChanged) {
+					this.fire("map-changed");
 				}
-
-				const localPosition = this._toLocalRendererPos({ x, y });
-				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
-
-				const changeGhost = () => {
-					const ghostChanged = !this.$.renderer.setGhost(
-						tilePosition.x, tilePosition.y, this.currentLayer, this.currentTileArea);
-					if (ghostChanged) this.$.renderer.update(["tiles"]);
-				};
-
-				requestAnimationFrame(changeGhost);
 			},
 
 			_handleKey({ detail: { key, code } }) {
@@ -143,13 +135,44 @@
 			_handleGesture(e) {
 				if (e.detail.sourceEvent.button === 1) return;
 
+				const toolEvent = this._buildToolEvent(e);
+				if (!toolEvent) return;
+
+				const mapChanged = this._fireEventOnTool(e.type, toolEvent);
+				this.$.renderer.update(["tiles"]);
+
+				if (mapChanged) {
+					this.fire("map-changed");
+					this._addTileEditAction();
+				}
+			},
+
+			_fireEventOnTool(name, e) {
+				const tool = this._tools.get(this.currentTool);
+				const callback = tool[name];
+
+				if (typeof callback === "function") {
+					return callback.call(tool, e);
+				} else {
+					return false;
+				}
+			},
+
+			// Returns null if renderer isn't ready.
+			_buildToolEvent(e) {
+				if (!this._rendererReady) {
+					if (this.$.renderer.renderer) this._rendererReady = true;
+					else return null;
+				}
+
 				const localPosition = this._toLocalRendererPos(e.detail);
 				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
 
-				const { shiftKey, ctrlKey, button } = e.detail.sourceEvent;
+				const { shiftKey, ctrlKey, button } =
+					e instanceof UIEvent ? e : e.detail.sourceEvent;
 				const selection = this.$.selection;
 
-				const mapChanged = this._tools.get(this.currentTool)[e.type]({
+				return {
 					localPosition, tilePosition, shiftKey, ctrlKey, button,
 					state: e.detail.state,
 
@@ -159,14 +182,14 @@
 
 					deselectTiles: this.deselectTiles.bind(this),
 					selectTiles: this.selectTiles.bind(this),
-					getTilePositionFromLocal: this.getTilePosition.bind(this)
-				});
-				this.$.renderer.update(["tiles"]);
+					getTilePositionFromLocal: this.getTilePosition.bind(this),
 
-				if (mapChanged) {
-					this.fire("map-changed");
-					this._addTileEditAction();
-				}
+					changeGhost: () => requestAnimationFrame(this._setGhost.bind(this))
+				};
+			},
+
+			_setGhost(tileX, tileY) {
+				this.$.renderer.setGhost(tileX, tileY, this.currentLayer, this.currentTileArea);
 			},
 
 			getTilePosition(x, y) {
