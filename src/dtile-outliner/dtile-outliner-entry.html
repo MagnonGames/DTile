@@ -1,0 +1,39 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+
+<dom-module id="dtile-outliner-entry">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+
+			#container {
+				display: flex;
+				width: 100%;
+				padding: 3px 10px;
+				box-sizing: border-box;
+				align-items: center;
+				position: relative;
+			}
+
+			.spacer {
+				flex-grow: 1;
+			}
+		</style>
+
+		<div id="container">
+			<content select=".text"></content>
+			<span class="spacer"></span>
+			<content select=".icons"></content>
+			<paper-ripple></paper-ripple>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-outliner-entry"
+		});
+	</script>
+</dom-module>

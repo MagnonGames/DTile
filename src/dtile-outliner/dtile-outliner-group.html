@@ -1,0 +1,115 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="dtile-outliner-group">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+
+			#parent {
+				display: flex;
+				align-items: center;
+				padding: 15px 10px;
+				position: relative;
+			}
+
+			#parent > * {
+				display: block;
+				cursor: default;
+			}
+
+			#expandIcon {
+				padding: 0;
+				margin-right: 5px;
+				width: 20px;
+				height: 20px;
+			}
+
+			#parentWrapper {
+				flex-grow: 1;
+			}
+
+			#children {
+				margin-left: 25px;
+				max-height: none;
+				transition: max-height 0.3s;
+				overflow: hidden;
+			}
+
+			#children ::content > dtile-outliner-entry {
+				margin-left: 25px;
+			}
+
+			#children.noTransition {
+				transition: none;
+			}
+		</style>
+
+		<div id="parent" on-click="toggleOpened">
+			<iron-icon icon="{{_getArrowIcon(opened)}}" id="expandIcon"></iron-icon>
+			<div id="parentWrapper">
+				<content select=".parent"></content>
+			</div>
+			<paper-ripple></paper-ripple>
+		</div>
+
+		<div id="children">
+			<content></content>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-outliner-group",
+
+			properties: {
+				opened: {
+					type: Boolean,
+					value: true,
+					notify: true
+				}
+			},
+
+			observers: [
+				"_setChildrenVisibility(opened)"
+			],
+
+			toggleOpened() {
+				this.opened = !this.opened;
+			},
+
+			_setChildrenVisibility(opened) {
+				const children = this.$.children;
+
+				children.classList.add("noTransition");
+				children.style.maxHeight = "none";
+				const openedHeight = children.offsetHeight;
+				children.style.maxHeight = opened ? "0px" : `${openedHeight}px`;
+				children.classList.remove("noTransition");
+				children.offsetHeight; // Force reflow to apply new height.
+
+				if (opened && openedHeight !== 0) {
+					const endListener = () => {
+						if (this.opened) {
+							children.style.maxHeight = "none";
+						}
+						children.removeEventListener("transitionend", endListener);
+					};
+					children.addEventListener("transitionend", endListener);
+				}
+
+				children.style.maxHeight = opened ? `${openedHeight}px` : "0px";
+
+				// Opened height is 0 when just created.
+				if (openedHeight === 0) children.style.maxHeight = "none";
+			},
+
+			_getArrowIcon(opened) {
+				return opened ? "expand-more" : "chevron-right";
+			}
+		});
+	</script>
+</dom-module>
