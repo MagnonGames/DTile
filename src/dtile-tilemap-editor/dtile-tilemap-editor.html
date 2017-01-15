@@ -42,9 +42,10 @@
 	<script src="./pen-tool.js"></script>
 	<script src="./fill-tool.js"></script>
 	<script src="./select-tool.js"></script>
+	<script src="./object-tool.js"></script>
 
 	<script>
-		/* globals DTile, PenTool, FillTool, SelectTool */
+		/* globals DTile, PenTool, FillTool, SelectTool, ObjectTool */
 		Polymer({
 			is: "dtile-tilemap-editor",
 
@@ -70,13 +71,19 @@
 					value: { width: 0, height: 0, tiles: [] }
 				},
 
+				_currentCursor: {
+					type: String,
+					value: "auto"
+				},
+
 				_tools: {
 					type: Object,
 					readonly: true,
 					value: new Map([
 						["pen", new PenTool()],
 						["fill", new FillTool()],
-						["selection", new SelectTool()]
+						["selection", new SelectTool()],
+						["object", new ObjectTool()]
 					])
 				}
 			},
@@ -100,7 +107,8 @@
 			observers: [
 				"_mapChanged(map)",
 				"_updateTools(map, currentLayer, currentTileArea)",
-				"_showSelection(previousSelection.*, currentSelection.*)"
+				"_showSelection(previousSelection.*, currentSelection.*)",
+				"_updateCursor(_currentCursor)"
 			],
 
 			_updateTools(map, layerId, tileArea) {
@@ -167,13 +175,20 @@
 					? { x: e.clientX, y: e.clientY }
 					: e.detail
 				);
-				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
+				const preciseTilePosition = this.$.renderer.unprojectToTilePosition(localPosition, true);
+				const tilePosition = {
+					x: Math.floor(preciseTilePosition.x),
+					y: Math.floor(preciseTilePosition.y)
+				};
 
 				const { shiftKey, ctrlKey, button } = isUIEvent ? e : e.detail.sourceEvent;
 				const selection = this.$.selection;
 
 				return {
-					localPosition, tilePosition, shiftKey, ctrlKey, button,
+					localPosition, preciseTilePosition, tilePosition,
+					shiftKey, ctrlKey, button,
+					dx: e.detail.dx, dy: e.detail.dy,
+					ddx: e.detail.ddx, ddy: e.detail.ddy,
 					state: e.detail.state,
 
 					startSelect: selection.startSelect.bind(selection),
@@ -184,7 +199,12 @@
 					selectTiles: this.selectTiles.bind(this),
 					getTilePositionFromLocal: this.getTilePosition.bind(this),
 
-					changeGhost: this._setGhost.bind(this)
+					getObjectInfoAt: (x, y) => this.$.renderer.getObjectInformationAtMouse(x, y),
+					tileSize: this.$.renderer.renderer.tileSize,
+
+					changeGhost: this._setGhost.bind(this),
+					setCursor: cursor => (this._currentCursor = cursor),
+					openPropertiesFor: this._openPropertiesFor.bind(this)
 				};
 			},
 
@@ -272,9 +292,19 @@
 				});
 			},
 
+			_openPropertiesFor(objects) {
+				this.fire("show-properties", {
+					propertyObjects: objects.map(object => object.properties)
+				});
+			},
+
 			_showSelection() {
 				this.previousSelection.forEach(pos => this.setTileSelected(pos.x, pos.y, false));
 				this.currentSelection.forEach(pos => this.setTileSelected(pos.x, pos.y, true));
+			},
+
+			_updateCursor(cursor) {
+				this.style.cursor = cursor;
 			}
 		});
 	</script>

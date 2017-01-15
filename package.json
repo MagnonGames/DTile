@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "dtile-three-renderer": "^0.12.0",
-    "dtile-tilemap": "^0.7.0",
+    "dtile-tilemap": "^0.8.0",
     "file-saver": "^1.3.3",
     "localforage": "^1.4.3"
   },

@@ -102,8 +102,12 @@
 				this.setRenderValues(this.outline, this.backdrop);
 			},
 
-			getTileAtMouse(position, layerId) {
-				return this.renderer.getTileAtMouse(position, layerId);
+			unprojectToTilePosition(position, includeDecimals) {
+				return this.renderer.unprojectToTilePosition(position, includeDecimals);
+			},
+
+			getObjectInformationAtMouse(x, y) {
+				return this.renderer.getObjectInformationAtMouse({ x, y });
 			},
 
 			updateCamera(panX, panY, zoom) {
@@ -129,7 +133,7 @@
 
 				this.renderer.outlineEnabled = outline;
 				this.renderer.backdropEnabled = backdrop;
-				this.update(["tiles"]);
+				this.update(["tiles", "objects"]);
 			},
 
 			setTint(x, y, layerId, tint) {

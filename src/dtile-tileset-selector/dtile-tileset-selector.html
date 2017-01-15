@@ -82,7 +82,7 @@
 				if (e.detail.sourceEvent.button !== 0) return;
 
 				const localPosition = this._toLocalRendererPos(e.detail);
-				const tilePosition = this.$.renderer.getTileAtMouse(localPosition);
+				const tilePosition = this.$.renderer.unprojectToTilePosition(localPosition);
 
 				const { shiftKey, ctrlKey } = e.detail.sourceEvent;
 				const selection = this.$.selection;
@@ -103,7 +103,7 @@
 			},
 
 			_getTilePosition(x, y) {
-				return this.$.renderer.getTileAtMouse({ x, y });
+				return this.$.renderer.unprojectToTilePosition({ x, y });
 			},
 
 			_updateTileset(map, tilesetId) {
