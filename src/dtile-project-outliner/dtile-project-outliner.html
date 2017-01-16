@@ -1,0 +1,68 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../dtile-outliner/dtile-outliner.html">
+<link rel="import" href="../dtile-outliner/dtile-outliner-entry.html">
+<link rel="import" href="../dtile-outliner/dtile-outliner-group.html">
+
+<dom-module id="dtile-project-outliner">
+	<template>
+		<dtile-outliner>
+			<template is="dom-repeat" items="{{projects}}">
+				<dtile-project-repeater group="{{item}}"></dtile-project-repeater>
+			</template>
+		</dtile-outliner>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-project-outliner",
+
+			properties: {
+				projects: {
+					type: Array,
+					value: () => []
+				}
+			}
+		});
+	</script>
+</dom-module>
+
+<dom-module id="dtile-project-repeater">
+	<template>
+		<dtile-outliner-group>
+			<span class="parent">[[group.name]]</span>
+			<template is="dom-repeat" items="{{group.children}}">
+				<template is="dom-if" if="[[item.children]]">
+					<dtile-project-repeater group="[[item]]"></dtile-project-repeater>
+				</template>
+
+				<template is="dom-if" if="[[!item.children]]">
+					<dtile-outliner-entry>
+						<span class="text">[[item.name]]</span>
+						<div class="icons">
+							<paper-icon-button icon="more-vert"></paper-icon-button>
+						</div>
+					</dtile-outliner-entry>
+				</template>
+			</template>
+		</dtile-outliner-group>
+	</template>
+
+	<script>
+		Polymer({
+			is: "dtile-project-repeater",
+
+			properties: {
+				group: {
+					type: Object,
+					value: () => ({
+						name: "",
+						children: []
+					})
+				}
+			}
+		});
+	</script>
+</dom-module>
