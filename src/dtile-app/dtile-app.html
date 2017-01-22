@@ -80,6 +80,10 @@
 				height: 48px;
 			}
 
+			.mapTabName {
+				flex-grow: 1;
+			}
+
 			paper-icon-button + [main-title] {
 				margin-left: 24px;
 			}
@@ -173,7 +177,9 @@
 							bottom-item scrollable fit-container>
 							<template is="dom-repeat" items="[[openMaps]]">
 								<paper-tab>
-									[[item.name]]
+									<span class="mapTabName">[[item.name]]</span>
+									<paper-icon-button icon="close" on-tap="_closeTab">
+									</paper-icon-button>
 								</paper-tab>
 							</template>
 						</paper-tabs>
@@ -514,6 +520,15 @@
 					path: e.path,
 					root: e.rootTarget
 				};
+			},
+
+			_closeTab(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				this.splice("openMaps", e.model.index, 1);
+
+				if (this.currentMapIndex >= e.model.index) this.currentMapIndex--;
 			}
 		});
 	</script>
