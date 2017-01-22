@@ -248,7 +248,7 @@
 
 				_map: {
 					type: Object,
-					computed: "_getCurrentMap(openMaps, currentMapIndex)"
+					computed: "_getCurrentMap(openMaps, currentMapIndex, openMaps.*)"
 				},
 				_currentProjectName: {
 					type: String,
@@ -526,9 +526,12 @@
 				e.preventDefault();
 				e.stopPropagation();
 
-				this.splice("openMaps", e.model.index, 1);
+				const closingEndItem = e.model.index === this.openMaps.length - 1;
+				const closingCurrent = this.currentMapIndex === e.model.index;
 
-				if (this.currentMapIndex >= e.model.index) this.currentMapIndex--;
+				if (closingEndItem && closingCurrent) this.currentMapIndex--;
+
+				this.splice("openMaps", e.model.index, 1);
 			}
 		});
 	</script>
