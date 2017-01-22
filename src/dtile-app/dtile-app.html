@@ -532,6 +532,8 @@
 				if (closingEndItem && closingCurrent) this.currentMapIndex--;
 
 				this.splice("openMaps", e.model.index, 1);
+
+				this._saveOpenMapsState(this.openMaps, this.currentMapIndex);
 			}
 		});
 	</script>
