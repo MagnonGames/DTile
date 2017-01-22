@@ -282,6 +282,7 @@
 				"projectOutliner.select": "_onProjectOutlinerSelect",
 				"storage.progress-done": "_saveDone",
 				"storage.progress-failed": "_saveFailed",
+				"storage.config-restored": "_restoreConfig",
 
 				"edit-action": "_addAction",
 
@@ -291,7 +292,8 @@
 			},
 
 			observers: [
-				"_mapUpdated(_map)"
+				"_mapUpdated(_map)",
+				"_saveOpenMapsState(openMaps, currentMapIndex)"
 			],
 
 			attached() {
@@ -376,6 +378,13 @@
 				this.$.storage.saveMap(this._currentProjectName, this._map.name);
 			},
 
+			_restoreConfig(e) {
+				const { openMaps = [], openIndex = 0 } = e.detail;
+
+				this.openMaps = openMaps;
+				this.currentMapIndex = openIndex;
+			},
+
 			_getCurrentMap(openMaps, index) {
 				return openMaps[index];
 			},
@@ -406,6 +415,10 @@
 				this.saveTimeout = window.setTimeout(() => {
 					this.saveCurrentMap();
 				}, 1500);
+			},
+
+			_saveOpenMapsState(openMaps, openIndex) {
+				this.$.storage.saveConfig({ openMaps, openIndex });
 			},
 
 			_saveStarted() {
