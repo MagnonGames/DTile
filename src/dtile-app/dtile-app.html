@@ -16,6 +16,8 @@
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 
 <link rel="import" href="../../bower_components/file-input/file-input.html">
@@ -74,6 +76,10 @@
 				background: var(--primary-color);
 			}
 
+			#tabToolbar {
+				height: 48px;
+			}
+
 			paper-icon-button + [main-title] {
 				margin-left: 24px;
 			}
@@ -92,7 +98,7 @@
 				z-index: 10;
 				--app-drawer-content-container: {
 					background: var(--primary-background-color);
-					padding-top: 184px; /* 120px is default (apparently) and the toolbar is 64px */
+					padding-top: calc(120px + 112px); /* 120px is default (apparently) and the toolbar is 112px */
 				}
 				--app-drawer-width: 350px;
 			}
@@ -154,13 +160,23 @@
 			</app-drawer>
 
 			<app-header-layout fullbleed>
-				<app-header shadow>
+				<app-header shadow fixed>
 					<app-toolbar>
 						<paper-icon-button icon="menu" on-tap="toggleMainDrawer"></paper-icon-button>
 						<div main-title>DTile</div>
 						<paper-icon-button icon="undo" on-tap="_undo"></paper-icon-button>
 						<paper-icon-button icon="redo" on-tap="_redo"></paper-icon-button>
 						<dtile-status-indicator status="[[saveStatus]]"></dtile-status-indicator>
+					</app-toolbar>
+					<app-toolbar id="tabToolbar">
+						<paper-tabs selected="{{currentMapIndex}}"
+							bottom-item scrollable fit-container>
+							<template is="dom-repeat" items="[[openMaps]]">
+								<paper-tab>
+									[[item.name]]
+								</paper-tab>
+							</template>
+						</paper-tabs>
 					</app-toolbar>
 				</app-header>
 

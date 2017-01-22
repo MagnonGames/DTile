@@ -25,7 +25,8 @@
     "iron-media-query": "PolymerElements/iron-media-query#^1.0.8",
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.1.0",
     "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#^1.4.2",
-    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^1.10.2"
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^1.10.2",
+    "paper-tabs": "^1.7.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
