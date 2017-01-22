@@ -309,8 +309,16 @@
 
 			openMap(projectName, mapName) {
 				const map = this.$.storage.getMap(projectName, mapName);
-				this.push("openMaps", map);
-				this.currentMapIndex = this.openMaps.length - 1;
+				const openIndex = this.openMaps.indexOf(map);
+
+				if (openIndex < 0) {
+					// Map not opened
+					this.push("openMaps", map);
+					this.currentMapIndex = this.openMaps.length - 1;
+				} else {
+					// Map already added to opened maps
+					this.currentMapIndex = openIndex;
+				}
 			},
 
 			updateLayers() {
