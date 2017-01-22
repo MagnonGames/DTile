@@ -9,80 +9,181 @@
 		</style>
 	</template>
 
+	<script src="./projects.js"></script>
+
 	<script src="../../node_modules/localforage/dist/localforage.min.js"></script>
 	<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
 
 	<script>
-		/* globals localforage, dtileTilemap */
+		/* globals localforage, dtileTilemap, DTile */
 		Polymer({
 			is: "dtile-storage",
 
 			properties: {
-				map: {
-					type: Object,
+				projects: {
+					type: Array,
+					value: () => [],
 					notify: true
+				},
+
+				settings: {
+					type: Object,
+					value: () => ({
+						lastOpen: []
+					})
 				}
 			},
 
 			attached() {
-				localforage.getItem("config-last-map").then(map => {
-					if (map) {
-						this.restoreMap(name);
-					}
-				});
+				this.restoreAll();
 			},
 
-			save() {
-				this.fire("save-start");
-				const promises = [];
-				promises.push(localforage.setItem("map-" + this.map.name, this.map.getJSON()));
-				promises.push(localforage.setItem("config-last-map", this.map.name));
-				promises.concat(this.map.tilesets.map(tileset => {
-					if (tileset.type === "test") return;
-					return fetch(tileset.virtualPath).then(image => {
+			createProject(name) {
+				this.push("projects", new DTile.Project(name));
+			},
+
+			createMap(projectName, map) {
+				const projectIndex = this.getProjectIndex(projectName);
+
+				const mapObject = new dtileTilemap.TileMap(Object.assign({}, map,
+					{ tilesets: this.projects[projectIndex].tilesets }));
+
+				const spliceChange = this.projects[projectIndex].addMap(mapObject);
+				this.notifySplices(`projects.${projectIndex}.${spliceChange.path}`, spliceChange);
+			},
+
+			createTileset(projectName, tileset) {
+				const projectIndex = this.getProjectIndex(projectName);
+
+				const tilesetObject = new dtileTilemap.TileSet(tileset);
+
+				this.push(`projects.${projectIndex}.tilesets`, tilesetObject);
+			},
+
+			// Only saves structure and tilesets, not maps
+			saveProjects() {
+				localforage.setItem("projects", this.projects.map(project => {
+					return {
+						name: project.name,
+						children: project.getOutlined()
+					};
+				}));
+			},
+
+			saveTilesetsForProject(projectName) {
+				this.fire("progress-start");
+
+				const project = this.getProject(projectName);
+				Promise.all(project.tilesets.map(t => {
+					// We don't want to make permanent changes to the tileset, so
+					// we prevent that with Object.assign.
+					const tileset = Object.assign({}, JSON.parse(JSON.stringify(t)));
+
+					if (t.type === "test") return;
+
+					return fetch(t.virtualPath).then(image => {
 						return image.blob();
 					}).then(blob => {
-						// We need to store the image blob with the tileset and
-						// the easiest way I found to do it was by just assigning
-						// it to the tileset and then deleting it afterwards.
 						tileset.blob = blob;
-						return localforage.setItem(
-							"tileset-" + tileset.name, tileset);
-					}).then(() => {
-						delete tileset.blob;
+						return tileset;
 					});
-				}));
-				Promise.all(promises).then(() => {
-					this.fire("save-done");
-				}).catch(e => {
-					this.fire("save-failed", e);
+				})).then(tilesets => {
+					localforage.setItem(`tilesets-${projectName}`, tilesets).then(() => {
+						this.fire("progress-done");
+					});
 				});
 			},
 
-			restoreMap(name) {
-				localforage.iterate((value, key) => {
-					if (key.startsWith("map-")) {
-						return JSON.parse(value);
-					}
-				}).then(map => {
-					return new dtileTilemap.TileMap(map);
-				}).then(map => {
-					Promise.all(map.tilesets.map(tileset => {
-						if (tileset.type === "image") {
-							return this.requestTileset(tileset.name);
-						}
-					})).then(tilesets => {
-						tilesets.forEach((tileset, index) => {
-							if (!tileset) return;
-							map.tilesets[index].virtualPath = URL.createObjectURL(tileset.blob);
+			saveMap(projectName, mapName) {
+				this.fire("progress-start");
+
+				const tempMap = new dtileTilemap.TileMap(this.getProject(projectName).getMap(mapName));
+				tempMap.tilesets = [];
+
+				localforage.setItem(
+					`map-${projectName}-${mapName}`, tempMap.getJSON()
+				).then(() => {
+					this.fire("progress-done");
+				});
+			},
+
+			// Restores projects, maps and tilesets
+			restoreAll() {
+				// Someone, please remind me to convert this to async / await
+				// once that rolls around. Thank you! :D     -- @magnonellie
+
+				this.fire("progress-start");
+
+				const loadMap = (projectName, mapName) => {
+					return localforage.getItem(`map-${projectName}-${mapName}`)
+						.then(map => Promise.resolve(new dtileTilemap.TileMap(JSON.parse(map))));
+				};
+
+				localforage.getItem("projects").then(projects => {
+					if (projects) {
+						let mapPromises;
+						const searchChildrenForMaps = (projectName, parent) => {
+							parent.children.forEach(child => {
+								if (child.children) searchChildrenForMaps(projectName, child);
+								else {
+									// We have a map, let's load it.
+									mapPromises.push(loadMap(projectName, child.name));
+								}
+							});
+						};
+
+						const projectPromises = projects.map(project => {
+							mapPromises = [];
+							// Recursively search children, pushing map loading
+							// promise to mapPromises.
+							searchChildrenForMaps(project.name, project);
+
+							const tilesetsPromise = localforage.getItem(`tilesets-${project.name}`)
+								.then(tilesets => {
+									return Promise.all(tilesets.map(t => {
+										const tileset = new dtileTilemap.TileSet(t);
+										if (tileset.type === "image") {
+											tileset.virtualPath = URL.createObjectURL(t.blob);
+										}
+										return Promise.resolve(tileset);
+									}));
+								});
+
+							// After all maps load, create the project.
+							return Promise.all(mapPromises).then(maps => {
+								return tilesetsPromise.then(tilesets => {
+									const finalProject = new DTile.Project(
+										project.name, project.children, tilesets, maps);
+									finalProject.maps.forEach(map => (map.tilesets = finalProject.tilesets));
+									return finalProject;
+								});
+							});
 						});
-						this.map = map;
-					});
+
+						// After all the projects are created, set this.projects
+						// to the final values.
+						Promise.all(projectPromises).then(projects => {
+							this.splice("projects", 0, this.projects.length, ...projects);
+							this.fire("progress-done");
+						});
+					} else this.fire("progress-done");
 				});
 			},
 
-			requestTileset(name) {
-				return localforage.getItem("tileset-" + name);
+			getProject(projectName) {
+				return this.projects.find(project => project.name === projectName);
+			},
+
+			getProjectIndex(projectName) {
+				return this.projects.findIndex(project => project.name === projectName);
+			},
+
+			getMap(projectName, mapName) {
+				return this.getProject(projectName).getMap(mapName);
+			},
+
+			findProjectForMap(map) {
+				return this.projects.find(project => project.getMap(map.name) === map);
 			},
 
 			clear() {

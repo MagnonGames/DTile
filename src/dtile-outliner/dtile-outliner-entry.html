@@ -23,7 +23,7 @@
 			}
 		</style>
 
-		<div id="container">
+		<div id="container" on-tap="_fireSelect">
 			<content select=".text"></content>
 			<span class="spacer"></span>
 			<content select=".icons"></content>
@@ -33,7 +33,11 @@
 
 	<script>
 		Polymer({
-			is: "dtile-outliner-entry"
+			is: "dtile-outliner-entry",
+
+			_fireSelect() {
+				this.fire("select");
+			}
 		});
 	</script>
 </dom-module>

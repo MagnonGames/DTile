@@ -31,6 +31,7 @@
 <link rel="import" href="../dtile-storage/dtile-storage.html">
 <link rel="import" href="../dtile-status-indicator/dtile-status-indicator.html">
 <link rel="import" href="../dtile-action-manager/dtile-action-manager.html">
+<link rel="import" href="../dtile-project-outliner/dtile-project-outliner.html">
 
 <dom-module id="dtile-app">
 	<template>
@@ -83,6 +84,10 @@
 				}
 			}
 
+			#mainDrawer {
+				--app-drawer-width: 300px;
+			}
+
 			#rightDrawer {
 				z-index: 10;
 				--app-drawer-content-container: {
@@ -116,6 +121,10 @@
 		<app-drawer-layout fullbleed force-narrow>
 			<app-drawer id="mainDrawer" swipe-open>
 				<paper-listbox selectable=".nothing">
+					<paper-icon-item on-tap="createNewProject">
+						<iron-icon icon="add" item-icon></iron-icon>
+						New Project
+					</paper-icon-item>
 					<paper-icon-item on-tap="requestCreateMap">
 						<iron-icon icon="add" item-icon></iron-icon>
 						New Map
@@ -139,6 +148,9 @@
 						Export Map
 					</paper-icon-item>
 				</paper-listbox>
+
+				<dtile-project-outliner id="projectOutliner" projects="[[projects]]">
+				</dtile-project-outliner>
 			</app-drawer>
 
 			<app-header-layout fullbleed>
@@ -188,7 +200,7 @@
 		<dtile-map-import-dialog id="mapImportDialog"></dtile-map-import-dialog>
 		<dtile-property-dialog id="propertyDialog"></dtile-property-dialog>
 
-		<dtile-storage id="storage" map="{{_map}}"></dtile-storage>
+		<dtile-storage id="storage" projects="{{projects}}"></dtile-storage>
 		<dtile-action-manager id="actionManager"></dtile-action-manager>
 	</template>
 
@@ -201,13 +213,25 @@
 			is: "dtile-app",
 
 			properties: {
-				maps: {
+				projects: {
+					type: Array,
+					value: () => []
+				},
+
+				openMaps: {
 					type: Array,
 					value: []
 				},
 				currentMapIndex: Number,
 
-				_map: Object,
+				_map: {
+					type: Object,
+					computed: "_getCurrentMap(openMaps, currentMapIndex)"
+				},
+				_currentProjectName: {
+					type: String,
+					computed: "_getProjectNameForMap(_map)"
+				},
 				showOutline: Boolean,
 				currentTool: {
 					type: String,
@@ -239,8 +263,9 @@
 				"layerList.layers-changed": "updateLayers",
 				"add-layer": "_addLayer",
 				"map-changed": "_mapUpdated",
-				"storage.save-done": "_saveDone",
-				"storage.save-failed": "_saveFailed",
+				"projectOutliner.select": "_onProjectOutlinerSelect",
+				"storage.progress-done": "_saveDone",
+				"storage.progress-failed": "_saveFailed",
 
 				"edit-action": "_addAction",
 
@@ -250,7 +275,6 @@
 			},
 
 			observers: [
-				"_switchMap(currentMapIndex)",
 				"_mapUpdated(_map)"
 			],
 
@@ -267,8 +291,19 @@
 				this.$.mainDrawer.toggle();
 			},
 
+			openMap(projectName, mapName) {
+				const map = this.$.storage.getMap(projectName, mapName);
+				this.push("openMaps", map);
+				this.currentMapIndex = this.openMaps.length - 1;
+			},
+
 			updateLayers() {
 				this.$.renderer.fire("update-map");
+			},
+
+			createNewProject() {
+				this.$.storage.createProject(); // TODO: Name
+				this.$.storage.saveProjects();
 			},
 
 			requestCreateMap() {
@@ -283,8 +318,8 @@
 			},
 
 			createAndAddMap(e) {
-				this.push("maps", new dtileTilemap.TileMap(e.detail));
-				this.currentMapIndex = this.maps.length - 1;
+				this.$.storage.createMap("Project", e.detail);
+				this.$.storage.saveProjects();
 			},
 
 			addTileset(e) {
@@ -302,6 +337,8 @@
 				this.notifySplices("_map.tilesets", [
 					{ index: this.currentTileset, addedCount: 1, removed: [], object: this._map.tilesets, type: "splice" }
 				]);
+
+				this.$.storage.saveTilesetsForProject(this._currentProjectName);
 			},
 
 			exportMap() {
@@ -310,20 +347,21 @@
 				saveAs(blob, `${this._map.name}.json`);
 			},
 
-			_switchMap(index) {
-				this._setMap(this.maps[index]);
+			saveCurrentMap() {
+				if (!this._currentProjectName || !this._map) return;
+				this.$.storage.saveMap(this._currentProjectName, this._map.name);
 			},
 
-			_setMap(map) {
-				const mapUpdated = () => this._mapUpdated();
-				const proxy = {
-					set(target, key, value) {
-						target[key] = value;
-						mapUpdated();
-					}
-				};
+			_getCurrentMap(openMaps, index) {
+				return openMaps[index];
+			},
 
-				this._map = new Proxy(map, proxy);
+			_getProjectNameForMap(map) {
+				return this.$.storage.findProjectForMap(map).name;
+			},
+
+			_onProjectOutlinerSelect(e) {
+				this.openMap(e.detail.parentName, e.detail.item.name);
 			},
 
 			_addLayer(e) {
@@ -342,7 +380,7 @@
 				this.saveStatus = "activity";
 				if (this.saveTimeout) window.clearTimeout(this.saveTimeout);
 				this.saveTimeout = window.setTimeout(() => {
-					this.$.storage.save();
+					this.saveCurrentMap();
 				}, 1500);
 			},
 

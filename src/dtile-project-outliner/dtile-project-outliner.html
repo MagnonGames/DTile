@@ -33,13 +33,13 @@
 	<template>
 		<dtile-outliner-group>
 			<span class="parent">[[group.name]]</span>
-			<template is="dom-repeat" items="{{group.children}}">
+			<template is="dom-repeat" items="{{_children}}">
 				<template is="dom-if" if="[[item.children]]">
 					<dtile-project-repeater group="[[item]]"></dtile-project-repeater>
 				</template>
 
 				<template is="dom-if" if="[[!item.children]]">
-					<dtile-outliner-entry>
+					<dtile-outliner-entry on-select="_fireSelect">
 						<span class="text">[[item.name]]</span>
 						<div class="icons">
 							<paper-icon-button icon="more-vert"></paper-icon-button>
@@ -61,7 +61,23 @@
 						name: "",
 						children: []
 					})
+				},
+
+				_children: {
+					type: Array,
+					computed: "_computeChildren(group.*)"
 				}
+			},
+
+			_computeChildren(change) {
+				return change.base.getOutlined();
+			},
+
+			_fireSelect(e) {
+				e.stopPropagation();
+
+				const item = e.detail.item || e.model.item;
+				this.fire("select", { parentName: this.group.name, item });
 			}
 		});
 	</script>
