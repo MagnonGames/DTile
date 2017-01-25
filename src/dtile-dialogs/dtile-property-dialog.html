@@ -33,7 +33,7 @@
 			}
 		</style>
 
-		<paper-dialog id="dialog" opened="{{opened}}" with-backdrop>
+		<paper-dialog id="dialog" with-backdrop>
 			<h2>Property Editor</h2>
 
 			<div id="propertyContainer">
@@ -49,8 +49,8 @@
 			</div>
 
 			<div class="buttons">
-				<paper-button dialog-dismiss>Cancel</paper-button>
-				<paper-button on-tap="_applyProperties" dialog-dismiss>Apply</paper-button>
+				<paper-button on-tap="_decline" dialog-dismiss>Cancel</paper-button>
+				<paper-button on-tap="_confirm" dialog-dismiss>Apply</paper-button>
 			</div>
 		</paper-dialog>
 	</template>
@@ -59,33 +59,54 @@
 			is: "dtile-property-dialog",
 
 			properties: {
-				propertyObjects: {
+				_objects: {
 					type: Array,
-					value: []
+					value: () => []
 				},
-				opened: {
-					type: Boolean,
-					value: false
+				_staticProperties: {
+					type: Array,
+					value: () => []
 				},
 
+				_propertyObjects: {
+					type: Array,
+					computed: "_getPropertyObjects(_objects)"
+				},
 				_editingProperties: {
 					type: Array,
-					value: []
+					value: () => []
 				}
 			},
 
 			observers: [
-				"_computeProperties(propertyObjects, _editingProperties)",
-				"_notifyResize(_editingProperties.*)",
-				"_notifyOpened(opened)"
+				"_setEditingProperties(_propertyObjects, _editingProperties)",
+				"_notifyResize(_editingProperties.*)"
 			],
 
-			_computeProperties() {
+			requestProperties(objects, staticProperties) {
+				this._objects = objects;
+				this._staticProperties = staticProperties;
+
+				// TODO: static properties
+
+				return new Promise((resolve, reject) => {
+					this.$.dialog.open();
+
+					this._resolve = resolve;
+					this._reject = reject;
+				});
+			},
+
+			_getPropertyObjects(objects) {
+				return objects.map(object => object.properties);
+			},
+
+			_setEditingProperties(propertyObjects) {
 				this.splice("_editingProperties", 0, this._editingProperties.length);
 
 				const properties = new Map();
 
-				this.propertyObjects.forEach(propertyObject => {
+				propertyObjects.forEach(propertyObject => {
 					propertyObject.getAll().forEach(kvPair => {
 						const property = properties.get(kvPair[0]) || {};
 
@@ -102,13 +123,12 @@
 				});
 
 				properties.forEach((value, key) => {
-					const indifferent = this.propertyObjects.length <= 1 ||
+					const indifferent = propertyObjects.length <= 1 ||
 						!value.valueDifference &&
-						value.values.length === this.propertyObjects.length;
+						value.values.length === propertyObjects.length;
 
 					this.push("_editingProperties", {
-						key,
-						value: indifferent ? value.values[0] : undefined
+						key, value: indifferent ? value.values[0] : undefined
 					});
 				});
 			},
@@ -136,7 +156,7 @@
 
 			_applyProperties() {
 				this._editingProperties.forEach(property => {
-					this.propertyObjects.forEach(propertyObject => {
+					this._propertyObjects.forEach(propertyObject => {
 						const { key, value } = property;
 						if (typeof key === "undefined" || typeof value === "undefined") return;
 						propertyObject.set(property.key, property.value);
@@ -144,6 +164,22 @@
 				});
 
 				this.fire("map-changed");
+			},
+
+			_confirm() {
+				this._applyProperties();
+				this._resolve();
+				this._reset();
+			},
+
+			_decline() {
+				this._reject();
+				this._reset();
+			},
+
+			_reset() {
+				this._resolve = null;
+				this._reject = null;
 			}
 		});
 	</script>

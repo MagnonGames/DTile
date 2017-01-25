@@ -296,7 +296,7 @@
 
 				"edit-action": "_addAction",
 
-				"show-properties": "_showProperties",
+				"request-properties": "_requestProperties",
 				"request-rename": "_requestRename",
 				"request-confirmation": "_requestConfirmation",
 
@@ -464,6 +464,11 @@
 				fileReader.readAsText(mapFile);
 			},
 
+			_requestProperties({ detail }) {
+				this.$.propertyDialog.requestProperties(detail.objects,
+					detail.staticProperties).then(detail.resolve).catch(detail.reject);
+			},
+
 			_requestRename({ detail }) {
 				this.$.renameDialog.requestRename(detail.prompt, detail.errorMsg,
 					detail.validator).then(detail.resolve).catch(detail.reject);
@@ -490,11 +495,6 @@
 			_redo() {
 				this.$.actionManager.redo();
 				this.$.renderer.fire("update-map");
-			},
-
-			_showProperties({ detail: { propertyObjects } }) {
-				this.$.propertyDialog.propertyObjects = propertyObjects;
-				this.$.propertyDialog.opened = true;
 			},
 
 			_handleKey(e) {

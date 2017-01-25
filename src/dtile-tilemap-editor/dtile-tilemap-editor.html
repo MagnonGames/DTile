@@ -5,6 +5,7 @@
 <link rel="import" href="../dtile-behaviors/dtile-scroll-behavior.html">
 <link rel="import" href="../dtile-behaviors/dtile-tile-select-behavior.html">
 <link rel="import" href="../dtile-behaviors/dtile-button-gesture-behavior.html">
+<link rel="import" href="../dtile-behaviors/dtile-properties-behavior.html">
 
 <link rel="import" href="../dtile-three-renderer/dtile-three-renderer.html">
 <link rel="import" href="../dtile-selection/dtile-selection.html">
@@ -91,7 +92,9 @@
 			behaviors: [
 				DTile.ScrollBehavior,
 				DTile.ButtonGestureBehavior,
-				DTile.TileSelectBehavior
+				DTile.TileSelectBehavior,
+
+				DTile.PropertiesBehavior
 			],
 
 			listeners: {
@@ -284,18 +287,16 @@
 			},
 
 			_openPropertiesForSelected() {
-				this.fire("show-properties", {
-					propertyObjects: this.currentSelection.map(({ x, y }) => {
-						const layer = this.map.layers[this.currentLayer];
-						return layer.tiles[layer.getTileIndex(x, y)].properties;
-					})
-				});
+				const layer = this.map.layers[this.currentLayer];
+				this.requestProperties(
+					this.currentSelection.map(({ x, y }) => layer.getTile(x, y)),
+					["tileId"]
+				).then(() => {}).catch(() => {});
 			},
 
-			_openPropertiesFor(objects) {
-				this.fire("show-properties", {
-					propertyObjects: objects.map(object => object.properties)
-				});
+			_openPropertiesFor(objects, staticProperties) {
+				this.requestProperties(objects, staticProperties)
+					.then(() => {}).catch(() => {});
 			},
 
 			_showSelection() {
