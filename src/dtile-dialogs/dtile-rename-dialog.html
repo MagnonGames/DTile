@@ -6,7 +6,7 @@
 
 <dom-module id="dtile-rename-dialog">
 	<template>
-		<paper-dialog id="dialog">
+		<paper-dialog id="dialog" with-backdrop>
 			<h2>[[prompt]]</h2>
 			<paper-input id="renameInput" label="Name" autofocus invalid="[[!_inputValid]]"
 				error-message="[[errorMsg]]" required value="{{newName}}"></paper-input>
