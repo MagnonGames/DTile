@@ -1,6 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
 
 <link rel="import" href="../dtile-outliner/dtile-outliner.html">
 <link rel="import" href="../dtile-outliner/dtile-outliner-entry.html">
@@ -10,7 +13,9 @@
 	<template>
 		<dtile-outliner>
 			<template is="dom-repeat" items="{{projects}}">
-				<dtile-project-repeater group="{{item}}"></dtile-project-repeater>
+				<dtile-project-repeater group="{{item}}"
+					on-rename="_rename" on-remove="_remove",
+					on-properties="_properties"></dtile-project-repeater>
 			</template>
 		</dtile-outliner>
 	</template>
@@ -24,6 +29,16 @@
 					type: Array,
 					value: () => []
 				}
+			},
+
+			_rename(e) {
+				console.log("STUB: rename", e.model.item.name, e.detail.mapName);
+			},
+			_remove(e) {
+				console.log("STUB: remove", e.model.item.name, e.detail.mapName);
+			},
+			_properties(e) {
+				console.log("STUB: properties", e.model.item.name, e.detail.mapName);
 			}
 		});
 	</script>
@@ -42,7 +57,15 @@
 					<dtile-outliner-entry on-select="_fireSelect">
 						<span class="text">[[item.name]]</span>
 						<div class="icons">
-							<paper-icon-button icon="more-vert"></paper-icon-button>
+							<paper-menu-button>
+								<paper-icon-button icon="more-vert" on-tap="_handleMenuTap"
+									class="dropdown-trigger"></paper-icon-button>
+								<paper-menu class="dropdown-content">
+									<paper-item on-tap="_rename">Rename</paper-item>
+									<paper-item on-tap="_remove">Remove</paper-item>
+									<paper-item on-tap="_properties">Properties</paper-item>
+								</paper-menu>
+							</paper-menu-button>
 						</div>
 					</dtile-outliner-entry>
 				</template>
@@ -78,6 +101,21 @@
 
 				const item = e.detail.item || e.model.item;
 				this.fire("select", { parentName: this.group.name, item });
+			},
+
+			_handleMenuTap(e) {
+				e.stopPropagation();
+				e.target.parentElement.open();
+			},
+
+			_rename(e) {
+				this.fire("rename", { mapName: e.model.item.name });
+			},
+			_remove(e) {
+				this.fire("remove", { mapName: e.model.item.name });
+			},
+			_properties(e) {
+				this.fire("properties", { mapName: e.model.item.name });
 			}
 		});
 	</script>
