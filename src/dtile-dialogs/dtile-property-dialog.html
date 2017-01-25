@@ -253,12 +253,13 @@
 	<template>
 		<style>
 			:host {
-				display: block;
+				display: flex;
+				align-items: flex-end;
 			}
 
 			paper-input {
 				display: inline-block;
-				width: 250px;
+				margin: 0 5px;
 			}
 
 			paper-input:first-of-type {
@@ -268,6 +269,10 @@
 			paper-input[differs] {
 				--paper-input-container-color: var(--paper-red-500);
 				--paper-input-container-input-color: var(--secondary-text-color);
+			}
+
+			#valueInput {
+				flex-grow: 1;
 			}
 		</style>
 
