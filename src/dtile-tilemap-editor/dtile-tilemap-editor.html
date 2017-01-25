@@ -197,7 +197,7 @@
 
 					deselectTiles: this.deselectTiles.bind(this),
 					selectTiles: this.selectTiles.bind(this),
-					getTilePositionFromLocal: this.getTilePosition.bind(this),
+					getTilePositionFromLocal: this.unprojectToTilePosition.bind(this),
 
 					getObjectInfoAt: (x, y) => this.$.renderer.getObjectInformationAtMouse(x, y),
 					tileSize: this.$.renderer.renderer.tileSize,
@@ -212,8 +212,8 @@
 				this.$.renderer.setGhost(tileX, tileY, this.currentLayer, this.currentTileArea);
 			},
 
-			getTilePosition(x, y) {
-				return this.$.renderer.getTileAtMouse({ x, y });
+			unprojectToTilePosition(x, y) {
+				return this.$.renderer.unprojectToTilePosition({ x, y });
 			},
 
 			setTileSelected(x, y, selected) {
