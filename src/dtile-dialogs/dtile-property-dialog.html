@@ -23,6 +23,16 @@
 				overflow-y: auto;
 			}
 
+			.propertyDivider {
+				--divider-padding: 30px;
+				display: block;
+				background: #000;
+				opacity: 0.2;
+				width: calc(100% - 10px);
+				height: 1px;
+				margin: 0 5px;
+			}
+
 			#toolbar {
 				display: flex;
 				margin-top: 0;
@@ -37,6 +47,11 @@
 			<h2>Property Editor</h2>
 
 			<div id="propertyContainer">
+				<template is="dom-repeat" items="{{_editingStatic}}">
+					<property-field key="{{item.key}}" value="{{item.value}}"
+						no-remove></property-field>
+				</template>
+				<span class="propertyDivider"></span>
 				<template is="dom-repeat" items="{{_editingProperties}}">
 					<property-field key="{{item.key}}" value="{{item.value}}"
 						on-remove="_removeField"></property-field>
@@ -72,6 +87,10 @@
 					type: Array,
 					computed: "_getPropertyObjects(_objects)"
 				},
+				_editingStatic: {
+					type: Array,
+					value: () => []
+				},
 				_editingProperties: {
 					type: Array,
 					value: () => []
@@ -79,6 +98,7 @@
 			},
 
 			observers: [
+				"_setEditingStatic(_objects, _staticProperties, _editingStatic)",
 				"_setEditingProperties(_propertyObjects, _editingProperties)",
 				"_notifyResize(_editingProperties.*)"
 			],
@@ -99,6 +119,39 @@
 
 			_getPropertyObjects(objects) {
 				return objects.map(object => object.properties);
+			},
+
+			_setEditingStatic(objects, staticProperties) {
+				this.splice("_editingStatic", 0, this._editingStatic.length);
+
+				const properties = new Map();
+
+				objects.forEach(object => {
+					staticProperties.forEach(propertyName => {
+						const property = properties.get(propertyName) || {};
+
+						const objectPropertyValue = object[propertyName];
+
+						if (!property.valueDifference) {
+							if (typeof property.value === "undefined" ||
+								property.value === objectPropertyValue) {
+								property.value = objectPropertyValue;
+							} else {
+								property.valueDifference = true;
+							}
+						}
+
+						properties.set(propertyName, property);
+					});
+				});
+
+				properties.forEach((value, key) => {
+					const indifferent = objects.length <= 1 || !value.valueDifference;
+
+					this.push("_editingStatic", {
+						key, value: indifferent ? value.value : undefined
+					});
+				});
 			},
 
 			_setEditingProperties(propertyObjects) {
@@ -154,12 +207,22 @@
 				});
 			},
 
+			_applyStatic() {
+				this._editingStatic.forEach(property => {
+					this._objects.forEach(object => {
+						const { key, value } = property;
+						if (typeof key === "undefined" || typeof value === "undefined") return;
+						object[key] = value;
+					});
+				});
+			},
+
 			_applyProperties() {
 				this._editingProperties.forEach(property => {
 					this._propertyObjects.forEach(propertyObject => {
 						const { key, value } = property;
 						if (typeof key === "undefined" || typeof value === "undefined") return;
-						propertyObject.set(property.key, property.value);
+						propertyObject.set(key, value);
 					});
 				});
 
@@ -167,6 +230,7 @@
 			},
 
 			_confirm() {
+				this._applyStatic();
 				this._applyProperties();
 				this._resolve();
 				this._reset();
@@ -211,14 +275,17 @@
 		<paper-input id="valueInput" value="{{_displayValue}}"
 			differs$="{{_valueDiffers}}"></paper-input>
 
-		<paper-menu-button horizontal-align="right" close-on-activate>
-			<paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-			<paper-menu class="dropdown-content">
-				<paper-icon-item on-tap="_requestRemove">
-					<iron-icon icon="delete" item-icon></iron-icon> Remove
-				</paper-icon-item>
-			</paper-menu>
-		</paper-menu-button>
+		<template is="dom-if" if="[[!noRemove]]">
+			<paper-menu-button horizontal-align="right" close-on-activate>
+				<paper-icon-button icon="more-vert" class="dropdown-trigger">
+				</paper-icon-button>
+				<paper-menu class="dropdown-content">
+					<paper-icon-item on-tap="_requestRemove">
+						<iron-icon icon="delete" item-icon></iron-icon> Remove
+					</paper-icon-item>
+				</paper-menu>
+			</paper-menu-button>
+		</template>
 	</template>
 
 	<script>
@@ -226,6 +293,11 @@
 			is: "property-field",
 
 			properties: {
+				noRemove: {
+					type: Boolean,
+					value: false
+				},
+
 				key: {
 					type: String,
 					notify: true
