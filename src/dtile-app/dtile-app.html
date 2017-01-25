@@ -28,6 +28,7 @@
 <link rel="import" href="../dtile-dialogs/dtile-new-map-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-map-import-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-property-dialog.html">
+<link rel="import" href="../dtile-dialogs/dtile-rename-dialog.html">
 <link rel="import" href="../dtile-layer-list/dtile-layer-list.html">
 <link rel="import" href="../dtile-tool-selector/dtile-tool-selector.html">
 <link rel="import" href="../dtile-storage/dtile-storage.html">
@@ -221,6 +222,7 @@
 		<dtile-new-map-dialog id="mapCreateDialog"></dtile-new-map-dialog>
 		<dtile-map-import-dialog id="mapImportDialog"></dtile-map-import-dialog>
 		<dtile-property-dialog id="propertyDialog"></dtile-property-dialog>
+		<dtile-rename-dialog id="renameDialog"></dtile-rename-dialog>
 
 		<dtile-storage id="storage" projects="{{projects}}"></dtile-storage>
 		<dtile-action-manager id="actionManager"></dtile-action-manager>
@@ -293,6 +295,7 @@
 				"edit-action": "_addAction",
 
 				"show-properties": "_showProperties",
+				"request-rename": "_requestRename",
 
 				"mousemove": "_handleMouseMove"
 			},
@@ -456,6 +459,11 @@
 				};
 
 				fileReader.readAsText(mapFile);
+			},
+
+			_requestRename({ detail }) {
+				this.$.renameDialog.requestRename(detail.prompt, detail.errorMsg,
+					detail.validator).then(detail.resolve).catch(detail.reject);
 			},
 
 			_importMap(e) {

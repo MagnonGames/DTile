@@ -9,6 +9,8 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 
+<link rel="import" href="../dtile-behaviors/dtile-rename-behavior.html">
+
 <dom-module id="dtile-layer-list">
 	<template>
 		<style>
@@ -98,23 +100,16 @@
 				</paper-item>
 			</template>
 		</div>
-
-		<paper-dialog id="renameDialog" opened="{{_renameDialogOpened}}">
-			<h2>Rename Layer</h2>
-			<paper-input id="renameInput" label="Name" autofocus auto-validate
-				error-message="Layer has to have a name." required
-				value="{{_newLayerName}}"></paper-input>
-			<div class="buttons">
-				<paper-button dialog-dismiss>Cancel</paper-button>
-				<paper-button dialog-confirm disabled="[[!_renameInputValid]]"
-					on-tap="_handleRename">Rename</paper-button>
-			</div>
-		</paper-dialog>
 	</template>
 
 	<script>
+		/* globals DTile */
 		Polymer({
 			is: "dtile-layer-list",
+
+			behaviors: [
+				DTile.RenameBehavior
+			],
 
 			properties: {
 				layers: Array,
@@ -202,20 +197,16 @@
 			},
 
 			_requestRename(e) {
-				this._newLayerName = e.model.item.name;
-				this._renamingLayer = e.model.item;
-				this._renameDialogOpened = true;
-			},
+				const currentLayer = e.model.item;
+				const index = this._getRealIndex(currentLayer);
 
-			_handleRename() {
-				const index = this._getRealIndex(this._renamingLayer);
-				this.set(`layers.${index}.name`, this._newLayerName);
+				this.requestRename("Rename Layer", "Layer has to have a unique name.", text => {
+					return !this.layers.find(layer => layer !== currentLayer && layer.name === text);
+				}).then(newName => {
+					this.set(`layers.${index}.name`, newName);
 
-				this._fireChangeEvent();
-			},
-
-			_validateRenameInput(name) {
-				this._renameInputValid = name.length > 0;
+					this._fireChangeEvent();
+				}).catch(() => {});
 			},
 
 			_setStatic(element, parentRect) {
