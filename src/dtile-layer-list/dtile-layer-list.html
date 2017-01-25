@@ -124,17 +124,8 @@
 				_currentDragging: Object,
 				_currentDraggingIndex: Number,
 				_topMouseOffset: Number,
-				_topElementOffset: Number,
-
-				_renameDialogOpened: Boolean,
-				_renamingLayerIndex: Object,
-				_newLayerName: String,
-				_renameInputValid: Boolean
+				_topElementOffset: Number
 			},
-
-			observers: [
-				"_validateRenameInput(_newLayerName)"
-			],
 
 			moveLayer(startIndex, newIndex) {
 				const didMove = this._moveLayer(startIndex, newIndex);
