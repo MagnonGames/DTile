@@ -10,6 +10,7 @@
 <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 
 <link rel="import" href="../dtile-behaviors/dtile-rename-behavior.html">
+<link rel="import" href="../dtile-behaviors/dtile-confirmation-behavior.html">
 
 <dom-module id="dtile-layer-list">
 	<template>
@@ -108,7 +109,8 @@
 			is: "dtile-layer-list",
 
 			behaviors: [
-				DTile.RenameBehavior
+				DTile.RenameBehavior,
+				DTile.ConfirmationBehavior
 			],
 
 			properties: {
@@ -193,7 +195,13 @@
 			},
 
 			_handleRemove(e) {
-				this._removeLayer(e.model.item);
+				this.requestConfirmation(
+					"Remove Layer",
+					"Are you sure? You won't be able to restore the layer again.",
+					"Remove").then(() => {
+						this._removeLayer(e.model.item);
+					}).catch(() => {}
+				);
 			},
 
 			_requestRename(e) {

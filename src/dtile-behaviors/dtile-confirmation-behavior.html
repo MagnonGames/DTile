@@ -1,0 +1,14 @@
+<script>
+	window.DTile = window.DTile || {};
+
+	window.DTile.ConfirmationBehavior = {
+		requestConfirmation(prompt, message, action) {
+			return new Promise((resolve, reject) => {
+				this.fire("request-confirmation", {
+					prompt, message, action,
+					resolve, reject
+				});
+			});
+		}
+	};
+</script>

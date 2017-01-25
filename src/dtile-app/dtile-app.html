@@ -29,6 +29,7 @@
 <link rel="import" href="../dtile-dialogs/dtile-map-import-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-property-dialog.html">
 <link rel="import" href="../dtile-dialogs/dtile-rename-dialog.html">
+<link rel="import" href="../dtile-dialogs/dtile-confirm-dialog.html">
 <link rel="import" href="../dtile-layer-list/dtile-layer-list.html">
 <link rel="import" href="../dtile-tool-selector/dtile-tool-selector.html">
 <link rel="import" href="../dtile-storage/dtile-storage.html">
@@ -223,6 +224,7 @@
 		<dtile-map-import-dialog id="mapImportDialog"></dtile-map-import-dialog>
 		<dtile-property-dialog id="propertyDialog"></dtile-property-dialog>
 		<dtile-rename-dialog id="renameDialog"></dtile-rename-dialog>
+		<dtile-confirm-dialog id="confirmDialog"></dtile-confirm-dialog>
 
 		<dtile-storage id="storage" projects="{{projects}}"></dtile-storage>
 		<dtile-action-manager id="actionManager"></dtile-action-manager>
@@ -296,6 +298,7 @@
 
 				"show-properties": "_showProperties",
 				"request-rename": "_requestRename",
+				"request-confirmation": "_requestConfirmation",
 
 				"mousemove": "_handleMouseMove"
 			},
@@ -464,6 +467,11 @@
 			_requestRename({ detail }) {
 				this.$.renameDialog.requestRename(detail.prompt, detail.errorMsg,
 					detail.validator).then(detail.resolve).catch(detail.reject);
+			},
+
+			_requestConfirmation({ detail }) {
+				this.$.confirmDialog.requestConfirmation(detail.prompt, detail.message,
+					detail.action).then(detail.resolve).catch(detail.reject);
 			},
 
 			_importMap(e) {
