@@ -1,0 +1,19 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../dtile-shell/dtile-shell.html">
+
+<dom-module id="dtile-app">
+    <template>
+        <dtile-shell>
+
+        </dtile-shell>
+    </template>
+</dom-module>
+
+<script>
+    class DTileApp extends Polymer.Element {
+        static get is() { return "dtile-app"; }
+    }
+
+    customElements.define(DTileApp.is, DTileApp);
+</script>

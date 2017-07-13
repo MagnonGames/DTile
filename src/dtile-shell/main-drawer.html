@@ -1,0 +1,42 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/all-imports.html">
+
+<dom-module id="dtile-shell-main-drawer">
+    <template>
+        <paper-listbox selectable=".nothing">
+            <paper-icon-item on-tap="createNewProject">
+                <iron-icon icon="add" slot="item-icon"></iron-icon>
+                New Project
+            </paper-icon-item>
+            <paper-icon-item on-tap="requestCreateMap">
+                <iron-icon icon="add" slot="item-icon"></iron-icon>
+                New Map
+            </paper-icon-item>
+            <paper-icon-item>
+                <iron-icon icon="add" slot="item-icon"></iron-icon>
+                Import Map
+            </paper-icon-item>
+            <paper-icon-item>
+                <iron-icon icon="add" slot="item-icon"></iron-icon>
+                Import Tileset
+            </paper-icon-item>
+            <paper-icon-item on-tap="exportMap">
+                <iron-icon icon="file-download" slot="item-icon"></iron-icon>
+                Export Map
+            </paper-icon-item>
+        </paper-listbox>
+    </template>
+</dom-module>
+
+<script>
+    class DTileShellMainDrawer extends Polymer.Element {
+        static get is() { return "dtile-shell-main-drawer"; }
+    }
+
+    customElements.define(DTileShellMainDrawer.is, DTileShellMainDrawer);
+</script>

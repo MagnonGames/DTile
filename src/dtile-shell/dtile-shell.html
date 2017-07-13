@@ -1,0 +1,115 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/custom-style.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+
+<link rel="import" href="./main-drawer.html">
+<link rel="import" href="./status-indicator.html">
+
+<custom-style>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--page-background-color);
+
+            @apply --paper-font-common-base;
+
+            --primary-color: var(--paper-purple-500);
+            --accent-color: var(--paper-cyan-a400);
+            --primary-text-color: white;
+            --secondary-text-color: rgba(255, 255, 255, 0.7);
+            --contrasting-text-color: white;
+            --primary-background-color: #424242;
+            --page-background-color: #303030;
+        }
+    </style>
+</custom-style>
+
+<dom-module id="dtile-shell">
+    <template>
+        <style>
+            app-toolbar {
+                color: var(--contrasting-text-color);
+                background: var(--primary-color);
+            }
+
+            paper-icon-button + [main-title] {
+                margin-left: 24px;
+            }
+
+            app-drawer {
+                --app-drawer-content-container: {
+                    background: var(--primary-background-color);
+                }
+            }
+
+            footer {
+                pointer-events: none;
+                position: absolute;
+                bottom: 10px;
+                left: 0; right: 0;
+                text-align: center;
+                color: white;
+                opacity: 0.6;
+            }
+        </style>
+
+        <app-drawer-layout fullbleed force-narrow>
+            <app-drawer slot="drawer" id="main-drawer" swipe-open>
+                <dtile-shell-main-drawer></dtile-shell-main-drawer>
+            </app-drawer>
+
+            <app-header-layout fullbleed>
+                <app-header shadow fixed>
+                    <app-toolbar>
+                        <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+                        <div main-title>DTile</div>
+
+                        <paper-icon-button icon="undo" on-tap="_undo"></paper-icon-button>
+                        <paper-icon-button icon="redo" on-tap="_redo"></paper-icon-button>
+                        <dtile-shell-status-indicator status="[[_saveStatus]]"></dtile-shell-status-indicator>
+                    </app-toolbar>
+                </app-header>
+
+                <slot></slot>
+            </app-header-layout>
+        </app-drawer-layout>
+
+        <footer>
+            Build: [[_version]]
+        </footer>
+    </template>
+</dom-module>
+
+<script>
+    class DTileShell extends Polymer.Element {
+        static get is() { return "dtile-shell"; }
+
+        static get properties() {
+            return {
+                _saveStatus: {
+                    type: String,
+                    value: "done"
+                },
+
+                _version: {
+                    type: String,
+                    value: "__VERSION__",
+                    readOnly: true
+                }
+            };
+        }
+    }
+
+    customElements.define(DTileShell.is, DTileShell);
+</script>
