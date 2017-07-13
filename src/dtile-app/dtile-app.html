@@ -1,11 +1,34 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
 <link rel="import" href="../dtile-shell/dtile-shell.html">
 
 <dom-module id="dtile-app">
     <template>
-        <dtile-shell>
+        <app-location id="location" route="{{route}}"></app-location>
+        <app-route
+            route="{{route}}"
+            pattern="/:pageName"
+            data="{{pageData}}"
+            tail="{{subroute}}">
+        </app-route>
+        <app-route
+            route="{{subroute}}"
+            pattern="/:content"
+            data="{{pageContentData}}">
+        </app-route>
 
+        <dtile-shell>
+            <iron-pages selected="[[page]]" attr-for-selected="page">
+                <span page="projects">Projects</span>
+                <span page="maps">Maps</span>
+                <span page="tilesets">Maps</span>
+                <span page="editor">Editor</span>
+            </iron-pages>
         </dtile-shell>
     </template>
 </dom-module>
@@ -13,6 +36,32 @@
 <script>
     class DTileApp extends Polymer.Element {
         static get is() { return "dtile-app"; }
+
+        static get properties() {
+            return {
+                page: {
+                    type: String,
+                    value: "projects"
+                },
+
+                pageData: Object,
+                pageContentData: Object
+            };
+        }
+
+        static get observers() {
+            return [
+                "_updatePage(pageData, pageContentData)"
+            ];
+        }
+
+        _updatePage(pageData, pageContentData) {
+            if (pageData.pageName === "") {
+                this.$.location.path = "projects";
+            } else {
+                this.page = pageData.pageName;
+            }
+        }
     }
 
     customElements.define(DTileApp.is, DTileApp);
