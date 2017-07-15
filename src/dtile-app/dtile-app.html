@@ -25,8 +25,8 @@
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">
                 <span page="projects">Projects</span>
-                <span page="maps">Maps</span>
-                <span page="tilesets">Maps</span>
+                <span page="project">Maps</span>
+                <span page="tilesets">Tilesets</span>
                 <span page="editor">Editor</span>
             </iron-pages>
         </dtile-shell>
@@ -39,9 +39,9 @@
 
         static get properties() {
             return {
+                route: String,
                 page: {
-                    type: String,
-                    value: "projects"
+                    type: String
                 },
 
                 pageData: Object,
@@ -57,7 +57,10 @@
 
         _updatePage(pageData, pageContentData) {
             if (pageData.pageName === "") {
-                this.$.location.path = "projects";
+                // Index redirects to projects dashboard by replacing the current
+                // state and updating the app-location element.
+                history.replaceState(null, null, "/projects");
+                window.dispatchEvent(new CustomEvent("location-changed"));
             } else {
                 this.page = pageData.pageName;
             }

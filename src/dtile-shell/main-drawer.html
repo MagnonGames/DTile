@@ -8,34 +8,50 @@
 
 <dom-module id="dtile-shell-main-drawer">
     <template>
-        <paper-listbox selectable=".nothing">
-            <paper-icon-item on-tap="createNewProject">
-                <iron-icon icon="add" slot="item-icon"></iron-icon>
-                New Project
+        <style>
+            nav {
+                color: var(--primary-text-color);
+            }
+
+            hr {
+                height: 0;
+                border: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+            }
+        </style>
+
+        <nav>
+            <paper-icon-item on-tap="navigate" path="projects">
+                <iron-icon icon="dashboard" slot="item-icon"></iron-icon>
+                All projects
             </paper-icon-item>
-            <paper-icon-item on-tap="requestCreateMap">
-                <iron-icon icon="add" slot="item-icon"></iron-icon>
-                New Map
-            </paper-icon-item>
-            <paper-icon-item>
+            <hr>
+            <paper-item>Current project</paper-item>
+            <paper-icon-item on-tap="navigate" path="project">
                 <iron-icon icon="add" slot="item-icon"></iron-icon>
                 Import Map
             </paper-icon-item>
-            <paper-icon-item>
+            <paper-icon-item on-tap="navigate" path="">
+                <iron-icon icon="add" slot="item-icon"></iron-icon>
+                New Map
+            </paper-icon-item>
+            <paper-icon-item on-tap="navigate" path="">
                 <iron-icon icon="add" slot="item-icon"></iron-icon>
                 Import Tileset
             </paper-icon-item>
-            <paper-icon-item on-tap="exportMap">
-                <iron-icon icon="file-download" slot="item-icon"></iron-icon>
-                Export Map
-            </paper-icon-item>
-        </paper-listbox>
+        </nav>
     </template>
 </dom-module>
 
 <script>
     class DTileShellMainDrawer extends Polymer.Element {
         static get is() { return "dtile-shell-main-drawer"; }
+
+        navigate(e) {
+            // Push path, update app-location in dtile-app
+            history.pushState(null, null, `/${e.target.getAttribute("path")}`);
+            window.dispatchEvent(new CustomEvent("location-changed"));
+        }
     }
 
     customElements.define(DTileShellMainDrawer.is, DTileShellMainDrawer);
