@@ -1,55 +1,55 @@
 <!doctype html>
 
 <html>
-	<head>
-		<title>dtile-three-renderer test</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
-		<script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
-		<script src="../../../web-component-tester/browser.js"></script>
+    <head>
+        <title>dtile-three-renderer test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+        <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+        <script src="../../../web-component-tester/browser.js"></script>
 
-		<link rel="import" href="../../src/dtile-three-renderer/dtile-three-renderer.html">
-	</head>
-	<body>
-		<test-fixture id="basic">
-			<template>
-				<dtile-three-renderer></dtile-three-renderer>
-			</template>
-		</test-fixture>
+        <link rel="import" href="../../src/dtile-three-renderer/dtile-three-renderer.html">
+    </head>
+    <body>
+        <test-fixture id="basic">
+            <template>
+                <dtile-three-renderer></dtile-three-renderer>
+            </template>
+        </test-fixture>
 
-		<script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
+        <script src="../../node_modules/dtile-tilemap/out/js/build.js"></script>
 
-		<script>
-			/* eslint-env mocha */
-			/* globals fixture, expect, dtileTilemap */
-			describe("dtile-three-renderer", () => {
-				it("instantiates correctly", () => {
-					const element = fixture("basic");
-					expect(element.is).to.equal("dtile-three-renderer");
-				});
+        <script>
+            /* eslint-env mocha */
+            /* globals fixture, expect, dtileTilemap */
+            describe("dtile-three-renderer", () => {
+                it("instantiates correctly", () => {
+                    const element = fixture("basic");
+                    expect(element.is).to.equal("dtile-three-renderer");
+                });
 
-				it("changes to a map correctly", done => {
-					const element = fixture("basic");
-					getMap().then(map => {
-						element.map = map;
-						expect(element.map).to.equal(element.renderer.map);
-						expect(element.map.name).to.equal("test map");
-						done();
-					});
-				});
-			});
+                it("changes to a map correctly", done => {
+                    const element = fixture("basic");
+                    getMap().then(map => {
+                        element.map = map;
+                        expect(element.map).to.equal(element.renderer.map);
+                        expect(element.map.name).to.equal("test map");
+                        done();
+                    });
+                });
+            });
 
-			function getMap() {
-				return new Promise(resolve => {
-					fetch("testmap.json")
-						.then(resp => {
-							return resp.json();
-						})
-						.then(json => {
-							resolve(new dtileTilemap.TileMap(json));
-						});
-				});
-			}
-		</script>
-	</body>
+            function getMap() {
+                return new Promise(resolve => {
+                    fetch("testmap.json")
+                        .then(resp => {
+                            return resp.json();
+                        })
+                        .then(json => {
+                            resolve(new dtileTilemap.TileMap(json));
+                        });
+                });
+            }
+        </script>
+    </body>
 </html>

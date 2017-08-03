@@ -1,31 +1,31 @@
 <!doctype html>
 
 <html>
-	<head>
-		<title>dtile-app test</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
-		<script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
-		<script src="../../../web-component-tester/browser.js"></script>
+    <head>
+        <title>dtile-app test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+        <script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
+        <script src="../../../web-component-tester/browser.js"></script>
 
-		<link rel="import" href="../../src/dtile-app/dtile-app.html">
-	</head>
-	<body>
-		<test-fixture id="basic">
-			<template>
-				<dtile-app></dtile-app>
-			</template>
-		</test-fixture>
+        <link rel="import" href="../../src/dtile-app/dtile-app.html">
+    </head>
+    <body>
+        <test-fixture id="basic">
+            <template>
+                <dtile-app></dtile-app>
+            </template>
+        </test-fixture>
 
-		<script>
-			/* eslint-env mocha */
-			/* globals fixture, expect */
-			describe("dtile-app", function() {
-				it("instantiates correctly", function() {
-					const element = fixture("basic");
-					expect(element.is).to.equal("dtile-app");
-				});
-			});
-		</script>
-	</body>
+        <script>
+            /* eslint-env mocha */
+            /* globals fixture, expect */
+            describe("dtile-app", function() {
+                it("instantiates correctly", function() {
+                    const element = fixture("basic");
+                    expect(element.is).to.equal("dtile-app");
+                });
+            });
+        </script>
+    </body>
 </html>

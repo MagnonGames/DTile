@@ -1,13 +1,13 @@
 {
-	"plugins": {
-		"sauce": {
-			"browsers": [
-				{
-					"browserName": "chrome",
-					"platform": "Windows 10",
-					"version": "beta"
-				}
-			]
-		}
-	}
+    "plugins": {
+        "sauce": {
+            "browsers": [
+                {
+                    "browserName": "chrome",
+                    "platform": "Windows 10",
+                    "version": "beta"
+                }
+            ]
+        }
+    }
 }
