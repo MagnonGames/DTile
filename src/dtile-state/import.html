@@ -14,8 +14,8 @@
 
         lastId(objectStore) {
             return Object.keys(objectStore).reduce(
-                (acc, id) => Math.max(acc, parseInt(id))
-            ) + 1;
+                (acc, id) => Math.max(acc, parseInt(id) + 1), 0
+            );
         }
     };
 </script>

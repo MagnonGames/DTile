@@ -32,6 +32,10 @@
                             "10": false
                         })).to.equal(11);
                     });
+
+                    it("returns 0 when object is empty", () => {
+                        expect(DTile.stateHelpers.lastId({})).to.equal(0);
+                    });
                 });
             });
         </script>
