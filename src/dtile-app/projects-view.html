@@ -1,0 +1,109 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../dtile-state/import.html">
+
+<dom-module id="dtile-projects-view">
+    <template>
+        <style>
+            #main-container {
+                color: white;
+                margin: 50px;
+            }
+
+            #projects-container {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0 -30px;
+            }
+
+            #projects-container > paper-card {
+                flex: 1 1 300px;
+                margin: 30px;
+            }
+
+            paper-card > .card-actions {
+                border-top: 1px solid rgba(255, 255, 255, 0.12);
+            }
+        </style>
+
+        <div id="main-container">
+            <h1>DTile Projects</h1>
+            <paper-icon-button icon="add" on-tap="_addProject"></paper-icon-button>
+            <div id="projects-container">
+                <template is="dom-repeat" items="{{projects}}">
+                    <paper-card>
+                        <div class="card-content">
+                            <h2>[[item.name]]</h2>
+                        </div>
+                        <div class="card-actions">
+                            <paper-icon-button
+                                icon="delete"
+                                on-tap="_removeProject">
+                            </paper-icon-button>
+                            <paper-button>Edit</paper-button>
+                        </div>
+                    </paper-card>
+                </template>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileProjectsView extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-projects-view"; }
+
+        static get properties() {
+            return {
+                projects: {
+                    type: Object,
+                    statePath(state) {
+                        return Object.values(state.entities.projects);
+                    }
+                }
+            };
+        }
+
+        static get actions() {
+            return {
+                addProject(name) {
+                    const projects = DTile.store.getState().entities.projects;
+                    const projectId = DTile.stateHelpers.lastId(projects);
+                    name = name || `Project ${projectId + 1}`;
+                    return {
+                        type: "ADD_PROJECT",
+                        payload: { name, projectId }
+                    };
+                },
+
+                removeProject(project) {
+                    const projects = DTile.store.getState().entities.projects;
+                    const projectId = Object.keys(projects).find(id => {
+                        return projects[id] === project;
+                    });
+                    return {
+                        type: "REMOVE_PROJECT",
+                        payload: { projectId }
+                    };
+                }
+            };
+        }
+
+        _addProject() {
+            this.dispatch("addProject");
+        }
+
+        _removeProject(e) {
+            const toRemove = e.model.item;
+            this.dispatch("removeProject", toRemove);
+        }
+    }
+
+    customElements.define(DTileProjectsView.is, DTileProjectsView);
+</script>

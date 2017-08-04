@@ -6,6 +6,7 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 
 <link rel="import" href="../dtile-shell/dtile-shell.html">
+<link rel="import" href="projects-view.html">
 
 <dom-module id="dtile-app">
     <template>
@@ -24,7 +25,7 @@
 
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">
-                <span page="projects">Projects</span>
+                <dtile-projects-view page="projects"></dtile-projects-view>
                 <span page="project">Maps</span>
                 <span page="tilesets">Tilesets</span>
                 <span page="editor">Editor</span>
