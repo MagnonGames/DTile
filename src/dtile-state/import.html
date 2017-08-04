@@ -1,0 +1,20 @@
+<link rel="import" href="../../bower_components/polymer-redux/polymer-redux.html">
+<script src="../../node_modules/redux/dist/redux.js"></script>
+
+<script>
+    window.DTile = window.DTile || {};
+    DTile.reducers = { entities: {} };
+
+    DTile.stateHelpers = {
+        getAvailableIdFor(objectStore) {
+            let count = 0;
+            while (objectStore.hasOwnProperty(count)) count++;
+            return count;
+        }
+    };
+</script>
+
+<script src="./reducers/projects.js"></script>
+<script src="./reducers/maps.js"></script>
+
+<script src="./store.js"></script>

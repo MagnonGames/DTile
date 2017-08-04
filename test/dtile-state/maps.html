@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>maps state test</title>
+        <meta charset="utf-8">
+        <script src="../../../web-component-tester/browser.js"></script>
+
+        <link rel="import" href="../../src/dtile-state/import.html">
+    </head>
+    <body>
+        <script>
+            const action = (type, payload) => ({ type, payload });
+            const state = () => DTile.store.getState().entities.maps;
+
+            const createTestProject = () => {
+                DTile.store.dispatch(action("ADD_PROJECT", {
+                    name: "test",
+                    projectId: 0
+                }));
+            };
+
+            const createTestMap = (id = DTile.stateHelpers.getAvailableIdFor(state())) => {
+                DTile.store.dispatch(action("ADD_MAP", {
+                    name: "test",
+                    mapId: id,
+                    projectId: 0
+                }));
+                return id;
+            };
+
+            /* eslint-env mocha */
+            /* globals expect */
+            describe("maps state", () => {
+                let id;
+                beforeEach(() => {
+                    DTile.createStore();
+                    createTestProject();
+                    id = createTestMap();
+                });
+
+                it("has the state be an empty object by default", () => {
+                    DTile.createStore();
+                    expect(state()).to.deep.equal({});
+                });
+
+                describe("ADD_MAP", () => {
+                    it("adds a map to the map storage", () => {
+                        DTile.store.dispatch(action("ADD_MAP", {
+                            name: "test",
+                            mapId: 10,
+                            projectId: 0
+                        }));
+                        expect(state()["10"].name).to.equal("test");
+                    });
+                });
+
+                describe("REMOVE_MAP", () => {
+                    it("removes an existing map", () => {
+                        DTile.store.dispatch(action("REMOVE_MAP", {
+                            mapId: id
+                        }));
+                        expect(state()).to.not.have.property(id);
+                    });
+                });
+
+                // --- To be implemented...
+                // describe("CHANGE_MAP_SIZE", () => {});
+                // describe("CHANGE_MAP_TILE_SIZE", () => {});
+
+                describe("maps.layers state", () => {
+                    describe("ADD_LAYER", () => {
+                        it("adds a layer to the map", () => {
+                            DTile.store.dispatch(action("ADD_LAYER", {
+                                name: "test",
+                                mapId: id
+                            }));
+                            expect(state()[id].layers).to.have.lengthOf(1);
+                        });
+                    });
+
+                    describe("REMOVE_LAYER", () => {
+                        it("removes a layer with an index from the map", () => {
+                            DTile.store.dispatch(action("ADD_LAYER", { mapId: id }));
+                            DTile.store.dispatch(action("REMOVE_LAYER", {
+                                layerIndex: 0,
+                                mapId: id
+                            }));
+                            expect(state()[id].layers).to.have.lengthOf(0);
+                        });
+                    });
+                });
+
+                describe("maps.objects state", () => {
+                    describe("ADD_OBJECT", () => {
+                        it("adds an object to the map", () => {
+                            DTile.store.dispatch(action("ADD_OBJECT", {
+                                name: "test",
+                                mapId: id
+                            }));
+                            expect(state()[id].objects).to.have.lengthOf(1);
+                        });
+                    });
+
+                    describe("REMOVE_OBJECT", () => {
+                        it("removes a layer with an index from the map", () => {
+                            DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
+                            DTile.store.dispatch(action("REMOVE_OBJECT", {
+                                objectIndex: 0,
+                                mapId: id
+                            }));
+                            expect(state()[id].objects).to.have.lengthOf(0);
+                        });
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

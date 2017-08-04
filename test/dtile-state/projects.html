@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>project state test</title>
+        <meta charset="utf-8">
+        <script src="../../../web-component-tester/browser.js"></script>
+
+        <link rel="import" href="../../src/dtile-state/import.html">
+    </head>
+    <body>
+        <script>
+            const action = (type, payload) => ({ type, payload });
+            const state = () => DTile.store.getState().entities.projects;
+
+            const createTestProject = (id = DTile.stateHelpers.getAvailableIdFor(state())) => {
+                DTile.store.dispatch(action("ADD_PROJECT", {
+                    name: "test",
+                    projectId: id
+                }));
+                return id;
+            };
+
+            /* eslint-env mocha */
+            /* globals expect */
+            describe("project state", () => {
+                let id;
+                beforeEach(() => {
+                    DTile.createStore();
+                    id = createTestProject();
+                });
+
+                it("has the state be an empty object by default", () => {
+                    DTile.createStore();
+                    expect(state()).to.deep.equal({});
+                });
+
+                describe("ADD_PROJECT", () => {
+                    it("can add a project with a name", () => {
+                        DTile.store.dispatch(action("ADD_PROJECT", {
+                            name: "test",
+                            projectId: 10
+                        }));
+                        expect(state()["10"].name).to.equal("test");
+                    });
+                });
+
+                describe("REMOVE_PROJECT", () => {
+                    it("removes the project specified from the projects object", () => {
+                        DTile.store.dispatch(action("REMOVE_PROJECT", {
+                            projectId: id
+                        }));
+                        expect(state).to.not.have.property(id);
+                    });
+                });
+
+                describe("ADD_MAP", () => {
+                    it("should add a map reference correctly", () => {
+                        DTile.store.dispatch(action("ADD_MAP", {
+                            projectId: id,
+                            mapId: 99
+                        }));
+                        expect(state()[id].mapIds).to.include(99);
+                    });
+                });
+
+                describe("REMOVE_MAP", () => {
+                    it("should remove a map reference that already exists", () => {
+                        DTile.store.dispatch(action("ADD_MAP", {
+                            projectId: id,
+                            mapId: 99
+                        }));
+                        DTile.store.dispatch(action("REMOVE_MAP", {
+                            projectId: id,
+                            mapId: 99
+                        }));
+                        expect(state()[id].mapIds).to.not.include(99);
+                    });
+                });
+
+                describe("ADD_TILESET_TO_PROJECT", () => {
+                    it("should add a tileset reference correctly", () => {
+                        DTile.store.dispatch(action("ADD_TILESET_TO_PROJECT", {
+                            projectId: id,
+                            tilesetId: 99
+                        }));
+                        expect(state()[id].tilesetIds).to.include(99);
+                    });
+                });
+
+                describe("REMOVE_TILESET_FROM_PROJECT", () => {
+                    it("should remove a tileset reference that already exists", () => {
+                        DTile.store.dispatch(action("ADD_TILESET_TO_PROJECT", {
+                            projectId: id,
+                            tilesetId: 99
+                        }));
+                        DTile.store.dispatch(action("REMOVE_TILESET_FROM_PROJECT", {
+                            projectId: id,
+                            tilesetId: 99
+                        }));
+                        expect(state()[id].tilesetIds).to.not.include(99);
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

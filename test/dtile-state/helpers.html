@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>state helpers test</title>
+        <meta charset="utf-8">
+        <script src="../../../web-component-tester/browser.js"></script>
+
+        <link rel="import" href="../../src/dtile-state/import.html">
+    </head>
+    <body>
+        <script>
+            /* eslint-env mocha */
+            /* globals expect */
+            describe("state helpers", () => {
+                describe("getAvailableIdFor", () => {
+                    it("returns the correct id", () => {
+                        expect(DTile.stateHelpers.getAvailableIdFor({
+                            "0": undefined,
+                            "1": null,
+                            "2": {},
+                            "3": "hi",
+                            "5": 123
+                        })).to.equal(4);
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

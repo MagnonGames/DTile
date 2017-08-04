@@ -5,14 +5,15 @@
   "scripts": {
     "build": "gulp",
     "deploy": "./.deploy-gh.sh",
-    "test": "npm run lint && wct --skip-plugin sauce",
+    "test": "npm run lint && wct",
     "lint": "eslint --ext .html,.js ./src ./test"
   },
   "dependencies": {
     "dtile-three-renderer": "^0.12.0",
     "dtile-tilemap": "^0.8.0",
     "file-saver": "^1.3.3",
-    "localforage": "^1.4.3"
+    "localforage": "^1.4.3",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "eslint": "^3.8.1",
