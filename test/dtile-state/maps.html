@@ -20,7 +20,7 @@
                 }));
             };
 
-            const createTestMap = (id = DTile.stateHelpers.getAvailableIdFor(state())) => {
+            const createTestMap = (id = DTile.stateHelpers.freeId(state())) => {
                 DTile.store.dispatch(action("ADD_MAP", {
                     name: "test",
                     mapId: id,

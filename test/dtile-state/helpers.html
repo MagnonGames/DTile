@@ -13,9 +13,9 @@
             /* eslint-env mocha */
             /* globals expect */
             describe("state helpers", () => {
-                describe("getAvailableIdFor", () => {
+                describe("freeId", () => {
                     it("returns the correct id", () => {
-                        expect(DTile.stateHelpers.getAvailableIdFor({
+                        expect(DTile.stateHelpers.freeId({
                             "0": undefined,
                             "1": null,
                             "2": {},

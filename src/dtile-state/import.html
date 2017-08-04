@@ -6,7 +6,7 @@
     DTile.reducers = { entities: {} };
 
     DTile.stateHelpers = {
-        getAvailableIdFor(objectStore) {
+        freeId(objectStore) {
             let count = 0;
             while (objectStore.hasOwnProperty(count)) count++;
             return count;

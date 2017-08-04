@@ -13,7 +13,7 @@
             const action = (type, payload) => ({ type, payload });
             const state = () => DTile.store.getState().entities.projects;
 
-            const createTestProject = (id = DTile.stateHelpers.getAvailableIdFor(state())) => {
+            const createTestProject = (id = DTile.stateHelpers.freeId(state())) => {
                 DTile.store.dispatch(action("ADD_PROJECT", {
                     name: "test",
                     projectId: id
