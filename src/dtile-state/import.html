@@ -10,6 +10,12 @@
             let count = 0;
             while (objectStore.hasOwnProperty(count)) count++;
             return count;
+        },
+
+        lastId(objectStore) {
+            return Object.keys(objectStore).reduce(
+                (acc, id) => Math.max(acc, parseInt(id))
+            ) + 1;
         }
     };
 </script>
