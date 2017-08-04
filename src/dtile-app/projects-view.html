@@ -64,7 +64,12 @@
                 projects: {
                     type: Object,
                     statePath(state) {
-                        return Object.values(state.entities.projects);
+                        return Object.keys(state.entities.projects).map(id => {
+                            return {
+                                ...state.entities.projects[id],
+                                id
+                            };
+                        });
                     }
                 }
             };
@@ -83,13 +88,9 @@
                 },
 
                 removeProject(project) {
-                    const projects = DTile.store.getState().entities.projects;
-                    const projectId = Object.keys(projects).find(id => {
-                        return projects[id] === project;
-                    });
                     return {
                         type: "REMOVE_PROJECT",
-                        payload: { projectId }
+                        payload: { projectId: project.id }
                     };
                 }
             };
