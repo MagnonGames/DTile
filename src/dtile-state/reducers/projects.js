@@ -31,7 +31,9 @@
                 };
 
             case "REMOVE_MAP":
-                const projectId = Object.keys(state).find(id => state[id].mapIds.includes(action.payload.mapId));
+                const projectId = Object.keys(state).find(
+                    id => state[id].mapIds.includes(parseInt(action.payload.mapId))
+                );
                 return {
                     ...state,
                     [projectId]: {
