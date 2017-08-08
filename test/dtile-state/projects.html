@@ -71,7 +71,6 @@
                             mapId: 99
                         }));
                         DTile.store.dispatch(action("REMOVE_MAP", {
-                            projectId: id,
                             mapId: 99
                         }));
                         expect(state()[id].mapIds).to.not.include(99);
