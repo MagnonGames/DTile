@@ -3,7 +3,8 @@ DTile.createStore = () => {
 
     const entities = combineReducers(DTile.reducers.entities);
     const reducers = combineReducers({
-        entities
+        entities,
+        ui: DTile.reducers.ui
     });
 
     DTile.store = createStore(reducers);

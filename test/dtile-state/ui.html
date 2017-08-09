@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>ui state test</title>
+        <meta charset="utf-8">
+        <script src="../../../web-component-tester/browser.js"></script>
+
+        <link rel="import" href="../../src/dtile-state/import.html">
+    </head>
+    <body>
+        <script>
+            const action = (type, payload) => ({ type, payload });
+            const state = () => DTile.store.getState().ui;
+
+            /* eslint-env mocha */
+            /* globals expect */
+            describe("ui state", () => {
+                beforeEach(() => {
+                    DTile.createStore();
+                });
+
+                it("has the state be an empty object by default", () => {
+                    DTile.createStore();
+                    expect(state()).to.deep.equal({});
+                });
+
+                describe("SET_CURRENT_MAP_ID", () => {
+                    it("sets the value correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_MAP_ID", 10));
+                        expect(state().currentMapId).to.equal(10);
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
