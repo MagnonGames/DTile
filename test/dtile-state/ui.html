@@ -31,6 +31,13 @@
                         expect(state().currentMapId).to.equal(10);
                     });
                 });
+
+                describe("SET_CURRENT_LAYER_INDEX", () => {
+                    it("sets the value correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_LAYER_INDEX", 10));
+                        expect(state().currentLayerIndex).to.equal(10);
+                    });
+                });
             });
         </script>
     </body>

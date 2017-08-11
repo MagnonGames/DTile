@@ -8,6 +8,12 @@
                     currentMapId: action.payload
                 };
 
+            case "SET_CURRENT_LAYER_INDEX":
+                return {
+                    ...state,
+                    currentLayerIndex: action.payload
+                };
+
             default: return state;
         }
     };
