@@ -1,0 +1,188 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<link rel="import" href="../../bower_components/neon-animation/web-animations.html">
+
+<dom-module id="dtile-layer-list">
+    <template>
+        <style>
+            :host {
+                display: block;
+                position: relative;
+                overflow: hidden;
+                color: var(--primary-text-color);
+            }
+
+            #header {
+                display: flex;
+                padding-left: 16px;
+                padding-right: 8px;
+            }
+
+            #title {
+                text-align: left;
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                @apply --paper-font-subhead;
+            }
+
+            #items {
+                width: 100%;
+                height: 100%;
+                position: relative;
+            }
+
+            .layerItem {
+                user-select: none;
+                padding-right: 0;
+                cursor: default;
+                box-sizing: border-box;
+                transition: background 0.2s, color 0.2s;
+            }
+
+            .layerItem[selected] {
+                background: var(--primary-color);
+                color: var(--contrasting-text-color);
+            }
+
+            .layerItem[selected] paper-icon-button {
+                color: var(--contrasting-text-color);
+            }
+
+            .layerItem > paper-ripple {
+                color: var(--primary-color);
+            }
+
+            .layerName {
+                text-align: left;
+                flex-grow: 1;
+            }
+
+            #renameDialog > paper-input {
+                text-align: left;
+            }
+
+            paper-icon-button {
+                color: var(--secondary-color);
+            }
+        </style>
+
+        <div id="header">
+            <span id="title">Layers</span>
+            <paper-icon-button icon="add" on-tap="_addLayer"></paper-icon-button>
+        </div>
+
+        <div id="items" role="listbox">
+            <template is="dom-repeat" items="[[layers]]" sort="_reverseLayerOrder">
+                <paper-item class="layerItem" on-tap="_selectLayer"
+                    selected$="{{_isLayerSelected(item.index)}}">
+                    <paper-ripple></paper-ripple>
+                    <span class="layerName">[[item.name]]</span>
+                    <paper-menu-button class="layerMenuButton" on-tap="_stopPropagation">
+                        <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
+
+                        <div slot="dropdown-content">
+                            <paper-item on-tap="_removeLayer">Remove</paper-item>
+                        </div>
+                    </paper-menu-button>
+                </paper-item>
+            </template>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileLayerList extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-layer-list"; }
+
+        static get properties() {
+            return {
+                layers: {
+                    type: Array,
+                    statePath: state => {
+                        if (!state.ui.currentMapId) return;
+                        return state.entities.maps[parseInt(state.ui.currentMapId)].layers
+                            .map((layer, index) => ({ ...layer, index }));
+                    }
+                }
+            };
+        }
+
+        static get actions() {
+            return {
+                addLayer(mapId, name) {
+                    return {
+                        type: "ADD_LAYER",
+                        payload: {
+                            mapId,
+                            name
+                        }
+                    };
+                },
+
+                removeLayer(mapId, index) {
+                    return {
+                        type: "REMOVE_LAYER",
+                        payload: {
+                            mapId,
+                            layerIndex: index
+                        }
+                    };
+                },
+
+                setCurrentLayer(index) {
+                    return {
+                        type: "SET_CURRENT_LAYER_INDEX",
+                        payload: index
+                    };
+                }
+            };
+        }
+
+        _stopPropagation(e) { e.stopPropagation(); }
+        _reverseLayerOrder(layer1, layer2) {
+            return this.layers.indexOf(layer1) < this.layers.indexOf(layer2);
+        }
+        _isLayerSelected(index) { return index === this.getState().ui.currentLayerIndex; }
+
+        _addLayer() {
+            const state = this.getState();
+            const currentMapId = state.ui.currentMapId;
+            const layers = state.entities.maps[currentMapId].layers;
+
+            const lastNumber = layers.map(layer => layer.name)
+                .filter(name => /Layer \d/.exec(name))
+                .map(name => parseInt(/.*?(\d+)/.exec(name)[1]))
+                .reduce((acc, n) => Math.max(acc, n + 1), 1);
+            this.dispatch("addLayer", currentMapId, `Layer ${lastNumber}`);
+            this.dispatch("setCurrentLayer", layers.length);
+        }
+
+        _removeLayer(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            const state = this.getState();
+            const currentMapId = state.ui.currentMapId;
+            const layerIndex = e.model.item.index;
+            this.dispatch("removeLayer", currentMapId, layerIndex);
+
+            const currentLayerIndex = state.ui.currentLayerIndex;
+            if (layerIndex <= currentLayerIndex) {
+                this.dispatch("setCurrentLayer", currentLayerIndex - 1);
+            }
+        }
+
+        _selectLayer(e) {
+            this.dispatch("setCurrentLayer", e.model.item.index);
+        }
+    }
+
+    customElements.define(DTileLayerList.is, DTileLayerList);
+</script>

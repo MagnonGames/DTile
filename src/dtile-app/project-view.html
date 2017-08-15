@@ -113,6 +113,12 @@
             this.dispatch("removeMap", e.model.item);
         }
 
+        _openMap(e) {
+            // Push path, update app-location in dtile-app
+            history.pushState(null, null, `/edit-map/${e.model.item.id}`);
+            window.dispatchEvent(new CustomEvent("location-changed"));
+        }
+
         _getProjectName(projectId) {
             if (!projectId) return;
             return this.getState().entities.projects[projectId].name;

@@ -1,0 +1,56 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<script>
+    class PaperIconRadioGroup extends Polymer.Element {
+        static get template() {
+            return `
+                <style>
+                    ::slotted(paper-icon-button) {
+                        border-radius: 50%;
+                        transition: background 0.2s;
+                    }
+
+                    ::slotted(paper-icon-button[active]) {
+                        background: var(--paper-icon-selected-color, rgba(255, 255, 255, 0.3));
+                    }
+                </style>
+                <slot></slot>
+            `;
+        }
+        static get properties() {
+            return {
+                selected: {
+                    type: String,
+                    reflectToAttribute: true,
+                    notify: true
+                }
+            };
+        }
+
+        ready() {
+            super.ready();
+
+            this._iconButtons = [...this.querySelectorAll("paper-icon-button")];
+
+            this._iconButtons.forEach(button => {
+                button.toggles = true;
+
+                if (button.getAttribute("name") === this.selected) button.active = true;
+
+                button.addEventListener("change", () => {
+                    if (!button.active) {
+                        button.active = true;
+                    } else {
+                        this._iconButtons.forEach(other => {
+                            if (other === button) return;
+                            other.active = false;
+                        });
+                        this.selected = button.getAttribute("name");
+                    }
+                });
+            });
+        }
+    }
+
+    customElements.define("paper-icon-radio-group", PaperIconRadioGroup);
+</script>

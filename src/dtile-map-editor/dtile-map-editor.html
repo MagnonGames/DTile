@@ -1,0 +1,90 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../dtile-tilemap-viewer/dtile-tilemap-viewer.html">
+
+<link rel="import" href="./paper-icon-radio-group.html">
+<link rel="import" href="layer-list.html">
+
+<dom-module id="dtile-map-editor">
+    <template>
+        <style>
+            #container {
+                width: 100%;
+                height: 100%;
+                position: relative;
+            }
+
+            #sheet {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                border-radius: 2px;
+                background: var(--page-background-color);
+                @apply --shadow-elevation-2dp;
+            }
+
+            #sheet > paper-icon-radio-group {
+                --paper-icon-selected-color: rgba(255, 255, 255, 0.2);
+            }
+
+            #sheet > paper-icon-radio-group > paper-icon-button {
+                color: white;
+            }
+        </style>
+
+        <div id="container">
+            <dtile-tilemap-viewer map="[[map]]"></dtile-tilemap-viewer>
+
+            <div id="sheet">
+                <paper-icon-radio-group selected="one">
+                    <paper-icon-button icon="polymer" name="one"></paper-icon-button>
+                    <paper-icon-button icon="polymer" name="two"></paper-icon-button>
+                    <paper-icon-button icon="polymer" name="three"></paper-icon-button>
+                    <paper-icon-button icon="polymer" name="four"></paper-icon-button>
+                </paper-icon-radio-group>
+                <dtile-layer-list></dtile-layer-list>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileMapEditor extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-map-editor"; }
+
+        static get properties() {
+            return {
+                // NOTE: Only used to recieve new id from URL. Use state's map id value instead.
+                mapId: Number,
+
+                map: Object
+            };
+        }
+
+        static get observers() {
+            return [
+                "_setStateMapId(mapId)"
+            ];
+        }
+
+        static get actions() {
+            return {
+                setCurrentMapId(mapId) {
+                    return {
+                        type: "SET_CURRENT_MAP_ID",
+                        payload: mapId
+                    };
+                }
+            };
+        }
+
+        _setStateMapId(mapId) {
+            this.dispatch("setCurrentMapId", mapId);
+        }
+    }
+
+    customElements.define(DTileMapEditor.is, DTileMapEditor);
+</script>

@@ -8,9 +8,18 @@
 <link rel="import" href="../dtile-shell/dtile-shell.html">
 <link rel="import" href="projects-view.html">
 <link rel="import" href="project-view.html">
+<link rel="import" href="../dtile-map-editor/dtile-map-editor.html">
 
 <dom-module id="dtile-app">
     <template>
+        <style>
+            :host, dtile-shell, iron-pages, iron-pages > * {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+
         <app-location id="location" route="{{route}}"></app-location>
         <app-route
             route="{{route}}"
@@ -27,9 +36,9 @@
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">
                 <dtile-projects-view page="projects"></dtile-projects-view>
-                <dtile-project-view project-id="[[pageContentData.content]]" page="project"></dtile-project-view>
+                <dtile-project-view project-id="[[projectId]]" page="project"></dtile-project-view>
                 <span page="tilesets">Tilesets</span>
-                <span page="editor">Editor</span>
+                <dtile-map-editor map-id="[[mapId]]" page="edit-map">Editor</dtile-map-editor>
             </iron-pages>
         </dtile-shell>
     </template>
@@ -42,12 +51,16 @@
         static get properties() {
             return {
                 route: String,
-                page: {
-                    type: String
-                },
+                page: String,
 
                 pageData: Object,
-                pageContentData: Object
+                pageContentData: Object,
+                projectId: {
+                    type: String, computed: "_getProjectId(pageData.pageName, pageContentData.content)"
+                },
+                mapId: {
+                    type: String, computed: "_getMapId(pageData.pageName, pageContentData.content)"
+                }
             };
         }
 
@@ -67,6 +80,9 @@
                 this.page = pageData.pageName;
             }
         }
+
+        _getProjectId(page, data) { return page === "project" ? data : this.projectViewData; }
+        _getMapId(page, data) { return page === "edit-map" ? data : this.mapEditorData; }
     }
 
     customElements.define(DTileApp.is, DTileApp);

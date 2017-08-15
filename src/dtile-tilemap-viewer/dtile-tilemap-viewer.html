@@ -1,0 +1,179 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../node_modules/tile-tools/tile-tools.html">
+
+<link rel="import" href="./three-renderer-import.html">
+
+<dom-module id="dtile-tilemap-viewer">
+    <template>
+        <style>
+            :host, #renderer {
+                display: block;
+                position: absolute;
+                top: 0; right: 0; bottom: 0; left: 0;
+                width: 100% !important;
+                height: 100% !important;
+                background: transparent;
+            }
+        </style>
+        <canvas id="renderer"></canvas>
+    </template>
+</dom-module>
+
+<script>
+    const MAX_ZOOM = 1;
+    const MIN_ZOOM = 0.001;
+
+    /* globals dtileThreeRenderer */
+    class DTileTilemapViewer extends Polymer.Element {
+        static get is() { return "dtile-tilemap-viewer"; }
+
+        static get properties() {
+            return {
+                map: Object,
+
+                outline: Boolean,
+                backdrop: Boolean,
+
+                panX: { type: Number, value: 0 },
+                panY: { type: Number, value: 0 },
+                zoom: { type: Number, value: 0.15 },
+
+                debugEnabled: Boolean,
+                profilingEnabled: Boolean
+            };
+        }
+
+        static get observers() {
+            return [
+                "changeMap(map)",
+                "updateCamera(panX, panY, zoom)",
+                "setRenderValues(outline, backdrop)",
+                "setDebug(debugEnabled, profilingEnabled)"
+            ];
+        }
+
+        ready() {
+            super.ready();
+
+            // Headless testing usually doesn't work with WebGL so we need to
+            // tell the renderer to disable it.
+            if (window.mocha) dtileThreeRenderer.Renderer.enableTesting();
+
+            this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
+            this.setDebug(this.debugEnabled);
+            this._toUpdate = [];
+            // TODO: Debug renderer size (0 0)
+
+            this.updateCamera(this.panX, this.panY, this.zoom);
+            this._sizeListener = this.updateSize.bind(this);
+            window.addEventListener("resize", this._sizeListener);
+        }
+
+        changeMap(map) {
+            this.renderer.changeMap(map);
+            this.setRenderValues(this.outline, this.backdrop);
+        }
+
+        updateCamera(panX, panY, zoom) {
+            if (!this.renderer) return;
+            this.renderer.camera.zoom = Math.pow(zoom, 2) * (MAX_ZOOM - MIN_ZOOM) + MIN_ZOOM;
+            const cameraUnit = dtileThreeRenderer.CAMERA_UNIT;
+            this.renderer.camera.position.set(
+                panX + this.renderer.width / cameraUnit * 2,
+                panY + this.renderer.height / cameraUnit * 2,
+                this.renderer.camera.position.z
+            );
+            this.update(["camera"]);
+        }
+
+        setRenderValues(outline, backdrop) {
+            if (!this.renderer) return;
+            this.renderer.outlineEnabled = outline;
+            this.renderer.backdropEnabled = backdrop;
+            this.update(["tiles", "objects"]);
+        }
+
+        updateSize() {
+            this.update(["size", "camera"]);
+        }
+
+        unprojectToTilePosition(position, includeDecimals) {
+            return this.renderer.unprojectToTilePosition(position, includeDecimals);
+        }
+
+        getObjectInformationAtMouse(x, y) {
+            return this.renderer.getObjectInformationAtMouse({ x, y });
+        }
+
+        setTint(x, y, layerId, tint) {
+            this.renderer.getTile(x, y, layerId).setTint(tint);
+            this.update(["tiles"]);
+        }
+
+        /**
+         * Removes old ghost and applies the new one. Returns true if ghost changed.
+         */
+        setGhost(x, y, layerId, tileArea) {
+            const last = this._lastGhost;
+            if (last &&
+                last.x === x && last.y === y &&
+                last.layerId === layerId && last.tileArea === tileArea) return;
+
+            const apply = (x, y, layer, width, height, tileArea) => {
+                for (let lx = x; lx < x + width; lx++) {
+                    for (let ly = y; ly < y + height; ly++) {
+                        if (lx < 0 || ly < 0 || lx > this.map.width - 1 ||
+                            ly > this.map.height - 1) continue;
+                        const tile = tileArea
+                            ? TileTools.getTilingTileData(tileArea, x, y, lx, ly)
+                            : null;
+                        this.renderer.getTile(lx, ly, layer).setGhost(tile);
+                    }
+                }
+            };
+            if (last) {
+                const { x, y, width, height, layerId } = last;
+                apply(x, y, layerId, width, height);
+            }
+            apply(x, y, layerId, tileArea.width, tileArea.height, tileArea);
+            this._lastGhost = {
+                x, y,
+                layerId,
+                width: tileArea.width, height: tileArea.height,
+                tileArea
+            };
+
+            return true;
+        }
+
+        setDebug(enabled, profiling) {
+            if (!this.renderer) return;
+            this.renderer.debugMode = enabled;
+            this.renderer.runProfile = profiling;
+        }
+
+        /**
+         * Batched updating for the tilemap viewer. toUpdate can be either a
+         * string or an array with strings. Valid string values are:
+         * "size", "camera", "tiles", "tilesets", "objects".
+         * See https://github.com/magnonellie/dtile-three-renderer/blob/master/src/renderer.js#L78-L97
+         */
+        update(toUpdate = []) {
+            if (typeof toUpdate === "string") toUpdate = [toUpdate];
+
+            const firstUpdateSinceFlushed = this._toUpdate.length <= 0;
+
+            toUpdate.filter(update => !this._toUpdate.includes(update))
+                .forEach(update => this._toUpdate.push(update));
+
+            if (firstUpdateSinceFlushed) {
+                requestAnimationFrame(() => {
+                    this.renderer.update(this._toUpdate);
+                    this._toUpdate = [];
+                });
+            }
+        }
+    }
+
+    customElements.define(DTileTilemapViewer.is, DTileTilemapViewer);
+</script>
