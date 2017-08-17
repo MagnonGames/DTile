@@ -18,7 +18,23 @@
                 width: 100%;
                 height: 100%;
             }
+
+            #file-drop-zone {
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+            }
         </style>
+
+        <div id="file-drop-zone">
+            <iron-icon icon="file-upload"></iron-icon>
+            Drop file to import it
+        </div>
 
         <app-location id="location" route="{{route}}"></app-location>
         <app-route
@@ -68,6 +84,37 @@
             return [
                 "_updatePage(pageData, pageContentData)"
             ];
+        }
+
+        ready() {
+            super.ready();
+
+            const setDropHintVisibility = (visible, preventEvent) => {
+                if (preventEvent) {
+                    preventEvent.stopPropagation();
+                    preventEvent.preventDefault();
+                    preventEvent.dataTransfer.dropEffect = "copy";
+                }
+                this.$["file-drop-zone"].style.opacity = visible ? 1 : 0;
+            };
+
+            this.addEventListener("dragover", e => setDropHintVisibility(true, e));
+            this.addEventListener("dragleave", e => setDropHintVisibility(false, e));
+
+            this.addEventListener("drop", e => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                setDropHintVisibility(false);
+
+                const currentPage = this.shadowRoot.querySelector(".iron-selected");
+                currentPage.dispatchEvent(new CustomEvent("dtile-file-import", {
+                    bubbles: true,
+                    detail: {
+                        files: [...e.dataTransfer.files]
+                    }
+                }));
+            });
         }
 
         _updatePage(pageData, pageContentData) {

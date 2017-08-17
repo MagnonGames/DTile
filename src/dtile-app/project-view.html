@@ -6,6 +6,8 @@
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
+<link rel="import" href="../utils.html">
+
 <link rel="import" href="../dtile-state/import.html">
 
 <dom-module id="dtile-project-view">
@@ -96,6 +98,15 @@
                     };
                 },
 
+                importMap(projectId, map) {
+                    const maps = DTile.store.getState().entities.maps;
+                    const mapId = DTile.stateHelpers.lastId(maps);
+                    return {
+                        type: "ADD_MAP",
+                        payload: { projectId, mapId, ...map }
+                    };
+                },
+
                 removeMap(map) {
                     return {
                         type: "REMOVE_MAP",
@@ -103,6 +114,19 @@
                     };
                 }
             };
+        }
+
+        ready() {
+            super.ready();
+
+            this.addEventListener("dtile-file-import", ({ detail: { files }}) => {
+                files.forEach(async (file) => {
+                    const jsonContent = await DTile.utils.readFileAsText(file);
+                    const mapObject = JSON.parse(jsonContent);
+
+                    this.dispatch("importMap", this.projectId, mapObject);
+                });
+            });
         }
 
         _addMap(name) {

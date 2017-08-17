@@ -1,0 +1,24 @@
+<script>
+    window.DTile = window.DTile || {};
+    window.DTile.utils = {};
+
+    const getPromiseReader = () => {
+        const reader = new FileReader();
+
+        const promise = new Promise((resolve) => {
+            reader.onload = () => {
+                resolve(reader.result);
+            };
+        });
+
+        return { reader, promise };
+    };
+
+    window.DTile.utils.readFileAsText = (file) => {
+        const { reader, promise } = getPromiseReader();
+
+        reader.readAsText(file, "UTF-8");
+
+        return promise;
+    };
+</script>
