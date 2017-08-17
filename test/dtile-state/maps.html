@@ -53,6 +53,27 @@
                         }));
                         expect(state()["10"].name).to.equal("test");
                     });
+
+                    it("can import an already complete map", done => {
+                        fetch("./testmap.json").then(async blob => {
+                            const testmap = await blob.json();
+
+                            DTile.store.dispatch(action("ADD_MAP", {
+                                mapId: 5,
+                                projectId: 0,
+
+                                ...testmap
+                            }));
+
+                            Object.keys(testmap).forEach(key => {
+                                if (key === "tilesets") return;
+                                console.log(key);
+                                expect(state()["5"][key]).to.deep.equal(testmap[key]);
+                            });
+
+                            done();
+                        });
+                    });
                 });
 
                 describe("REMOVE_MAP", () => {

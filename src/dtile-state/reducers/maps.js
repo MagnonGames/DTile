@@ -7,15 +7,15 @@
                     ...state,
                     [action.payload.mapId]: {
                         name: action.payload.name,
-                        width: 0,
-                        height: 0,
-                        tileWidth: 0,
-                        tileHeight: 0,
+                        width: action.payload.width || 0,
+                        height: action.payload.height || 0,
+                        tileWidth: action.payload.tileWidth || 0,
+                        tileHeight: action.payload.tileHeight || 0,
 
-                        layers: layers(undefined, action),
-                        objects: objects(undefined, action),
+                        layers: layers(action.payload.layers, action),
+                        objects: objects(action.payload.objects, action),
 
-                        meta: {}
+                        meta: action.payload.meta
                     }
                 };
 
