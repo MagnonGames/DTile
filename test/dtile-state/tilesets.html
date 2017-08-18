@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>tilesets state test</title>
+        <meta charset="utf-8">
+        <script src="../../../web-component-tester/browser.js"></script>
+
+        <link rel="import" href="../../src/dtile-state/import.html">
+    </head>
+    <body>
+        <script>
+            const action = (type, payload) => ({ type, payload });
+            const state = () => DTile.store.getState().entities.tilesets;
+
+            const createTestProject = () => {
+                DTile.store.dispatch(action("ADD_PROJECT", {
+                    name: "test",
+                    projectId: 0
+                }));
+            };
+
+            const createTestTileset = (id = DTile.stateHelpers.freeId(state())) => {
+                DTile.store.dispatch(action("IMPORT_TILESET", {
+                    name: "test",
+                    url: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                    tilesetId: id,
+                    projectId: 0
+                }));
+                return id;
+            };
+
+            /* eslint-env mocha */
+            /* globals expect */
+            describe("tilesets state", () => {
+                let id;
+                beforeEach(() => {
+                    DTile.createStore();
+                    createTestProject();
+                    id = createTestTileset();
+                });
+
+                it("has the state be an empty object by default", () => {
+                    DTile.createStore();
+                    expect(state()).to.deep.equal({});
+                });
+
+                describe("IMPORT_TILESET", () => {
+                    it("can import a tileset correctly", () => {
+                        const url = "https://developer.cdn.mozilla.net/static/img/web-docs-sprite.22a6a085cf14.svg";
+                        DTile.store.dispatch(action("IMPORT_TILESET", {
+                            name: "created",
+                            tilesetId: 0,
+                            url
+                        }));
+                        expect(state()["0"].name).to.equal("created");
+                        expect(state()["0"].url).to.equal(url);
+                    });
+                });
+
+                describe("REMOVE_TILESET", () => {
+                    it("removes an existing tileset", () => {
+                        DTile.store.dispatch(action("REMOVE_TILESET", {
+                            tilesetId: id
+                        }));
+                        expect(state()).not.have.property(id);
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
