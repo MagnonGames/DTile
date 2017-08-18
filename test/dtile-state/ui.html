@@ -25,6 +25,13 @@
                     expect(state()).to.deep.equal({});
                 });
 
+                describe("SET_CURRENT_PROJECT_ID", () => {
+                    it("sets the value correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_PROJECT_ID", 10));
+                        expect(state().currentProjectId).to.equal(10);
+                    });
+                });
+
                 describe("SET_CURRENT_MAP_ID", () => {
                     it("sets the value correctly", () => {
                         DTile.store.dispatch(action("SET_CURRENT_MAP_ID", 10));
