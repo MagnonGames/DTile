@@ -52,16 +52,16 @@
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">
                 <dtile-projects-view page="projects"></dtile-projects-view>
-                <dtile-project-view project-id="[[projectId]]" page="project"></dtile-project-view>
+                <dtile-project-view page="project"></dtile-project-view>
                 <span page="tilesets">Tilesets</span>
-                <dtile-map-editor map-id="[[mapId]]" page="edit-map">Editor</dtile-map-editor>
+                <dtile-map-editor page="edit-map">Editor</dtile-map-editor>
             </iron-pages>
         </dtile-shell>
     </template>
 </dom-module>
 
 <script>
-    class DTileApp extends Polymer.Element {
+    class DTileApp extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-app"; }
 
         static get properties() {
@@ -70,13 +70,7 @@
                 page: String,
 
                 pageData: Object,
-                pageContentData: Object,
-                projectId: {
-                    type: String, computed: "_getProjectId(pageData.pageName, pageContentData.content)"
-                },
-                mapId: {
-                    type: String, computed: "_getMapId(pageData.pageName, pageContentData.content)"
-                }
+                pageContentData: Object
             };
         }
 
@@ -84,6 +78,13 @@
             return [
                 "_updatePage(pageData, pageContentData)"
             ];
+        }
+
+        static get actions() {
+            return {
+                setCurrentProjectId: id => ({ type: "SET_CURRENT_PROJECT_ID", payload: id }),
+                setCurrentMapId: id => ({ type: "SET_CURRENT_MAP_ID", payload: id })
+            };
         }
 
         ready() {
@@ -126,10 +127,15 @@
             } else {
                 this.page = pageData.pageName;
             }
-        }
 
-        _getProjectId(page, data) { return page === "project" ? data : this.projectViewData; }
-        _getMapId(page, data) { return page === "edit-map" ? data : this.mapEditorData; }
+            if (pageContentData.content) {
+                if (pageData.pageName === "project") {
+                    this.dispatch("setCurrentProjectId", pageContentData.content);
+                } else if (pageData.pageName === "edit-map") {
+                    this.dispatch("setCurrentMapId", pageContentData.content);
+                }
+            }
+        }
     }
 
     customElements.define(DTileApp.is, DTileApp);

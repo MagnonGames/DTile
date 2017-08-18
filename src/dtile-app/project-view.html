@@ -77,11 +77,14 @@
 
                 projectId: {
                     type: String,
-                    notify: true
+                    statePath: state => state.ui.currentProjectId
                 },
                 projectName: {
                     type: String,
-                    computed: "_getProjectName(projectId)"
+                    statePath(state) {
+                        const project = state.entities.projects[state.ui.currentProjectId];
+                        if (project) return project.name;
+                    }
                 }
             };
         }
@@ -141,11 +144,6 @@
             // Push path, update app-location in dtile-app
             history.pushState(null, null, `/edit-map/${e.model.item.id}`);
             window.dispatchEvent(new CustomEvent("location-changed"));
-        }
-
-        _getProjectName(projectId) {
-            if (!projectId) return;
-            return this.getState().entities.projects[projectId].name;
         }
     }
 

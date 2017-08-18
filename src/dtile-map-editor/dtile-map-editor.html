@@ -57,32 +57,13 @@
 
         static get properties() {
             return {
-                // NOTE: Only used to recieve new id from URL. Use state's map id value instead.
-                mapId: Number,
-
-                map: Object
-            };
-        }
-
-        static get observers() {
-            return [
-                "_setStateMapId(mapId)"
-            ];
-        }
-
-        static get actions() {
-            return {
-                setCurrentMapId(mapId) {
-                    return {
-                        type: "SET_CURRENT_MAP_ID",
-                        payload: mapId
-                    };
+                map: {
+                    type: Object,
+                    statePath(state) {
+                        return state.entities.maps[state.ui.currentMapId];
+                    }
                 }
             };
-        }
-
-        _setStateMapId(mapId) {
-            this.dispatch("setCurrentMapId", mapId);
         }
     }
 
