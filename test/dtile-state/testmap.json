@@ -5,7 +5,7 @@
 	"tileWidth": 16,
 	"tileHeight": 16,
     "tilesets": [
-        { "name": "A Tileset", "type": "test" }
+        { "name": "A Tileset", "type": "test", "tileWidth": 16, "tileHeight": 16 }
     ],
 	"layers": [
 		{

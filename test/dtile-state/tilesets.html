@@ -23,7 +23,9 @@
             const createTestTileset = (id = DTile.stateHelpers.freeId(state())) => {
                 DTile.store.dispatch(action("IMPORT_TILESET", {
                     name: "test",
+                    tilesetType: "ortho",
                     url: "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                    tileWidth: 32, tileHeight: 32,
                     tilesetId: id,
                     projectId: 0
                 }));
@@ -51,9 +53,15 @@
                         DTile.store.dispatch(action("IMPORT_TILESET", {
                             name: "created",
                             tilesetId: 0,
+                            tilesetType: "ortho",
+                            tileWidth: 16,
+                            tileHeight: 32,
                             url
                         }));
                         expect(state()["0"].name).to.equal("created");
+                        expect(state()["0"].tilesetType).to.equal("ortho");
+                        expect(state()["0"].tileWidth).to.equal(16);
+                        expect(state()["0"].tileHeight).to.equal(32);
                         expect(state()["0"].url).to.equal(url);
                     });
                 });
