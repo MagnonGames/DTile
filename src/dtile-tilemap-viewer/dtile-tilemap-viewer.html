@@ -30,6 +30,7 @@
         static get properties() {
             return {
                 map: Object,
+                tilesets: Object,
 
                 outline: Boolean,
                 backdrop: Boolean,
@@ -45,7 +46,8 @@
 
         static get observers() {
             return [
-                "changeMap(map)",
+                "updateMap(map)",
+                "updateTilesets(tilesets)",
                 "updateCamera(panX, panY, zoom)",
                 "setRenderValues(outline, backdrop)",
                 "setDebug(debugEnabled, profilingEnabled)"
@@ -69,9 +71,14 @@
             window.addEventListener("resize", this._sizeListener);
         }
 
-        changeMap(map) {
-            this.renderer.changeMap(map);
+        updateMap(map) {
+            this.renderer.updateMap(map);
             this.setRenderValues(this.outline, this.backdrop);
+            this.updateSize();
+        }
+
+        updateTilesets(tilesets) {
+            this.renderer.updateTilesets(tilesets);
         }
 
         updateCamera(panX, panY, zoom) {
@@ -90,7 +97,6 @@
             if (!this.renderer) return;
             this.renderer.outlineEnabled = outline;
             this.renderer.backdropEnabled = backdrop;
-            this.update(["tiles", "objects"]);
         }
 
         updateSize() {
@@ -107,7 +113,6 @@
 
         setTint(x, y, layerId, tint) {
             this.renderer.getTile(x, y, layerId).setTint(tint);
-            this.update(["tiles"]);
         }
 
         /**

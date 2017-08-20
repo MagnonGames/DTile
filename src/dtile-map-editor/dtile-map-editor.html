@@ -36,7 +36,7 @@
         </style>
 
         <div id="container">
-            <dtile-tilemap-viewer map="[[map]]"></dtile-tilemap-viewer>
+            <dtile-tilemap-viewer map="[[map]]" tilesets="[[tilesets]]"></dtile-tilemap-viewer>
 
             <div id="sheet">
                 <paper-icon-radio-group selected="one">
@@ -61,6 +61,19 @@
                     type: Object,
                     statePath(state) {
                         return state.entities.maps[state.ui.currentMapId];
+                    }
+                },
+
+                tilesets: {
+                    type: Object,
+                    statePath(state) {
+                        const projectId = state.ui.currentProjectId;
+                        const tilesets = {};
+                        if (!projectId) return;
+                        state.entities.projects[projectId].tilesetIds.forEach(tilesetId => {
+                            tilesets[tilesetId] = state.entities.tilesets[tilesetId];
+                        });
+                        return tilesets;
                     }
                 }
             };

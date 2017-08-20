@@ -115,6 +115,20 @@
                         type: "REMOVE_MAP",
                         payload: { mapId: map.id }
                     };
+                },
+
+                importTileset(tilesetId, tileset) {
+                    return {
+                        type: "IMPORT_TILESET",
+                        payload: { tilesetId, ...tileset }
+                    };
+                },
+
+                addTilesetToProject(projectId, tilesetId) {
+                    return {
+                        type: "ADD_TILESET_TO_PROJECT",
+                        payload: { projectId, tilesetId }
+                    };
                 }
             };
         }
@@ -126,6 +140,26 @@
                 files.forEach(async (file) => {
                     const jsonContent = await DTile.utils.readFileAsText(file);
                     const mapObject = JSON.parse(jsonContent);
+
+                    const tilesetIdMapping = new Map();
+
+                    mapObject.tilesets.forEach((tileset, i) => {
+                        const tilesets = DTile.store.getState().entities.tilesets;
+                        const newId = DTile.stateHelpers.lastId(tilesets);
+
+                        tilesetIdMapping.set(i, newId);
+
+                        this.dispatch("importTileset", newId, tileset);
+                        this.dispatch("addTilesetToProject", this.projectId, newId);
+                    });
+
+                    mapObject.layers = mapObject.layers.map(layer => {
+                        layer.tiles = layer.tiles.map(tile => {
+                            tile.tilesetId = tilesetIdMapping.get(tile.tilesetId);
+                            return tile;
+                        });
+                        return layer;
+                    });
 
                     this.dispatch("importMap", this.projectId, mapObject);
                 });
