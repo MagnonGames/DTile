@@ -42,25 +42,32 @@
                     : type === "objects" ? objects
                     : null;
 
+                const map = state[action.payload.mapId];
+
                 return {
                     ...state,
                     [action.payload.mapId]: {
                         ...state[action.payload.mapId],
-                        [type]: reducer(state[action.payload.mapId][type], action)
+                        [type]: reducer(state[action.payload.mapId][type], action, map)
                     }
                 };
         }
     };
 
     // entities.maps[id].layers
-    const layers = (state = [], action) => {
+    const layers = (state = [], action, map) => {
         switch (action.type) {
             case "ADD_LAYER":
+                const tiles = [];
+                for (let i = 0; i < map.width * map.height; i++) {
+                    tiles.push({ tileId: -1, tilesetId: -1 });
+                }
+
                 return [
                     ...state,
                     {
                         name: action.payload.name,
-                        tiles: [],
+                        tiles,
                         meta: {}
                     }
                 ];
