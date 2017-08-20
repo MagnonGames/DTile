@@ -2,6 +2,7 @@
 <link rel="import" href="../../node_modules/tile-tools/tile-tools.html">
 
 <link rel="import" href="./three-renderer-import.html">
+<link rel="import" href="./view-navigator.html">
 
 <dom-module id="dtile-tilemap-viewer">
     <template>
@@ -24,7 +25,7 @@
     const MIN_ZOOM = 0.001;
 
     /* globals dtileThreeRenderer, TileTools */
-    class DTileTilemapViewer extends Polymer.Element {
+    class DTileTilemapViewer extends DTile.ViewNavigator(Polymer.Element) {
         static get is() { return "dtile-tilemap-viewer"; }
 
         static get properties() {
@@ -34,10 +35,6 @@
 
                 outline: Boolean,
                 backdrop: Boolean,
-
-                panX: { type: Number, value: 0 },
-                panY: { type: Number, value: 0 },
-                zoom: { type: Number, value: 0.15 },
 
                 debugEnabled: Boolean,
                 profilingEnabled: Boolean
@@ -64,9 +61,8 @@
             this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
             this.setDebug(this.debugEnabled);
             this._toUpdate = [];
-            // TODO: Debug renderer size (0 0)
 
-            this.updateCamera(this.panX, this.panY, this.zoom);
+            this.resetViewValues();
             this._sizeListener = this.updateSize.bind(this);
             window.addEventListener("resize", this._sizeListener);
         }
@@ -81,7 +77,7 @@
             this.renderer.updateTilesets(tilesets);
         }
 
-        updateCamera(panX, panY, zoom) {
+        updateCamera(panX = this.panX, panY = this.panY, zoom = this.zoom) {
             if (!this.renderer) return;
             this.renderer.camera.zoom = Math.pow(zoom, 2) * (MAX_ZOOM - MIN_ZOOM) + MIN_ZOOM;
             const cameraUnit = dtileThreeRenderer.CAMERA_UNIT;

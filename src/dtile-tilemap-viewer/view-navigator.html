@@ -1,0 +1,51 @@
+<script>
+    window.DTile.ViewNavigator = superClass => {
+        const MMB_PAN_SENSITIVITY = 2;
+
+        return class extends superClass {
+            static get properties() {
+                return {
+                    disableViewNavigation: Boolean,
+
+                    panX: { type: Number, value: 0 },
+                    panY: { type: Number, value: 0 },
+                    zoom: { type: Number, value: 0.15 }
+                };
+            }
+
+            ready() {
+                super.ready();
+
+                this.addEventListener("mousemove", e => {
+                    if (e.buttons === 4) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        this.panView(e.movementX, e.movementY);
+                    }
+                });
+                this.addEventListener("wheel", e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (e.ctrlKey) {
+                        this.zoom = Math.max(0, Math.min(1, this.zoom + e.deltaY * -0.0003));
+                    } else {
+                        this.panView(e.deltaX, e.deltaY);
+                    }
+                });
+            }
+
+            resetViewValues() {
+                this.panX = 0;
+                this.panY = 0;
+                this.zoom = 0.15;
+            }
+
+            panView(dx, dy) {
+                // Add .001 to make sure invZoom !== 0
+                const invZoom = this.zoom * -1 + 1.001;
+                this.panX += dx * invZoom * 0.5;
+                this.panY += dy * invZoom * 0.5;
+            }
+        };
+    };
+</script>
