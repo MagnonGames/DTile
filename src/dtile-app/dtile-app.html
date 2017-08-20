@@ -125,7 +125,16 @@
                 history.replaceState(null, null, "/projects");
                 window.dispatchEvent(new CustomEvent("location-changed"));
             } else {
-                this.page = pageData.pageName;
+                if (this.page !== pageData.pageName) {
+                    const currentSelected = this.shadowRoot.querySelector(".iron-selected");
+                    if (currentSelected) currentSelected.dispatchEvent(new CustomEvent("dtile-page-away"));
+
+                    this.page = pageData.pageName;
+
+                    requestAnimationFrame(() => requestAnimationFrame(() =>
+                            this.shadowRoot.querySelector(".iron-selected")
+                                .dispatchEvent(new CustomEvent("dtile-page-to"))));
+                }
             }
 
             if (pageContentData.content) {
