@@ -20,6 +20,18 @@
                     currentLayerIndex: action.payload
                 };
 
+            case "SET_MAP_SELECTION":
+                return {
+                    ...state,
+                    mapSelection: action.payload
+                };
+
+            case "SET_TILESET_SELECTION":
+                return {
+                    ...state,
+                    tilesetSelection: action.payload
+                };
+
             default: return state;
         }
     };

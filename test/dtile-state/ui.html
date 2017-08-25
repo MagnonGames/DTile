@@ -45,6 +45,40 @@
                         expect(state().currentLayerIndex).to.equal(10);
                     });
                 });
+
+                describe("SET_MAP_SELECTION", () => {
+                    it("clears the old selection", () => {
+                        DTile.store.dispatch(action("SET_MAP_SELECTION", [
+                            { x: 99, y: 99, layer: 0 }
+                        ]));
+                        DTile.store.dispatch(action("SET_MAP_SELECTION", []));
+                        expect(state().mapSelection).to.have.a.lengthOf(0);
+                    });
+
+                    it("sets the new selection", () => {
+                        DTile.store.dispatch(action("SET_MAP_SELECTION", [
+                            { x: 99, y: 99, layer: 0 }
+                        ]));
+                        expect(state().mapSelection[0].x).to.equal(99);
+                    });
+                });
+
+                describe("SET_TILESET_SELECTION", () => {
+                    it("clears the old selection", () => {
+                        DTile.store.dispatch(action("SET_TILESET_SELECTION", [
+                            { x: 99, y: 99, layer: 0 }
+                        ]));
+                        DTile.store.dispatch(action("SET_TILESET_SELECTION", []));
+                        expect(state().tilesetSelection).to.have.a.lengthOf(0);
+                    });
+
+                    it("sets the new selection", () => {
+                        DTile.store.dispatch(action("SET_TILESET_SELECTION", [
+                            { x: 99, y: 99, layer: 0 }
+                        ]));
+                        expect(state().tilesetSelection[0].x).to.equal(99);
+                    });
+                });
             });
         </script>
     </body>
