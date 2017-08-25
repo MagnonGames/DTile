@@ -36,6 +36,8 @@
                 outline: Boolean,
                 backdrop: Boolean,
 
+                selection: Array,
+
                 debugEnabled: Boolean,
                 profilingEnabled: Boolean
             };
@@ -46,6 +48,7 @@
                 "updateMap(map)",
                 "updateTilesets(tilesets)",
                 "updateCamera(panX, panY, zoom)",
+                "_showSelection(selection)",
                 "setRenderValues(outline, backdrop)",
                 "setDebug(debugEnabled, profilingEnabled)"
             ];
@@ -173,6 +176,23 @@
                     this._toUpdate = [];
                 });
             }
+        }
+
+        _showSelection(selection) {
+            const set = (tile, selected) => {
+                const renderTile = this.renderer.getLayer(tile.layer).getTile(tile.x, tile.y);
+                if (!renderTile) return;
+                renderTile.setTint(0xffffff);
+            };
+
+            if (this._previousSelection) {
+                this._previousSelection.forEach(tile => set(tile, false));
+            }
+
+            selection.forEach(tile => set(tile, true));
+
+            this._previousSelection = selection;
+            this.update("tiles");
         }
     }
 
