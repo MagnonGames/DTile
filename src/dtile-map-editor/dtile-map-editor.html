@@ -38,7 +38,11 @@
         </style>
 
         <div id="container">
-            <dtile-tilemap-viewer id="viewer" map="[[map]]" tilesets="[[tilesets]]"></dtile-tilemap-viewer>
+            <dtile-tilemap-viewer id="viewer"
+                map="[[map]]"
+                tilesets="[[tilesets]]"
+                selection="[[mapSelection]]">
+            </dtile-tilemap-viewer>
 
             <div id="sheet">
                 <paper-icon-radio-group selected="one">
@@ -53,7 +57,8 @@
                     selected-id="[[currentTilesetId]]" tilesets="[[tilesets]]">
                 </dtile-tileset-selector>
                 <dtile-tileset-viewer id="tileset-viewer"
-                    tileset-id="[[currentTilesetId]]" tilesets="[[tilesets]]">
+                    tileset-id="[[currentTilesetId]]" tilesets="[[tilesets]]"
+                    selection="[[tilesetSelection]]">
                 </dtile-tileset-viewer>
             </div>
         </div>
@@ -89,7 +94,10 @@
                 currentTilesetId: {
                     type: String,
                     statePath: "ui.currentTilesetId"
-                }
+                },
+
+                mapSelection: { type: Array, statePath: "ui.mapSelection" },
+                tilesetSelection: { type: Array, statePath: "ui.tilesetSelection" }
             };
         }
 
