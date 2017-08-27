@@ -15,7 +15,7 @@
             id="tileset-map-viewer"
             map="[[_tilesetMap]]"
             tilesets="[[tilesets]]"
-            selection="[[selection]]">
+            selection="[[_getSelection(selection, _temporarySelection, _useTemporarySelection)]]">
         </dtile-tilemap-viewer>
     </template>
 </dom-module>
@@ -30,6 +30,8 @@
                 tilesetId: String,
 
                 selection: Array,
+                _temporarySelection: Array,
+                _useTemporarySelection: Boolean,
 
                 _tilesetMap: Object
             };
@@ -68,7 +70,13 @@
                         selection.push({ x, y, layer: 0 });
                     }
                 }
-                dispatchSelection(selection);
+                if (e.detail.state === "end") {
+                    dispatchSelection(selection);
+                    this._useTemporarySelection = false;
+                } else {
+                    this._temporarySelection = selection;
+                    this._useTemporarySelection = true;
+                }
             });
         }
 
@@ -82,6 +90,10 @@
         async _generateTilesetMap(tilesetId, tilesets) {
             if (!tilesetId || !tilesets) return;
             this._tilesetMap = await generateTilesetMap(tilesetId, tilesets[tilesetId]);
+        }
+
+        _getSelection(selection, temporary, useTemporary) {
+            return useTemporary ? temporary : selection;
         }
     }
 
