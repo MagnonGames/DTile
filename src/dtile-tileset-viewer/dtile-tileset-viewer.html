@@ -1,0 +1,97 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="dtile-tileset-viewer">
+    <template>
+        <style>
+            :host {
+                position: relative;
+                min-width: 200px;
+                min-height: 300px;
+                display: block;
+            }
+        </style>
+
+        <dtile-tilemap-viewer
+            id="tileset-map-viewer"
+            map="[[_tilesetMap]]"
+            tilesets="[[tilesets]]">
+        </dtile-tilemap-viewer>
+    </template>
+</dom-module>
+
+<script>
+    class DTileTilesetViewer extends Polymer.Element {
+        static get is() { return "dtile-tileset-viewer"; }
+
+        static get properties() {
+            return {
+                tilesets: Object,
+                tilesetId: String,
+
+                _tilesetMap: Object
+            };
+        }
+
+        static get observers() {
+            return [
+                "_generateTilesetMap(tilesetId, tilesets)"
+            ];
+        }
+
+        resetView() {
+            const viewer = this.$["tileset-map-viewer"];
+            viewer.resetViewValues();
+            viewer.updateSize();
+            viewer.updateCamera();
+        }
+
+        async _generateTilesetMap(tilesetId, tilesets) {
+            if (!tilesetId || !tilesets) return;
+            this._tilesetMap = await generateTilesetMap(tilesetId, tilesets[tilesetId]);
+        }
+    }
+
+    function getImageDimensions(url) {
+        return new Promise((resolve, reject) => {
+            if (!url) resolve();
+            const image = document.createElement("img");
+            image.onload = () => {
+                resolve({
+                    width: image.width,
+                    height: image.height
+                });
+            };
+            image.src = url;
+        });
+    }
+
+    async function generateTilesetMap(tilesetId, tileset) {
+        const { // 25x25 is the test tilesets dimensions
+            width: imageWidth = 25 * tileset.tileWidth,
+            height: imageHeight = 25 * tileset.tileHeight
+        } = await getImageDimensions(tileset.url) || {};
+
+        const width = parseInt(imageWidth / tileset.tileWidth);
+        const height = parseInt(imageHeight / tileset.tileHeight);
+
+        const tiles = [];
+        for (let i = 0; i < width * height; i++) {
+            tiles[i] = {
+                tileId: i,
+                tilesetId
+            };
+        }
+
+        const map = {
+            width,
+            height,
+            tileWidth: tileset.tileWidth,
+            tileHeight: tileset.tileHeight,
+            layers: [{ tiles }]
+        };
+
+        return map;
+    }
+
+    customElements.define(DTileTilesetViewer.is, DTileTilesetViewer);
+</script>

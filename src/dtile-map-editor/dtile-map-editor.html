@@ -4,9 +4,11 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="../dtile-tilemap-viewer/dtile-tilemap-viewer.html">
+<link rel="import" href="../dtile-tileset-viewer/dtile-tileset-viewer.html">
 
 <link rel="import" href="./paper-icon-radio-group.html">
-<link rel="import" href="layer-list.html">
+<link rel="import" href="./layer-list.html">
+<link rel="import" href="./tileset-selector.html">
 
 <dom-module id="dtile-map-editor">
     <template>
@@ -46,6 +48,13 @@
                     <paper-icon-button icon="polymer" name="four"></paper-icon-button>
                 </paper-icon-radio-group>
                 <dtile-layer-list></dtile-layer-list>
+
+                <dtile-tileset-selector id="tileset-selector"
+                    selected-id="[[currentTilesetId]]" tilesets="[[tilesets]]">
+                </dtile-tileset-selector>
+                <dtile-tileset-viewer id="tileset-viewer"
+                    tileset-id="[[currentTilesetId]]" tilesets="[[tilesets]]">
+                </dtile-tileset-viewer>
             </div>
         </div>
     </template>
@@ -75,6 +84,22 @@
                         });
                         return tilesets;
                     }
+                },
+
+                currentTilesetId: {
+                    type: String,
+                    statePath: "ui.currentTilesetId"
+                }
+            };
+        }
+
+        static get actions() {
+            return {
+                setCurrentTilesetID(id) {
+                    return {
+                        type: "SET_CURRENT_TILESET_ID",
+                        payload: id
+                    };
                 }
             };
         }
@@ -86,6 +111,13 @@
                 this.$.viewer.resetViewValues();
                 this.$.viewer.updateSize();
                 this.$.viewer.updateCamera();
+
+                this.$["tileset-viewer"].resetView();
+            });
+
+            this.$["tileset-selector"].addEventListener("tileset-selected", e => {
+                e.stopPropagation();
+                this.dispatch("setCurrentTilesetID", e.detail);
             });
         }
     }

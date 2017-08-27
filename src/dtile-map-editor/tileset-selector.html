@@ -1,0 +1,84 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<dom-module id="dtile-tileset-selector">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 100%;
+            }
+
+            paper-dropdown-menu {
+                width: 100%;
+                padding: 0 16px;
+                box-sizing: border-box;
+                --paper-menu-button-dropdown: {
+                    width: 200px; /* TODO: this is ugly. Follow material spec? */
+                }
+            }
+        </style>
+
+        <paper-dropdown-menu>
+            <paper-listbox slot="dropdown-content" selected="{{_selectedArrayIndex}}">
+                <template is="dom-repeat" items="[[_tilesetsArray]]">
+                    <paper-item>[[item.tileset.name]]</paper-item>
+                </template>
+            </paper-listbox>
+        </paper-dropdown-menu>
+    </template>
+</dom-module>
+
+<script>
+    class DTileTilesetSelector extends Polymer.Element {
+        static get is() { return "dtile-tileset-selector"; }
+
+        static get properties() {
+            return {
+                tilesets: Object,
+                selectedId: String,
+
+                _tilesetsArray: {
+                    type: Array,
+                    computed: "_computeTilesetArray(tilesets)"
+                },
+                _selectedArrayIndex: Number
+            };
+        }
+
+        static get observers() {
+            return [
+                "_onSelectedIdChanged(selectedId)",
+                "_onSelectedIndexChanged(_selectedArrayIndex)"
+            ];
+        }
+
+        _computeTilesetArray(tilesets) {
+            return Object.keys(tilesets).map(tilesetId => {
+                return {
+                    tilesetId,
+                    tileset: tilesets[tilesetId]
+                };
+            });
+        }
+
+        _onSelectedIdChanged(id) {
+            this._selectedArrayIndex = this._tilesetsArray.findIndex(item => {
+                return item.tileset === this.tilesets[id];
+            });
+        }
+
+        _onSelectedIndexChanged(index) {
+            const selectedId = this._tilesetsArray[index].tilesetId;
+            this.dispatchEvent(new CustomEvent("tileset-selected", {
+                detail: selectedId,
+                bubbles: true
+            }));
+        }
+    }
+
+    customElements.define(DTileTilesetSelector.is, DTileTilesetSelector);
+</script>
