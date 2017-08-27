@@ -20,6 +20,12 @@
                     currentLayerIndex: action.payload
                 };
 
+            case "SET_CURRENT_TILESET_ID":
+                return {
+                    ...state,
+                    currentTilesetId: action.payload
+                };
+
             case "SET_MAP_SELECTION":
                 return {
                     ...state,

@@ -46,6 +46,13 @@
                     });
                 });
 
+                describe("SET_CURRENT_TILESET_ID", () => {
+                    it("sets the value correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_TILESET_ID", 3));
+                        expect(state().currentTilesetId).to.equal(3);
+                    });
+                });
+
                 describe("SET_MAP_SELECTION", () => {
                     it("clears the old selection", () => {
                         DTile.store.dispatch(action("SET_MAP_SELECTION", [
