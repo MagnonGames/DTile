@@ -7,7 +7,10 @@ DTile.createStore = () => {
         ui: DTile.reducers.ui
     });
 
-    DTile.store = createStore(reducers);
+    DTile.store = createStore(
+        reducers,
+        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    );
     DTile.ReduxMixin = window.PolymerRedux(DTile.store);
 };
 
