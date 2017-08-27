@@ -108,6 +108,13 @@
                         type: "SET_CURRENT_TILESET_ID",
                         payload: id
                     };
+                },
+
+                setTilesetSelection(selection) {
+                    return {
+                        type: "SET_TILESET_SELECTION",
+                        payload: selection
+                    };
                 }
             };
         }
@@ -126,6 +133,11 @@
             this.$["tileset-selector"].addEventListener("tileset-selected", e => {
                 e.stopPropagation();
                 this.dispatch("setCurrentTilesetID", e.detail);
+            });
+
+            this.$["tileset-viewer"].addEventListener("tileset-selection", e => {
+                e.stopPropagation();
+                this.dispatch("setTilesetSelection", e.detail);
             });
         }
     }

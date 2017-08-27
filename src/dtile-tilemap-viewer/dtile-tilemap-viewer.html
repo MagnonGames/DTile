@@ -68,6 +68,8 @@
             this.resetViewValues();
             this._sizeListener = this.updateSize.bind(this);
             window.addEventListener("resize", this._sizeListener);
+
+            this._setUpPointerEvents();
         }
 
         updateMap(map) {
@@ -193,6 +195,79 @@
 
             this._previousSelection = selection;
             this.update("tiles");
+        }
+
+        _setUpPointerEvents() {
+            let startEvent = {}, startTilePos = {},
+                startOffsetPos = {},
+                mouseDown = false, mouseMoved = false;
+
+            const toTilePos = pos => this.renderer.unprojectToTilePosition(pos, true);
+
+            const buildEvent = (name, e, detail) => {
+                const { top, left } = e.target.getBoundingClientRect();
+                const x = e.clientX - left, y = e.clientY - top;
+
+                const { x: perciseTileX, y: perciseTileY } = toTilePos({ x, y });
+
+                return new CustomEvent(name, {
+                    detail: {
+                        perciseTileX, perciseTileY,
+                        tileX: Math.floor(perciseTileX), tileY: Math.floor(perciseTileY),
+                        x, y,
+
+                        shift: e.shiftKey, ctrl: e.ctrlKey,
+                        button: e.button,
+
+                        startPerciseTileX: startTilePos.x, startPerciseTileY: startTilePos.y,
+                        startTileX: Math.floor(startTilePos.x), startTileY: Math.floor(startTilePos.y),
+                        startX: startOffsetPos.x, startY: startOffsetPos.y,
+
+                        totalDeltaX: e.clientX - startEvent.clientX,
+                        totalDeltaY: e.clientY - startEvent.clientY,
+                        deltaX: e.movementX, deltaY: e.movementY,
+
+                        ...detail
+                    },
+                    bubbles: true
+                });
+            };
+
+            this.addEventListener("mousedown", e => {
+                e.stopPropagation();
+                e.preventDefault();
+                startEvent = e;
+                const { top, left } = e.target.getBoundingClientRect();
+                startOffsetPos = { x: e.clientX - left, y: e.clientY - top };
+                startTilePos = toTilePos(startOffsetPos);
+                mouseDown = true;
+                mouseMoved = false;
+            });
+            this.addEventListener("mousemove", e => {
+                if (!mouseDown) return;
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (!mouseMoved) {
+                    this.dispatchEvent(buildEvent("tile-track", startEvent, { state: "start" }));
+                    mouseMoved = true;
+                }
+
+                this.dispatchEvent(buildEvent("tile-track", e, { state: "track" }));
+            });
+            this.addEventListener("mouseup", e => {
+                if (!mouseDown) return;
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (mouseMoved) {
+                    this.dispatchEvent(buildEvent("tile-track", e, { state: "end" }));
+                } else {
+                    this.dispatchEvent(buildEvent("tile-tap", e));
+                }
+
+                mouseDown = false;
+            });
         }
     }
 

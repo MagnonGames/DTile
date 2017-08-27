@@ -14,7 +14,8 @@
         <dtile-tilemap-viewer
             id="tileset-map-viewer"
             map="[[_tilesetMap]]"
-            tilesets="[[tilesets]]">
+            tilesets="[[tilesets]]"
+            selection="[[selection]]">
         </dtile-tilemap-viewer>
     </template>
 </dom-module>
@@ -28,6 +29,8 @@
                 tilesets: Object,
                 tilesetId: String,
 
+                selection: Array,
+
                 _tilesetMap: Object
             };
         }
@@ -36,6 +39,37 @@
             return [
                 "_generateTilesetMap(tilesetId, tilesets)"
             ];
+        }
+
+        ready() {
+            super.ready();
+
+            const viewer = this.$["tileset-map-viewer"];
+
+            const dispatchSelection = selection =>
+                this.dispatchEvent(new CustomEvent("tileset-selection", {
+                    detail: selection,
+                    bubbles: true
+                })
+            );
+
+            viewer.addEventListener("tile-tap", e => {
+                dispatchSelection([{ x: e.detail.tileX, y: e.detail.tileY, layer: 0 }]);
+            });
+            viewer.addEventListener("tile-track", e => {
+                const selection = [];
+                const xValues = [e.detail.tileX, e.detail.startTileX];
+                const yValues = [e.detail.tileY, e.detail.startTileY];
+                for (let x = Math.min(...xValues); x <= Math.max(...xValues); x++) {
+                    for (let y = Math.min(...yValues); y <= Math.max(...yValues); y++) {
+                        if (x < 0 || y < 0 ||
+                            x > this._tilesetMap.width ||
+                            y > this._tilesetMap.height) continue;
+                        selection.push({ x, y, layer: 0 });
+                    }
+                }
+                dispatchSelection(selection);
+            });
         }
 
         resetView() {
