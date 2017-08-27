@@ -184,7 +184,7 @@
             const set = (tile, selected) => {
                 const renderTile = this.renderer.getLayer(tile.layer).getTile(tile.x, tile.y);
                 if (!renderTile) return;
-                renderTile.setTint(0xffffff);
+                renderTile.setTint(selected ? 0xffffff : 0x000000);
             };
 
             if (this._previousSelection) {
