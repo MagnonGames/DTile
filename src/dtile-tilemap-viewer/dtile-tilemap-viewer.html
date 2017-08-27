@@ -191,7 +191,7 @@
                 this._previousSelection.forEach(tile => set(tile, false));
             }
 
-            selection.forEach(tile => set(tile, true));
+            if (selection) selection.forEach(tile => set(tile, true));
 
             this._previousSelection = selection;
             this.update("tiles");
