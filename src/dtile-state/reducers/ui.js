@@ -44,6 +44,12 @@
                     tilesetSelection: action.payload
                 };
 
+            case "SET_CURRENT_TILE_AREA":
+                return {
+                    ...state,
+                    currentTileArea: action.payload
+                };
+
             default: return state;
         }
     };

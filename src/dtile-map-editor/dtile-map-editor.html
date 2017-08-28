@@ -97,7 +97,9 @@
                 },
 
                 mapSelection: { type: Array, statePath: "ui.mapSelection" },
-                tilesetSelection: { type: Array, statePath: "ui.tilesetSelection" }
+                tilesetSelection: { type: Array, statePath: "ui.tilesetSelection" },
+
+                currentTileArea: { type: Object, statePath: "ui.currentTileArea" }
             };
         }
 
@@ -114,6 +116,13 @@
                     return {
                         type: "SET_TILESET_SELECTION",
                         payload: selection
+                    };
+                },
+
+                setCurrentTileArea(tilearea) {
+                    return {
+                        type: "SET_CURRENT_TILE_AREA",
+                        payload: tilearea
                     };
                 }
             };
@@ -138,6 +147,32 @@
             this.$["tileset-viewer"].addEventListener("tileset-selection", e => {
                 e.stopPropagation();
                 this.dispatch("setTilesetSelection", e.detail);
+
+                const max = { x: e.detail[0].x, y: e.detail[0].y }, min = { ...max };
+                e.detail.forEach(tilePos => {
+                    min.x = Math.min(min.x, tilePos.x);
+                    min.y = Math.min(min.y, tilePos.y);
+                    max.x = Math.max(max.x, tilePos.x);
+                    max.y = Math.max(max.y, tilePos.y);
+                });
+                const tileArea = {
+                    width: max.x - min.x + 1,
+                    height: max.y - min.y + 1,
+                    tiles: []
+                };
+                const tilesetTileWidth = this.$["tileset-viewer"].tilesetTileWidth;
+                for (let y = 0; y < tileArea.height; y++) {
+                    for (let x = 0; x < tileArea.width; x++) {
+                        const rx = x + min.x, ry = y + min.y;
+                        const inSelection = e.detail.find(tilePos =>
+                            tilePos.x === rx && tilePos.y === ry);
+                        tileArea.tiles.push({
+                            tileId: inSelection ? ry * tilesetTileWidth + rx : -1,
+                            tilesetId: this.currentTilesetId
+                        });
+                    }
+                }
+                this.dispatch("setCurrentTileArea", tileArea);
             });
         }
     }

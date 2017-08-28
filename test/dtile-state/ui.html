@@ -93,6 +93,20 @@
                         expect(state().tilesetSelection[0].x).to.equal(99);
                     });
                 });
+
+                describe("SET_CURRENT_TILE_AREA", () => {
+                    it("sets the tile area correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_TILE_AREA", {
+                            width: 1,
+                            height: 2,
+                            tiles: [
+                                { tileId: 23, tilesetId: 1 },
+                                { tileId: 32, tilesetId: 2 }
+                            ]
+                        }));
+                        expect(state().currentTileArea.tiles[1].tileId).to.equal(32);
+                    });
+                });
             });
         </script>
     </body>
