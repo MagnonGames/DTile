@@ -43,11 +43,6 @@
             data="{{pageData}}"
             tail="{{subroute}}">
         </app-route>
-        <app-route
-            route="{{subroute}}"
-            pattern="/:content"
-            data="{{pageContentData}}">
-        </app-route>
 
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">
@@ -67,21 +62,25 @@
         static get properties() {
             return {
                 route: String,
-                page: String,
+                page: { type: String, statePath: "ui.currentPage" },
 
                 pageData: Object,
-                pageContentData: Object
+                subroute: Object,
+
+                isReady: Boolean
             };
         }
 
         static get observers() {
             return [
-                "_updatePage(pageData, pageContentData)"
+                "_updatePage(pageData, subroute)",
+                "_updatePath(page)"
             ];
         }
 
         static get actions() {
             return {
+                setCurrentPage: page => ({ type: "SET_CURRENT_PAGE", payload: page }),
                 setCurrentProjectId: id => ({ type: "SET_CURRENT_PROJECT_ID", payload: id }),
                 setCurrentMapId: id => ({ type: "SET_CURRENT_MAP_ID", payload: id })
             };
@@ -116,9 +115,23 @@
                     }
                 }));
             });
+
+            this.isReady = true;
+            this._updatePage(this.pageData, this.subroute);
         }
 
-        _updatePage(pageData, pageContentData) {
+        _updatePage(pageData, subroute) {
+            if (!this.isReady) return;
+
+            if (subroute.path) {
+                const id = subroute.path.match(/(\d)$/)[1];
+                if (pageData.pageName === "project") {
+                    this.dispatch("setCurrentProjectId", id);
+                } else if (pageData.pageName === "edit-map") {
+                    this.dispatch("setCurrentMapId", id);
+                }
+            }
+
             if (pageData.pageName === "") {
                 // Index redirects to projects dashboard by replacing the current
                 // state and updating the app-location element.
@@ -129,21 +142,21 @@
                     const currentSelected = this.shadowRoot.querySelector(".iron-selected");
                     if (currentSelected) currentSelected.dispatchEvent(new CustomEvent("dtile-page-away"));
 
-                    this.page = pageData.pageName;
+                    this.dispatch("setCurrentPage", pageData.pageName);
 
                     requestAnimationFrame(() => requestAnimationFrame(() =>
-                            this.shadowRoot.querySelector(".iron-selected")
-                                .dispatchEvent(new CustomEvent("dtile-page-to"))));
+                        this.shadowRoot.querySelector(".iron-selected")
+                            .dispatchEvent(new CustomEvent("dtile-page-to"))));
                 }
             }
+        }
 
-            if (pageContentData.content) {
-                if (pageData.pageName === "project") {
-                    this.dispatch("setCurrentProjectId", pageContentData.content);
-                } else if (pageData.pageName === "edit-map") {
-                    this.dispatch("setCurrentMapId", pageContentData.content);
-                }
-            }
+        _updatePath(page) {
+            let data;
+            if (page === "project") data = this.getState().ui.currentProjectId;
+            else if (page === "edit-map") data = this.getState().ui.currentMapId;
+
+            this.$.location.path = `/${page}${typeof data !== "undefined" ? `/${data}` : ""}`;
         }
     }
 

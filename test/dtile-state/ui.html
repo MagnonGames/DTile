@@ -25,6 +25,13 @@
                     expect(state()).to.deep.equal({});
                 });
 
+                describe("SET_CURRENT_PAGE", () => {
+                    it("sets the value correctly", () => {
+                        DTile.store.dispatch("SET_CURRENT_PAGE", "projects");
+                        expect(state().currentPage).to.equal("projects");
+                    });
+                });
+
                 describe("SET_CURRENT_PROJECT_ID", () => {
                     it("sets the value correctly", () => {
                         DTile.store.dispatch(action("SET_CURRENT_PROJECT_ID", 10));
