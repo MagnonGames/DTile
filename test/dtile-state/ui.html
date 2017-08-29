@@ -27,7 +27,7 @@
 
                 describe("SET_CURRENT_PAGE", () => {
                     it("sets the value correctly", () => {
-                        DTile.store.dispatch("SET_CURRENT_PAGE", "projects");
+                        DTile.store.dispatch(action("SET_CURRENT_PAGE", "projects"));
                         expect(state().currentPage).to.equal("projects");
                     });
                 });
