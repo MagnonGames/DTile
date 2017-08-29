@@ -31,23 +31,37 @@
             super.ready();
 
             this._iconButtons = [...this.querySelectorAll("paper-icon-button")];
+            this._iconButtons.forEach(this._registerIconButton);
 
-            this._iconButtons.forEach(button => {
-                button.toggles = true;
-
-                if (button.getAttribute("name") === this.selected) button.active = true;
-
-                button.addEventListener("change", () => {
-                    if (!button.active) {
-                        button.active = true;
-                    } else {
-                        this._iconButtons.forEach(other => {
-                            if (other === button) return;
-                            other.active = false;
-                        });
-                        this.selected = button.getAttribute("name");
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    for (let node of mutation.addedNodes) {
+                        if (node.tagName === "PAPER-ICON-BUTTON") {
+                            this._registerIconButton(node);
+                        }
                     }
                 });
+            });
+            observer.observe(this, { childList: true, attributes: true, characterData: true });
+        }
+
+        _registerIconButton(button) {
+            this._iconButtons.push(button);
+
+            button.toggles = true;
+
+            if (button.name === this.selected) button.active = true;
+
+            button.addEventListener("change", () => {
+                if (!button.active) {
+                    button.active = true;
+                } else {
+                    this._iconButtons.forEach(other => {
+                        if (other === button) return;
+                        other.active = false;
+                    });
+                    this.selected = button.name;
+                }
             });
         }
     }
