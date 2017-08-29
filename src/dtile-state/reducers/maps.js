@@ -75,6 +75,16 @@
             case "REMOVE_LAYER":
                 return state.filter((layer, index) => index !== action.payload.layerIndex);
 
+            case "MODIFY_TILES_IN_LAYER":
+                return state.map((layer, index) => {
+                    if (index !== action.payload.layerIndex) return layer;
+
+                    return {
+                        ...layer,
+                        tiles: action.payload.tiles
+                    };
+                });
+
             default: return state;
         }
     };

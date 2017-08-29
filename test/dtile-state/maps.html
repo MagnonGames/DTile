@@ -119,6 +119,36 @@
                             expect(state()[id].layers).to.have.lengthOf(0);
                         });
                     });
+
+                    describe("MODIFY_TILES_IN_LAYER", () => {
+                        it("replaces the tiles property", () => {
+                            const tiles = [];
+                            DTile.store.dispatch(action("ADD_LAYER", {
+                                name: "test",
+                                mapId: id
+                            }));
+                            DTile.store.dispatch(action("MODIFY_TILES_IN_LAYER", {
+                                mapId: id, layerIndex: 0, tiles
+                            }));
+                            expect(state()[id].layers[0].tiles).to.equal(tiles);
+                        });
+
+                        it("doesn't modify other layers", () => {
+                            const tiles = [];
+                            DTile.store.dispatch(action("ADD_LAYER", {
+                                name: "test",
+                                mapId: id
+                            }));
+                            DTile.store.dispatch(action("ADD_LAYER", {
+                                name: "test2",
+                                mapId: id
+                            }));
+                            DTile.store.dispatch(action("MODIFY_TILES_IN_LAYER", {
+                                mapId: id, layerIndex: 1, tiles
+                            }));
+                            expect(state()[id].layers[0].tiles).to.not.equal(tiles);
+                        });
+                    });
                 });
 
                 describe("maps.objects state", () => {
