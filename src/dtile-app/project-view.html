@@ -175,9 +175,8 @@
         }
 
         _openMap(e) {
-            // Push path, update app-location in dtile-app
-            history.pushState(null, null, `/edit-map/${e.model.item.id}`);
-            window.dispatchEvent(new CustomEvent("location-changed"));
+            this.dispatch("setCurrentMapId", e.model.item.id);
+            this.dispatch("setCurrentPage", "edit-map");
         }
     }
 

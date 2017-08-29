@@ -106,9 +106,8 @@
         }
 
         _openProject(e) {
-            // Push path, update app-location in dtile-app
-            history.pushState(null, null, `/project/${e.model.item.id}`);
-            window.dispatchEvent(new CustomEvent("location-changed"));
+            this.dispatch("setCurrentProjectId", e.model.item.id);
+            this.dispatch("setCurrentPage", "project");
         }
     }
 
