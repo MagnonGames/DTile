@@ -205,7 +205,7 @@
             const toTilePos = pos => this.renderer.unprojectToTilePosition(pos, true);
 
             const buildEvent = (name, e, detail) => {
-                const { top, left } = e.target.getBoundingClientRect();
+                const { top, left } = this.getBoundingClientRect();
                 const x = e.clientX - left, y = e.clientY - top;
 
                 const { x: perciseTileX, y: perciseTileY } = toTilePos({ x, y });
