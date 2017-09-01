@@ -1,0 +1,25 @@
+<script src="../node_modules/localforage/dist/localforage.min.js"></script>
+
+<script>
+    /* globals localforage */
+    DTile.storage = new class DTileStorage {
+        constructor() {
+            this.restore();
+        }
+
+        async restore() {
+            const state = await localforage.getItem("state");
+
+            if (!state) return;
+
+            DTile.store.dispatch({
+                type: "REPLACE",
+                payload: state
+            });
+        }
+
+        async save() {
+            await localforage.setItem("state", DTile.store.getState());
+        }
+    }();
+</script>

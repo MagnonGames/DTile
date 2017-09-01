@@ -2,10 +2,20 @@ DTile.createStore = () => {
     const { createStore, combineReducers } = window.Redux;
 
     const entities = combineReducers(DTile.reducers.entities);
-    const reducers = combineReducers({
-        entities,
-        ui: DTile.reducers.ui
-    });
+    // const reducers = combineReducers({
+    //     entities,
+    //     ui: DTile.reducers.ui
+    // });
+
+    const reducers = (state = {}, action) => {
+        if (action.type === "REPLACE") return action.payload;
+        else {
+            return {
+                entities: entities(state.entities, action),
+                ui: DTile.reducers.ui(state.ui, action)
+            };
+        }
+    };
 
     DTile.store = createStore(
         reducers,
