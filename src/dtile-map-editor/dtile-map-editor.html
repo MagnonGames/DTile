@@ -9,6 +9,7 @@
 <link rel="import" href="./paper-icon-radio-group.html">
 <link rel="import" href="./layer-list.html">
 <link rel="import" href="./tileset-selector.html">
+<link rel="import" href="./tool-icons.html">
 
 <dom-module id="dtile-map-editor">
     <template>
@@ -41,15 +42,17 @@
             <dtile-tilemap-viewer id="viewer"
                 map="[[map]]"
                 tilesets="[[tilesets]]"
-                selection="[[mapSelection]]">
+                selection="[[_getSelection(mapSelection, _temporarySelection, _useTemporarySelection)]]">
             </dtile-tilemap-viewer>
 
             <div id="sheet">
-                <paper-icon-radio-group selected="one">
-                    <paper-icon-button icon="polymer" name="one"></paper-icon-button>
-                    <paper-icon-button icon="polymer" name="two"></paper-icon-button>
-                    <paper-icon-button icon="polymer" name="three"></paper-icon-button>
-                    <paper-icon-button icon="polymer" name="four"></paper-icon-button>
+                <paper-icon-radio-group selected="{{selectedTool}}">
+                    <template is="dom-repeat" items="[[_getTools()]]">
+                        <paper-icon-button
+                            icon="[[item.constructor.icon]]"
+                            name="[[item.constructor.toolName]]">
+                        </paper-icon-button>
+                    </template>
                 </paper-icon-radio-group>
                 <dtile-layer-list></dtile-layer-list>
 
@@ -64,6 +67,11 @@
         </div>
     </template>
 </dom-module>
+
+<script src="./tool.js"></script>
+<script src="./tools/pen.js"></script>
+<script src="./tools/bucket.js"></script>
+<script src="./tools/select.js"></script>
 
 <script>
     class DTileMapEditor extends DTile.ReduxMixin(Polymer.Element) {
@@ -99,12 +107,33 @@
                 mapSelection: { type: Array, statePath: "ui.mapSelection" },
                 tilesetSelection: { type: Array, statePath: "ui.tilesetSelection" },
 
-                currentTileArea: { type: Object, statePath: "ui.currentTileArea" }
+                currentTileArea: { type: Object, statePath: "ui.currentTileArea" },
+
+                selectedTool: { type: String, value: "pen" },
+
+                _ghostData: Object,
+
+                _temporarySelection: Array,
+                _useTemporarySelection: Boolean
             };
+        }
+
+        static get observers() {
+            return [
+                "_toolUpdated(selectedTool)",
+                "_ghostDataChanged(_ghostData)"
+            ];
         }
 
         static get actions() {
             return {
+                setCurrentMapSelection(selection) {
+                    return {
+                        type: "SET_MAP_SELECTION",
+                        payload: selection
+                    };
+                },
+
                 setCurrentTilesetID(id) {
                     return {
                         type: "SET_CURRENT_TILESET_ID",
@@ -124,6 +153,15 @@
                         type: "SET_CURRENT_TILE_AREA",
                         payload: tilearea
                     };
+                },
+
+                modifyTiles(mapId, layerIndex, tiles) {
+                    return {
+                        type: "MODIFY_TILES_IN_LAYER",
+                        payload: {
+                            mapId, layerIndex, tiles
+                        }
+                    };
                 }
             };
         }
@@ -138,6 +176,10 @@
 
                 this.$["tileset-viewer"].resetView();
             });
+
+            this.$.viewer.addEventListener("tile-tap", e => this._handlePointerEvent(e));
+            this.$.viewer.addEventListener("tile-track", e => this._handlePointerEvent(e));
+            this.$.viewer.addEventListener("tile-move", e => this._handlePointerEvent(e));
 
             this.$["tileset-selector"].addEventListener("tileset-selected", e => {
                 e.stopPropagation();
@@ -173,6 +215,70 @@
                     }
                 }
                 this.dispatch("setCurrentTileArea", tileArea);
+            });
+        }
+
+        _getTools() { return DTile.Tool.allTools; }
+        _toolUpdated(selectedTool) {
+            if (this._ghostData) this._ghostData = { layer: this._ghostData.layer };
+            this._toolInstance = DTile.Tool.allTools.find(tool => tool.constructor.toolName === selectedTool);
+        }
+
+        _getSelection(selection, temporary, useTemporary) {
+            return useTemporary ? temporary : selection;
+        }
+
+        _ghostDataChanged(ghostData) {
+            const renderLayer = this.$.viewer.renderer.getLayer(ghostData.layer);
+            const tiles = ghostData.tiles ? ghostData.tiles : [];
+            for (let i = 0; i < this.map.width * this.map.height; i++) {
+                renderLayer.getTileByIndex(i).setGhost(tiles[i]);
+            }
+            this.$.viewer.update("tiles");
+        }
+
+        _handlePointerEvent(e) {
+            if (!this._toolInstance) return;
+
+            if (!this._pointerEventTemplate) {
+                this._pointerEventTemplate = {
+                    previewTiles: (tiles, layerIndex) => {
+                        this._ghostData = {
+                            layer: layerIndex || this.getState().ui.currentLayerIndex,
+                            tiles
+                        };
+                    },
+                    commitTiles: (tiles, layerIndex) => {
+                        const state = this.getState();
+                        if (typeof layerIndex === "undefined") layerIndex = state.ui.currentLayerIndex;
+                        this.dispatch("modifyTiles", state.ui.currentMapId, layerIndex, tiles);
+                        this._ghostData = { layer: layerIndex, tiles: [] };
+                    },
+                    previewSelection: selection => {
+                        this._useTemporarySelection = true;
+                        this._temporarySelection = selection;
+                    },
+                    cancelSelectionPreview: selection => (this._useTemporarySelection = false),
+                    commitSelection: selection => {
+                        this._useTemporarySelection = false;
+                        this.dispatch("setCurrentMapSelection", selection);
+                    },
+                    tileSize: this.$.viewer.renderer.tileSize// ,
+                    // changeGhost: this.$.viewer.renderer.setGhost.bind(this.$.viewer.renderer)
+                };
+            }
+
+            const toFire = this._toolInstance[(() => {
+                switch (e.type) {
+                    case "tile-tap": return "onTap";
+                    case "tile-track": return "onTrack";
+                    case "tile-move": return "onMove";
+                }
+            })()].bind(this._toolInstance);
+
+            toFire({
+                ...this._pointerEventTemplate,
+                ...e.detail
             });
         }
     }
