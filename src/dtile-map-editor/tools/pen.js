@@ -7,7 +7,7 @@
         const layerTileArea = this.layerAsTileArea;
         const tileArea = this.tileArea;
         if (!layerTileArea || !tileArea) return;
-        previewTiles(TileTools.mergeTileAreas(this.layerAsTileArea, this.tileArea, tileX, tileY).tiles);
+        previewTiles(TileTools.mergeTileAreas(layerTileArea, tileArea, tileX, tileY).tiles);
     }
 
     onTap({ tileX, tileY, shiftKey, button, commitTiles }) {
@@ -21,7 +21,7 @@
         this._lastPaintPosition = { x: tileX, y: tileY };
 
         commitTiles(this._tiles);
-        this._tiles = [];
+        this._tiles = null;
     }
 
     onTrack({ tileX, tileY, state, button, previewTiles, commitTiles }) {
