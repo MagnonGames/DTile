@@ -204,11 +204,17 @@
 
             const toTilePos = pos => this.renderer.unprojectToTilePosition(pos, true);
 
-            const buildEvent = (name, e, detail) => {
+            const buildEvent = (name, e, detail, skipStart) => {
                 const { top, left } = this.getBoundingClientRect();
                 const x = e.clientX - left, y = e.clientY - top;
 
                 const { x: perciseTileX, y: perciseTileY } = toTilePos({ x, y });
+
+                const start = {
+                    startPerciseTileX: startTilePos.x, startPerciseTileY: startTilePos.y,
+                    startTileX: Math.floor(startTilePos.x), startTileY: Math.floor(startTilePos.y),
+                    startX: startOffsetPos.x, startY: startOffsetPos.y
+                };
 
                 return new CustomEvent(name, {
                     detail: {
@@ -219,9 +225,7 @@
                         shift: e.shiftKey, ctrl: e.ctrlKey,
                         button: e.button,
 
-                        startPerciseTileX: startTilePos.x, startPerciseTileY: startTilePos.y,
-                        startTileX: Math.floor(startTilePos.x), startTileY: Math.floor(startTilePos.y),
-                        startX: startOffsetPos.x, startY: startOffsetPos.y,
+                        ...(skipStart ? {} : start),
 
                         totalDeltaX: e.clientX - startEvent.clientX,
                         totalDeltaY: e.clientY - startEvent.clientY,
@@ -244,16 +248,22 @@
                 mouseMoved = false;
             });
             this.addEventListener("mousemove", e => {
-                if (!mouseDown) return;
-                e.stopPropagation();
-                e.preventDefault();
+                if (mouseDown) {
+                    e.stopPropagation();
+                    e.preventDefault();
 
-                if (!mouseMoved) {
-                    this.dispatchEvent(buildEvent("tile-track", startEvent, { state: "start" }));
-                    mouseMoved = true;
+                    if (!mouseMoved) {
+                        this.dispatchEvent(buildEvent("tile-track", startEvent, { state: "start" }));
+                        mouseMoved = true;
+                    }
+
+                    this.dispatchEvent(buildEvent("tile-track", e, { state: "track" }));
+                } else {
+                    // Event not stopped because other parts may want to know
+                    // mouse movement too.
+
+                    this.dispatchEvent(buildEvent("tile-move", e, {}, true));
                 }
-
-                this.dispatchEvent(buildEvent("tile-track", e, { state: "track" }));
             });
             this.addEventListener("mouseup", e => {
                 if (!mouseDown) return;
