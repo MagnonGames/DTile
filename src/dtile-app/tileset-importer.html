@@ -1,0 +1,150 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../generic-elements/dropdown-selector.html">
+
+<dom-module id="dtile-tileset-importer">
+    <template>
+        <style>
+            #main-container {
+                color: white;
+                margin: 50px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #preview {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                flex-grow: 1;
+            }
+
+            #preview[loaded] > span {
+                display: none;
+            }
+
+            #preview > img {
+                max-width: 100vw;
+                max-height: 50vh;
+            }
+
+            #actions {
+                text-align: right;
+            }
+        </style>
+
+        <div id="main-container">
+            <h2>Import Tileset</h2>
+
+            <div>
+                <paper-input label="Tileset name" required auto-validate
+                    error-message="A name is needed for the tileset" value="{{_tilesetName}}">
+                </paper-input>
+                <paper-input label="Tile width" class="num-input"
+                    required type="number" value="{{_tileWidth}}">
+                </paper-input>
+                <paper-input label="Tile height" class="num-input"
+                    required type="number" value="{{_tileHeight}}">
+                </paper-input>
+            </div>
+
+            <div id="preview">
+                <span>Upload an image by dragging it here</span>
+                <img src="[[_imageUrl]]">
+            </div>
+
+            <div id="actions">
+                <paper-button on-tap="_return">Cancel</paper-button>
+                <paper-button on-tap="_import">Import to [[_currentProjectName]]</paper-button>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileTilesetImporter extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-tileset-importer"; }
+
+        static get properties() {
+            return {
+                _currentProjectName: {
+                    type: String,
+                    statePath(state) {
+                        const project = state.entities.projects[state.ui.currentProjectId];
+                        if (!project) return;
+                        return project.name;
+                    }
+                },
+
+                _tilesetName: String,
+                _tileWidth: { type: Number, value: 16 },
+                _tileHeight: { type: Number, value: 16 },
+                _imageUrl: String
+            };
+        }
+
+        static get actions() {
+            return {
+                importTileset(tilesetId, tileset) {
+                    return {
+                        type: "IMPORT_TILESET",
+                        payload: { tilesetId, ...tileset }
+                    };
+                },
+
+                addTilesetToProject(projectId, tilesetId) {
+                    return {
+                        type: "ADD_TILESET_TO_PROJECT",
+                        payload: { projectId, tilesetId }
+                    };
+                }
+            };
+        }
+
+        ready() {
+            super.ready();
+
+            this.addEventListener("dtile-file-import", ({ detail: { files }}) => {
+                const file = files[0];
+                const url = URL.createObjectURL(file);
+
+                this.$.preview.setAttribute("loaded", true);
+                this._imageUrl = url;
+            });
+        }
+
+        async _import() {
+            const state = this.getState();
+            const tileset = {
+                name: this._tilesetName,
+                tilesetType: "ortho",
+                tileWidth: this._tileWidth,
+                tileHeight: this._tileHeight,
+                url: this._imageUrl
+            };
+            const tilesets = state.entities.tilesets;
+            const tilesetId = DTile.stateHelpers.lastId(tilesets);
+
+            DTile.storage.addTilesetImage(tilesetId, this._imageUrl);
+
+            this.dispatch("importTileset", tilesetId, tileset);
+            this.dispatch("addTilesetToProject", state.ui.currentProjectId, tilesetId);
+
+            this._return();
+        }
+
+        _return() {
+            this._tilesetName = this._imageUrl = "";
+            this._tileWidth = this._tileHeight = 16;
+            this.$.preview.removeAttribute("loaded");
+            this.dispatch("setCurrentPage", "project");
+        }
+    }
+
+    customElements.define(DTileTilesetImporter.is, DTileTilesetImporter);
+</script>

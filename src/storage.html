@@ -12,6 +12,12 @@
 
             if (!state) return;
 
+            await Promise.all(Object.keys(state.entities.tilesets).map(async tilesetId => {
+                if (state.entities.tilesets[tilesetId].tilesetType === "test") return;
+
+                state.entities.tilesets[tilesetId].url = await this.getTilesetImageUrl(tilesetId);
+            }));
+
             DTile.store.dispatch({
                 type: "REPLACE",
                 payload: state
@@ -20,6 +26,17 @@
 
         async save() {
             await localforage.setItem("state", DTile.store.getState());
+        }
+
+        async addTilesetImage(tilesetId, url) {
+            const imageData = await fetch(url);
+            const imageBlob = await imageData.blob();
+
+            await localforage.setItem(`tilesetImage-${tilesetId}`, imageBlob);
+        }
+
+        async getTilesetImageUrl(tilesetId) {
+            return URL.createObjectURL(await localforage.getItem(`tilesetImage-${tilesetId}`));
         }
     }();
 </script>
