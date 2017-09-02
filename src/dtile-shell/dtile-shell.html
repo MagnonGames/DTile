@@ -10,6 +10,8 @@
 
 <link rel="import" href="../../bower_components/app-layout/app-layout.html">
 
+<link rel="import" href="../dtile-state/import.html">
+
 <link rel="import" href="./main-drawer.html">
 <link rel="import" href="./status-indicator.html">
 
@@ -75,8 +77,8 @@
                         <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
                         <div main-title>DTile</div>
 
-                        <paper-icon-button icon="undo" on-tap="_undo"></paper-icon-button>
-                        <paper-icon-button icon="redo" on-tap="_redo"></paper-icon-button>
+                        <paper-icon-button icon="undo" on-tap="_undo" disabled="[[!_hasPast]]"></paper-icon-button>
+                        <paper-icon-button icon="redo" on-tap="_redo" disabled="[[!_hasFuture]]"></paper-icon-button>
                         <dtile-shell-status-indicator status="[[_status]]"></dtile-shell-status-indicator>
                     </app-toolbar>
                 </app-header>
@@ -92,7 +94,7 @@
 </dom-module>
 
 <script>
-    class DTileShell extends Polymer.Element {
+    class DTileShell extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-shell"; }
 
         static get properties() {
@@ -106,6 +108,41 @@
                     type: String,
                     value: "__VERSION__",
                     readOnly: true
+                },
+
+                _currentMapId: { type: Number, statePath: "ui.currentMapId" },
+
+                _hasPast: {
+                    type: Boolean,
+                    statePath(state) {
+                        if (state.ui.currentPage !== "edit-map") return false;
+                        return state.entities.maps[state.ui.currentMapId].past.length;
+                    }
+                },
+                _hasFuture: {
+                    type: Boolean,
+                    statePath(state) {
+                        if (state.ui.currentPage !== "edit-map") return false;
+                        return state.entities.maps[state.ui.currentMapId].future.length;
+                    }
+                }
+            };
+        }
+
+        static get actions() {
+            return {
+                undo(mapId) {
+                    return {
+                        type: window.ReduxUndo.ActionTypes.UNDO,
+                        payload: { mapId }
+                    };
+                },
+
+                redo(mapId) {
+                    return {
+                        type: window.ReduxUndo.ActionTypes.REDO,
+                        payload: { mapId }
+                    };
                 }
             };
         }
@@ -117,6 +154,9 @@
                 this._status = actions > 0 ? "activity" : "done";
             });
         }
+
+        _undo() { this.dispatch("undo", this._currentMapId); }
+        _redo() { this.dispatch("redo", this._currentMapId); }
     }
 
     customElements.define(DTileShell.is, DTileShell);
