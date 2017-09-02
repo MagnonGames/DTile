@@ -218,6 +218,20 @@
                 }
                 this.dispatch("setCurrentTileArea", tileArea);
             });
+
+            window.addEventListener("keydown", e => {
+                if (!this.classList.contains("iron-selected")) return;
+
+                const setTool = tool => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this.selectedTool = tool;
+                };
+
+                if (e.key === "a") setTool("pen");
+                else if (e.key === "s") setTool("bucket");
+                else if (e.key === "d") setTool("select");
+            });
         }
 
         _getTools() { return DTile.Tool.allTools; }
