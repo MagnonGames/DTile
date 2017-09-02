@@ -27,6 +27,17 @@
             };
         }
 
+        static get observers() {
+            return [
+                "_updateButtons(selected)"
+            ];
+        }
+
+        constructor() {
+            super();
+            this._iconButtons = [];
+        }
+
         ready() {
             super.ready();
 
@@ -56,12 +67,15 @@
                 if (!button.active) {
                     button.active = true;
                 } else {
-                    this._iconButtons.forEach(other => {
-                        if (other === button) return;
-                        other.active = false;
-                    });
                     this.selected = button.name;
+                    this._updateButtons();
                 }
+            });
+        }
+
+        _updateButtons() {
+            this._iconButtons.forEach(button => {
+                button.active = button.name === this.selected;
             });
         }
     }
