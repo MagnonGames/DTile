@@ -42,7 +42,22 @@
         }
 
         async save() {
-            await localforage.setItem("state", DTile.store.getState());
+            const state = DTile.store.getState();
+            const replace = t => {
+                if (t instanceof Array) {
+                    return t.map(replace);
+                } else if (t instanceof Object) {
+                    if (t.present && t.past && t.future) {
+                        return t.present;
+                    } else {
+                        return Object.keys(t).reduce((obj = {}, key) => {
+                            obj[key] = replace(t[key]);
+                            return obj;
+                        }, {});
+                    }
+                } else return t;
+            };
+            await localforage.setItem("state", replace(state));
         }
 
         async addTilesetImage(tilesetId, url) {

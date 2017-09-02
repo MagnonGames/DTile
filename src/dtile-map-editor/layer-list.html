@@ -107,7 +107,9 @@
                     type: Array,
                     statePath: state => {
                         if (!state.ui.currentMapId) return;
-                        return state.entities.maps[parseInt(state.ui.currentMapId)].layers
+                        const mapData = state.entities.maps[parseInt(state.ui.currentMapId)];
+                        if (!mapData) return;
+                        return mapData.present.layers
                             .map((layer, index) => ({ ...layer, index }));
                     }
                 }

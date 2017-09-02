@@ -1,7 +1,7 @@
 (() => {
     const replaceable = reducer => {
         return (state = {}, action) => {
-            if (action.type === "REPLACE") return action.payload;
+            if (action.type === "REPLACE") return reducer(action.payload, action);
             else return reducer(state, action);
         };
     };

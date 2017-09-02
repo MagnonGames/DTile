@@ -1,28 +1,53 @@
 (() => {
+    const { default: undoable } = window.ReduxUndo;
+
     // entities.maps
     DTile.reducers.entities.maps = (state = {}, action) => {
         switch (action.type) {
             case "ADD_MAP":
                 return {
                     ...state,
-                    [action.payload.mapId]: {
-                        name: action.payload.name,
-                        width: action.payload.width || 0,
-                        height: action.payload.height || 0,
-                        tileWidth: action.payload.tileWidth || 0,
-                        tileHeight: action.payload.tileHeight || 0,
-
-                        layers: layers(action.payload.layers, action),
-                        objects: objects(action.payload.objects, action),
-
-                        meta: action.payload.meta
-                    }
+                    [action.payload.mapId]: map(state, action)
                 };
 
             case "REMOVE_MAP":
-                // eslint-disable-next-line no-unused-vars
                 const { [action.payload.mapId]: _, ...mapRemovedState } = state;
                 return mapRemovedState;
+
+            case "REPLACE":
+                return Object.keys(state).reduce((obj = {}, key) => {
+                    obj[key] = map(state[key], action);
+                    return obj;
+                }, {});
+
+            default:
+                if (!action.payload || !action.payload.mapId) return state;
+                else {
+                    return {
+                        ...state,
+                        [action.payload.mapId]: map(state[action.payload.mapId], action)
+                    };
+                }
+        }
+    };
+
+    // entities.maps[id]
+    // is undoable by sending UNDO / REDO (from ReduxUndo.ActionTypes) with mapId
+    const map = undoable((state = {}, action) => {
+        switch (action.type) {
+            case "ADD_MAP":
+                return {
+                    name: action.payload.name,
+                    width: action.payload.width || 0,
+                    height: action.payload.height || 0,
+                    tileWidth: action.payload.tileWidth || 0,
+                    tileHeight: action.payload.tileHeight || 0,
+
+                    layers: layers(action.payload.layers, action),
+                    objects: objects(action.payload.objects, action),
+
+                    meta: action.payload.meta
+                };
 
             case "CHANGE_MAP_SIZE":
                 console.warn("changing size is not implemented");
@@ -42,17 +67,14 @@
                     : type === "objects" ? objects
                     : null;
 
-                const map = state[action.payload.mapId];
-
                 return {
                     ...state,
-                    [action.payload.mapId]: {
-                        ...state[action.payload.mapId],
-                        [type]: reducer(state[action.payload.mapId][type], action, map)
-                    }
+                    [type]: reducer(state[type], action, state)
                 };
         }
-    };
+    }, {
+        ignoreInitialState: true
+    });
 
     // entities.maps[id].layers
     const layers = (state = [], action, map) => {

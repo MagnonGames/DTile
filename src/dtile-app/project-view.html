@@ -69,7 +69,7 @@
                     statePath(state) {
                         return Object.keys(state.entities.maps).map(id => {
                             return {
-                                ...state.entities.maps[id],
+                                ...state.entities.maps[id].present,
                                 id
                             };
                         });

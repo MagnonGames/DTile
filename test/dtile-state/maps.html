@@ -52,7 +52,7 @@
                             mapId: 10,
                             projectId: 0
                         }));
-                        expect(state()["10"].name).to.equal("test");
+                        expect(state()["10"].present.name).to.equal("test");
                     });
 
                     it("can import an already complete map", done => {
@@ -69,7 +69,7 @@
                             Object.keys(testmap).forEach(key => {
                                 if (key === "tilesets") return;
                                 console.log(key);
-                                expect(state()["5"][key]).to.deep.equal(testmap[key]);
+                                expect(state()["5"].present[key]).to.deep.equal(testmap[key]);
                             });
 
                             done();
@@ -97,15 +97,15 @@
                                 name: "test",
                                 mapId: id
                             }));
-                            expect(state()[id].layers).to.have.lengthOf(1);
+                            expect(state()[id].present.layers).to.have.lengthOf(1);
                         });
 
                         it("fills the layer with empty tiles", () => {
                             DTile.store.dispatch(action("ADD_LAYER", {
                                 name: "test", mapId: id
                             }));
-                            expect(state()[id].layers[0].tiles.length).to.equal(6);
-                            expect(state()[id].layers[0].tiles[0].tileId).to.equal(-1);
+                            expect(state()[id].present.layers[0].tiles.length).to.equal(6);
+                            expect(state()[id].present.layers[0].tiles[0].tileId).to.equal(-1);
                         });
                     });
 
@@ -116,7 +116,7 @@
                                 layerIndex: 0,
                                 mapId: id
                             }));
-                            expect(state()[id].layers).to.have.lengthOf(0);
+                            expect(state()[id].present.layers).to.have.lengthOf(0);
                         });
                     });
 
@@ -130,7 +130,7 @@
                             DTile.store.dispatch(action("MODIFY_TILES_IN_LAYER", {
                                 mapId: id, layerIndex: 0, tiles
                             }));
-                            expect(state()[id].layers[0].tiles).to.equal(tiles);
+                            expect(state()[id].present.layers[0].tiles).to.equal(tiles);
                         });
 
                         it("doesn't modify other layers", () => {
@@ -146,7 +146,7 @@
                             DTile.store.dispatch(action("MODIFY_TILES_IN_LAYER", {
                                 mapId: id, layerIndex: 1, tiles
                             }));
-                            expect(state()[id].layers[0].tiles).to.not.equal(tiles);
+                            expect(state()[id].present.layers[0].tiles).to.not.equal(tiles);
                         });
                     });
                 });
@@ -158,7 +158,7 @@
                                 name: "test",
                                 mapId: id
                             }));
-                            expect(state()[id].objects).to.have.lengthOf(1);
+                            expect(state()[id].present.objects).to.have.lengthOf(1);
                         });
                     });
 
@@ -169,7 +169,7 @@
                                 objectIndex: 0,
                                 mapId: id
                             }));
-                            expect(state()[id].objects).to.have.lengthOf(0);
+                            expect(state()[id].present.objects).to.have.lengthOf(0);
                         });
                     });
                 });

@@ -83,7 +83,8 @@
                 map: {
                     type: Object,
                     statePath(state) {
-                        return state.entities.maps[state.ui.currentMapId];
+                        const mapData = state.entities.maps[state.ui.currentMapId];
+                        if (mapData) return mapData.present;
                     }
                 },
 

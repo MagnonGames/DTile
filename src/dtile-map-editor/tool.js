@@ -13,7 +13,7 @@
 
         get currentMap() {
             const state = DTileTool.state;
-            return state.entities.maps[state.ui.currentMapId];
+            return state.entities.maps[state.ui.currentMapId].present;
         }
 
         get currentLayerIndex() {
