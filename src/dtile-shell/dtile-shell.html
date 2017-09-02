@@ -111,6 +111,7 @@
                 },
 
                 _currentMapId: { type: Number, statePath: "ui.currentMapId" },
+                _currentPage: { type: String, statePath: "ui.currentPage" },
 
                 _hasPast: {
                     type: Boolean,
@@ -152,6 +153,25 @@
 
             DTile.status.subscribe(actions => {
                 this._status = actions > 0 ? "activity" : "done";
+            });
+        }
+
+        ready() {
+            super.ready();
+
+            this.addEventListener("keydown", e => {
+                if (this._currentPage !== "edit-map") return;
+
+                if (e.ctrlKey && e.code === "KeyZ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if (e.shiftKey) {
+                        this._redo();
+                    } else {
+                        this._undo();
+                    }
+                }
             });
         }
 
