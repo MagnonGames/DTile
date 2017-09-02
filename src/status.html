@@ -1,0 +1,27 @@
+<script>
+    DTile.status = new class {
+        constructor() {
+            this.actionsRunning = 0;
+            this.subscribers = [];
+        }
+
+        actionInitiated() {
+            this.actionsRunning++;
+            this._updateSubscribers();
+        }
+
+        actionFinished() {
+            this.actionsRunning--;
+            this._updateSubscribers();
+        }
+
+        subscribe(listener) {
+            this.subscribers.push(listener);
+            this._updateSubscribers();
+        }
+
+        _updateSubscribers() {
+            this.subscribers.forEach(callback => callback(this.actionsRunning));
+        }
+    }();
+</script>

@@ -4,7 +4,24 @@
     /* globals localforage */
     DTile.storage = new class DTileStorage {
         constructor() {
-            this.restore();
+            (async () => {
+                DTile.status.actionInitiated();
+                await this.restore();
+                DTile.status.actionFinished();
+            })();
+
+            DTile.store.subscribe(() => {
+                if (this.timeout) clearTimeout(this.timeout);
+
+                this.timeout = setTimeout(async () => {
+                    DTile.status.actionInitiated();
+                    await this.save();
+                    setTimeout(() => {
+                        DTile.status.actionFinished();
+                    }, 200);
+                    this.timeout = null;
+                }, 1000);
+            });
         }
 
         async restore() {

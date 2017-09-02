@@ -77,7 +77,7 @@
 
                         <paper-icon-button icon="undo" on-tap="_undo"></paper-icon-button>
                         <paper-icon-button icon="redo" on-tap="_redo"></paper-icon-button>
-                        <dtile-shell-status-indicator status="[[_saveStatus]]"></dtile-shell-status-indicator>
+                        <dtile-shell-status-indicator status="[[_status]]"></dtile-shell-status-indicator>
                     </app-toolbar>
                 </app-header>
 
@@ -97,7 +97,7 @@
 
         static get properties() {
             return {
-                _saveStatus: {
+                _status: {
                     type: String,
                     value: "done"
                 },
@@ -108,6 +108,14 @@
                     readOnly: true
                 }
             };
+        }
+
+        constructor() {
+            super();
+
+            DTile.status.subscribe(actions => {
+                this._status = actions > 0 ? "activity" : "done";
+            });
         }
     }
 
