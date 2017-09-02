@@ -6,9 +6,10 @@
 <link rel="import" href="../dtile-tilemap-viewer/dtile-tilemap-viewer.html">
 <link rel="import" href="../dtile-tileset-viewer/dtile-tileset-viewer.html">
 
+<link rel="import" href="../generic-elements/dropdown-selector.html">
+
 <link rel="import" href="./paper-icon-radio-group.html">
 <link rel="import" href="./layer-list.html">
-<link rel="import" href="./tileset-selector.html">
 <link rel="import" href="./tool-icons.html">
 
 <dom-module id="dtile-map-editor">
@@ -56,9 +57,9 @@
                 </paper-icon-radio-group>
                 <dtile-layer-list></dtile-layer-list>
 
-                <dtile-tileset-selector id="tileset-selector"
-                    selected-id="[[currentTilesetId]]" tilesets="[[tilesets]]">
-                </dtile-tileset-selector>
+                <dtile-dropdown-selector id="tileset-selector" itemType="tileset"
+                    selected-id="[[currentTilesetId]]" items="[[tilesets]]">
+                </dtile-dropdown-selector>
                 <dtile-tileset-viewer id="tileset-viewer"
                     tileset-id="[[currentTilesetId]]" tilesets="[[tilesets]]"
                     selection="[[tilesetSelection]]">

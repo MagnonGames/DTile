@@ -4,7 +4,7 @@
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 
-<dom-module id="dtile-tileset-selector">
+<dom-module id="dtile-dropdown-selector">
     <template>
         <style>
             :host {
@@ -24,8 +24,8 @@
 
         <paper-dropdown-menu>
             <paper-listbox slot="dropdown-content" selected="{{_selectedArrayIndex}}">
-                <template is="dom-repeat" items="[[_tilesetsArray]]">
-                    <paper-item>[[item.tileset.name]]</paper-item>
+                <template is="dom-repeat" items="[[_itemsArray]]">
+                    <paper-item>[[item.item.name]]</paper-item>
                 </template>
             </paper-listbox>
         </paper-dropdown-menu>
@@ -33,17 +33,17 @@
 </dom-module>
 
 <script>
-    class DTileTilesetSelector extends Polymer.Element {
-        static get is() { return "dtile-tileset-selector"; }
+    class DTileDropdownSelector extends Polymer.Element {
+        static get is() { return "dtile-dropdown-selector"; }
 
         static get properties() {
             return {
-                tilesets: Object,
+                items: Object,
                 selectedId: String,
 
-                _tilesetsArray: {
+                _itemsArray: {
                     type: Array,
-                    computed: "_computeTilesetArray(tilesets)"
+                    computed: "_computeItemsArray(items)"
                 },
                 _selectedArrayIndex: Number
             };
@@ -56,29 +56,29 @@
             ];
         }
 
-        _computeTilesetArray(tilesets) {
-            return Object.keys(tilesets).map(tilesetId => {
+        _computeItemsArray(items) {
+            return Object.keys(items).map(itemId => {
                 return {
-                    tilesetId,
-                    tileset: tilesets[tilesetId]
+                    itemId,
+                    item: items[itemId]
                 };
             });
         }
 
         _onSelectedIdChanged(id) {
-            this._selectedArrayIndex = this._tilesetsArray.findIndex(item => {
-                return item.tileset === this.tilesets[id];
+            this._selectedArrayIndex = this._itemsArray.findIndex(item => {
+                return item.item === this.items[id];
             });
         }
 
         _onSelectedIndexChanged(index) {
-            const selectedId = this._tilesetsArray[index].tilesetId;
-            this.dispatchEvent(new CustomEvent("tileset-selected", {
+            const selectedId = this._itemsArray[index].itemId;
+            this.dispatchEvent(new CustomEvent(`${this.getAttribute("itemType")}-selected`, {
                 detail: selectedId,
                 bubbles: true
             }));
         }
     }
 
-    customElements.define(DTileTilesetSelector.is, DTileTilesetSelector);
+    customElements.define(DTileDropdownSelector.is, DTileDropdownSelector);
 </script>
