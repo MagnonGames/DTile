@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>state test</title>
+        <meta charset="utf-8">
+        <script src="../../../web-component-tester/browser.js"></script>
+
+        <link rel="import" href="../../src/dtile-state/import.html">
+    </head>
+    <body>
+        <script>
+            const action = (type, payload) => ({ type, payload });
+            const state = () => DTile.store.getState();
+
+            /* eslint-env mocha */
+            /* globals expect */
+            describe("state", () => {
+                beforeEach(() => {
+                    DTile.createStore();
+                });
+
+                describe("REPLACE", () => {
+                    it("replaces the entire state", () => {
+                        DTile.store.dispatch(action("REPLACE", "lol, invalid state"));
+                        expect(state()).to.be.a("string");
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
