@@ -245,11 +245,10 @@
         }
 
         _ghostDataChanged(ghostData) {
-            const renderLayer = this.$.viewer.renderer.getLayer(ghostData.layer);
-            const tiles = ghostData.tiles ? ghostData.tiles : [];
-            for (let i = 0; i < this.map.width * this.map.height; i++) {
-                renderLayer.getTileByIndex(i).setGhost(tiles[i]);
-            }
+            const ghostArray = [];
+            ghostArray[ghostData.layer] = ghostData.tiles;
+            this.$.viewer.renderer.setGhosts(ghostArray);
+
             this.$.viewer.update("tiles");
         }
 

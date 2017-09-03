@@ -24,7 +24,7 @@
     const MAX_ZOOM = 1;
     const MIN_ZOOM = 0.001;
 
-    /* globals dtileThreeRenderer, TileTools */
+    /* globals dtileThreeRenderer */
     class DTileTilemapViewer extends DTile.ViewNavigator(Polymer.Element) {
         static get is() { return "dtile-tilemap-viewer"; }
 
@@ -116,42 +116,6 @@
             this.renderer.getTile(x, y, layerId).setTint(tint);
         }
 
-        /**
-         * Removes old ghost and applies the new one. Returns true if ghost changed.
-         */
-        setGhost(x, y, layerId, tileArea) {
-            const last = this._lastGhost;
-            if (last &&
-                last.x === x && last.y === y &&
-                last.layerId === layerId && last.tileArea === tileArea) return;
-
-            const apply = (x, y, layer, width, height, tileArea) => {
-                for (let lx = x; lx < x + width; lx++) {
-                    for (let ly = y; ly < y + height; ly++) {
-                        if (lx < 0 || ly < 0 || lx > this.map.width - 1 ||
-                            ly > this.map.height - 1) continue;
-                        const tile = tileArea
-                            ? TileTools.getTilingTileData(tileArea, x, y, lx, ly)
-                            : null;
-                        this.renderer.getTile(lx, ly, layer).setGhost(tile);
-                    }
-                }
-            };
-            if (last) {
-                const { x, y, width, height, layerId } = last;
-                apply(x, y, layerId, width, height);
-            }
-            apply(x, y, layerId, tileArea.width, tileArea.height, tileArea);
-            this._lastGhost = {
-                x, y,
-                layerId,
-                width: tileArea.width, height: tileArea.height,
-                tileArea
-            };
-
-            return true;
-        }
-
         setDebug(enabled, profiling) {
             if (!this.renderer) return;
             this.renderer.debugMode = enabled;
@@ -188,7 +152,7 @@
             const set = (tile, selected) => {
                 const renderTile = this.renderer.getLayer(tile.layer).getTile(tile.x, tile.y);
                 if (!renderTile) return;
-                renderTile.setTint(selected ? 0xffffff : 0x000000);
+                renderTile.tint = selected ? 0xffffff : false;
             };
 
             if (this._previousSelection) {
