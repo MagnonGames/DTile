@@ -1,0 +1,127 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="dtile-new-map-page">
+    <template>
+        <style>
+            #main-container {
+                color: white;
+                margin: 50px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .spacer {
+                flex-grow: 1;
+            }
+
+            #actions {
+                text-align: right;
+            }
+        </style>
+
+        <div id="main-container">
+            <h2>Add Map</h2>
+
+            <paper-input label="Map name" required auto-validate
+                error-message="A name is needed for the map" value="{{_mapName}}">
+            </paper-input>
+            <paper-input label="Map width"
+                required type="number" value="{{_mapWidth}}">
+            </paper-input>
+            <paper-input label="Map height"
+                required type="number" value="{{_mapHeight}}">
+            </paper-input>
+            <paper-input label="Map tile-width"
+                required type="number" value="{{_tileWidth}}">
+            </paper-input>
+            <paper-input label="Map tile-height"
+                required type="number" value="{{_tileHeight}}">
+            </paper-input>
+
+            <span class="spacer"></span>
+
+            <div id="actions">
+                <paper-button on-tap="_return">Cancel</paper-button>
+                <paper-button on-tap="_add">Add to [[_currentProjectName]]</paper-button>
+            </div>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileNewMapPage extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-new-map-page"; }
+
+        static get properties() {
+            return {
+                _currentProjectName: {
+                    type: String,
+                    statePath(state) {
+                        const project = state.entities.projects[state.ui.currentProjectId];
+                        if (!project) return;
+                        return project.name;
+                    }
+                },
+
+                _mapName: String,
+                _mapWidth: { type: Number, value: 50 },
+                _mapHeight: { type: Number, value: 50 },
+                _tileWidth: { type: Number, value: 16 },
+                _tileHeight: { type: Number, value: 16 }
+            };
+        }
+
+        static get actions() {
+            return {
+                addMap(projectId, mapId, map) {
+                    return {
+                        type: "ADD_MAP",
+                        payload: {
+                            projectId,
+                            mapId,
+                            ...map
+                        }
+                    };
+                }
+            };
+        }
+
+        _add() {
+            const tiles = [];
+            for (let i = 0; i < this._mapWidth * this._mapHeight; i++) {
+                tiles[i] = { tileId: -1, tilesetId: -1 };
+            }
+
+            const map = {
+                name: this._mapName,
+                width: this._mapWidth,
+                height: this._mapHeight,
+                tileWidth: this._tileWidth,
+                tileHeight: this._tileHeight,
+
+                layers: [
+                    {
+                        name: "Layer 1",
+                        tiles
+                    }
+                ]
+            };
+
+            const state = this.getState();
+            const mapId = DTile.stateHelpers.lastId(state.entities.maps);
+
+            this.dispatch("addMap", state.ui.currentProjectId, mapId, map);
+            this._return();
+        }
+
+        _return() {
+            this._mapName = "";
+            this._mapWidth = this._mapHeight = 50;
+            this._tileWidth = this._tileHeight = 16;
+            this.dispatch("setCurrentPage", "project");
+        }
+    }
+
+    customElements.define(DTileNewMapPage.is, DTileNewMapPage);
+</script>

@@ -92,16 +92,6 @@
 
         static get actions() {
             return {
-                addMap(projectId, name) {
-                    const maps = DTile.store.getState().entities.maps;
-                    const mapId = DTile.stateHelpers.lastId(maps);
-                    name = name || `Map ${mapId + 1}`;
-                    return {
-                        type: "ADD_MAP",
-                        payload: { projectId, mapId, name }
-                    };
-                },
-
                 importMap(projectId, map) {
                     const maps = DTile.store.getState().entities.maps;
                     const mapId = DTile.stateHelpers.lastId(maps);
@@ -168,7 +158,7 @@
         }
 
         _addMap(name) {
-            this.dispatch("addMap", this.projectId);
+            this.dispatch("setCurrentPage", "new-map");
         }
 
         _removeMap(e) {
