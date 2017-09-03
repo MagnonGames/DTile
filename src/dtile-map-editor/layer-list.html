@@ -116,6 +116,12 @@
             };
         }
 
+        static get observers() {
+            return [
+                "_layersUpdated(layers)"
+            ];
+        }
+
         static get actions() {
             return {
                 addLayer(mapId, name) {
@@ -152,6 +158,12 @@
             return this.layers.indexOf(layer1) < this.layers.indexOf(layer2);
         }
         _isLayerSelected(index) { return index === this.getState().ui.currentLayerIndex; }
+
+        _layersUpdated(layers) {
+            if (!layers) return;
+            const selected = this.getState().ui.currentLayerIndex;
+            if (typeof selected !== "number") this.dispatch("setCurrentLayer", 0);
+        }
 
         _addLayer() {
             const state = this.getState();
