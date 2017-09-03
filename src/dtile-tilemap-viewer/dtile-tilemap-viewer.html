@@ -48,7 +48,7 @@
                 "updateMap(map)",
                 "updateTilesets(tilesets)",
                 "updateCamera(panX, panY, zoom)",
-                "_showSelection(selection)",
+                "_showSelection(selection, map)",
                 "setRenderValues(outline, backdrop)",
                 "setDebug(debugEnabled, profilingEnabled)"
             ];
@@ -180,7 +180,11 @@
             }
         }
 
-        _showSelection(selection) {
+        // map is passed in case selection is set before map in which case
+        // the renderer won't be able to show the selection.
+        _showSelection(selection, map) {
+            if (!map) return;
+
             const set = (tile, selected) => {
                 const renderTile = this.renderer.getLayer(tile.layer).getTile(tile.x, tile.y);
                 if (!renderTile) return;
