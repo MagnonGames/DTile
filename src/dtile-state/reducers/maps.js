@@ -7,7 +7,7 @@
             case "ADD_MAP":
                 return {
                     ...state,
-                    [action.payload.mapId]: map(state, action)
+                    [action.payload.mapId]: map(undefined, action)
                 };
 
             case "REMOVE_MAP":
