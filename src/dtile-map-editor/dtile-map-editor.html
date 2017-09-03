@@ -101,10 +101,7 @@
                     }
                 },
 
-                currentTilesetId: {
-                    type: String,
-                    statePath: "ui.currentTilesetId"
-                },
+                currentTilesetId: { type: String, statePath: "ui.currentTilesetId" },
 
                 mapSelection: { type: Array, statePath: "ui.mapSelection" },
                 tilesetSelection: { type: Array, statePath: "ui.tilesetSelection" },
@@ -122,6 +119,7 @@
 
         static get observers() {
             return [
+                "_tilesetsUpdated(tilesets)",
                 "_toolUpdated(selectedTool)",
                 "_ghostDataChanged(_ghostData)"
             ];
@@ -232,6 +230,13 @@
                 else if (e.key === "s") setTool("bucket");
                 else if (e.key === "d") setTool("select");
             });
+        }
+
+        _tilesetsUpdated(tilesets) {
+            if (typeof this.getState().ui.currentTilesetId !== "undefined") return;
+            const tilesetIds = Object.keys(tilesets);
+            if (!tilesetIds.length) return;
+            this.dispatch("setCurrentTilesetID", tilesetIds[0]);
         }
 
         _getTools() { return DTile.Tool.allTools; }
