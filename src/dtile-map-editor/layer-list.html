@@ -156,7 +156,7 @@
         _addLayer() {
             const state = this.getState();
             const currentMapId = state.ui.currentMapId;
-            const layers = state.entities.maps[currentMapId].layers;
+            const layers = state.entities.maps[currentMapId].present.layers;
 
             const lastNumber = layers.map(layer => layer.name)
                 .filter(name => /Layer \d/.exec(name))
