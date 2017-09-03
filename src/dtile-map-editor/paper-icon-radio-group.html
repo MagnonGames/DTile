@@ -5,6 +5,11 @@
         static get template() {
             return `
                 <style>
+                    :host {
+                        display: block;
+                        margin: 10px;
+                    }
+
                     ::slotted(paper-icon-button) {
                         border-radius: 50%;
                         transition: background 0.2s;
