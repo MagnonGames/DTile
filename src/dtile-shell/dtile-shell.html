@@ -159,7 +159,7 @@
         ready() {
             super.ready();
 
-            this.addEventListener("keydown", e => {
+            window.addEventListener("keydown", e => {
                 if (this._currentPage !== "edit-map") return;
 
                 if (e.ctrlKey && e.key.toLowerCase() === "z") {
