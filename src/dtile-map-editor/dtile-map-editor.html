@@ -134,7 +134,7 @@
                     };
                 },
 
-                setCurrentTilesetID(id) {
+                setCurrentTilesetId(id) {
                     return {
                         type: "SET_CURRENT_TILESET_ID",
                         payload: id
@@ -183,7 +183,7 @@
 
             this.$["tileset-selector"].addEventListener("tileset-selected", e => {
                 e.stopPropagation();
-                this.dispatch("setCurrentTilesetID", e.detail);
+                this.dispatch("setCurrentTilesetId", e.detail);
             });
 
             this.$["tileset-viewer"].addEventListener("tileset-selection", e => {
@@ -236,7 +236,7 @@
             if (typeof this.getState().ui.currentTilesetId !== "undefined") return;
             const tilesetIds = Object.keys(tilesets);
             if (!tilesetIds.length) return;
-            this.dispatch("setCurrentTilesetID", tilesetIds[0]);
+            this.dispatch("setCurrentTilesetId", tilesetIds[0]);
         }
 
         _getTools() { return DTile.Tool.allTools; }
