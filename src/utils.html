@@ -21,4 +21,12 @@
 
         return promise;
     };
+
+    window.DTile.utils.readFileAsArrayBuffer = (file) => {
+        const { reader, promise } = getPromiseReader();
+
+        reader.readAsArrayBuffer(file);
+
+        return promise;
+    };
 </script>

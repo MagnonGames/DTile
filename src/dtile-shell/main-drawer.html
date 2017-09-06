@@ -26,18 +26,9 @@
                 All projects
             </paper-icon-item>
             <hr>
-            <paper-item>Current project</paper-item>
-            <paper-icon-item on-tap="navigate" path="project">
-                <iron-icon icon="add" slot="item-icon"></iron-icon>
-                Import Map
-            </paper-icon-item>
-            <paper-icon-item on-tap="navigate" path="">
-                <iron-icon icon="add" slot="item-icon"></iron-icon>
-                New Map
-            </paper-icon-item>
-            <paper-icon-item on-tap="navigate" path="">
-                <iron-icon icon="add" slot="item-icon"></iron-icon>
-                Import Tileset
+            <paper-icon-item on-tap="openMapExporter" path="project">
+                <iron-icon icon="file-download" slot="item-icon"></iron-icon>
+                Export Map
             </paper-icon-item>
         </nav>
     </template>
@@ -51,6 +42,17 @@
             // Push path, update app-location in dtile-app
             history.pushState(null, null, `/${e.target.getAttribute("path")}`);
             window.dispatchEvent(new CustomEvent("location-changed"));
+        }
+
+        openMapExporter() {
+            window.dispatchEvent(new CustomEvent("dtile-map-export-request", {
+                bubbles: true
+            }));
+            this.close();
+        }
+
+        close() {
+            this.dispatchEvent(new CustomEvent("dtile-drawer-close"));
         }
     }
 

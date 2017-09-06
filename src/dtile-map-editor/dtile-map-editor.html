@@ -6,6 +6,8 @@
 <link rel="import" href="../dtile-tilemap-viewer/dtile-tilemap-viewer.html">
 <link rel="import" href="../dtile-tileset-viewer/dtile-tileset-viewer.html">
 
+<link rel="import" href="../map-exporter/map-exporter.html">
+
 <link rel="import" href="../generic-elements/dropdown-selector.html">
 
 <link rel="import" href="./paper-icon-radio-group.html">
@@ -38,6 +40,8 @@
                 color: white;
             }
         </style>
+
+        <dtile-map-exporter id="map-exporter"></dtile-map-exporter>
 
         <div id="container">
             <dtile-tilemap-viewer id="viewer"
@@ -229,6 +233,10 @@
                 if (e.key === "a") setTool("pen");
                 else if (e.key === "s") setTool("bucket");
                 else if (e.key === "d") setTool("select");
+            });
+
+            window.addEventListener("dtile-map-export-request", () => {
+                this.$["map-exporter"].open();
             });
         }
 

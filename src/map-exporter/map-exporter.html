@@ -1,0 +1,69 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="dtile-map-exporter">
+    <template>
+        <style></style>
+
+        <paper-dialog id="dialog">
+            <h2>Export map</h2>
+
+            <paper-dropdown-menu label="Exporter" autofocus>
+                <paper-listbox slot="dropdown-content" selected="{{_selectedExporter}}">
+                    <template is="dom-repeat" items="[[exporters]]">
+                        <paper-item>[[item.exporterName]]</paper-item>
+                    </template>
+                </paper-listbox>
+            </paper-dropdown-menu>
+
+            <div class=".buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm on-tap="_exportTapped">Export</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+</dom-module>
+
+<script>DTile.exporters = [];</script>
+
+<script src="../../node_modules/pako/dist/pako.min.js"></script>
+<script src="../../node_modules/file-saver/FileSaver.min.js"></script>
+<script src="./exporters/dtile.js"></script>
+<script src="./exporters/tiled.js"></script>
+
+<script>
+    class DTileMapExporter extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-map-exporter"; }
+
+        static get properties() {
+            return {
+                exporters: { type: Array, value: () => [] },
+                _selectedExporter: { type: Object }
+            };
+        }
+
+        constructor() {
+            super();
+            this.exporters.push(...DTile.exporters);
+        }
+
+        open() {
+            this.$.dialog.open();
+        }
+
+        exportMap(exporter) {
+            exporter.exportMap(this.getState());
+        }
+
+        _exportTapped() {
+            this.exportMap(this.exporters[this._selectedExporter]);
+        }
+    }
+
+    customElements.define(DTileMapExporter.is, DTileMapExporter);
+</script>

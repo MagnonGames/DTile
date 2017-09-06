@@ -68,7 +68,9 @@
 
         <app-drawer-layout fullbleed force-narrow>
             <app-drawer slot="drawer" id="main-drawer" swipe-open>
-                <dtile-shell-main-drawer></dtile-shell-main-drawer>
+                <dtile-shell-main-drawer id="drawer-content"
+                    enable-map-export="[[_enableMapExport]]">
+                </dtile-shell-main-drawer>
             </app-drawer>
 
             <app-header-layout fullbleed>
@@ -126,7 +128,9 @@
                         if (state.ui.currentPage !== "edit-map") return false;
                         return state.entities.maps[state.ui.currentMapId].future.length;
                     }
-                }
+                },
+
+                _enableMapExport: { type: Boolean, statePath: state => state.ui.currentPage === "edit-map" }
             };
         }
 
@@ -172,6 +176,10 @@
                         this._undo();
                     }
                 }
+            });
+
+            this.$["drawer-content"].addEventListener("dtile-drawer-close", () => {
+                this.$["main-drawer"].close();
             });
         }
 
