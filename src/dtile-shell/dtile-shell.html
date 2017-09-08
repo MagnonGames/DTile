@@ -64,6 +64,10 @@
                 color: white;
                 opacity: 0.6;
             }
+
+            #content-container {
+                height: 100%;
+            }
         </style>
 
         <app-drawer-layout fullbleed force-narrow>
@@ -74,7 +78,7 @@
             </app-drawer>
 
             <app-header-layout fullbleed>
-                <app-header shadow fixed>
+                <app-header slot="header" shadow fixed>
                     <app-toolbar>
                         <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
                         <div main-title>DTile</div>
@@ -85,7 +89,9 @@
                     </app-toolbar>
                 </app-header>
 
-                <slot></slot>
+                <div id="content-container">
+                    <slot></slot>
+                </div>
             </app-header-layout>
         </app-drawer-layout>
 
