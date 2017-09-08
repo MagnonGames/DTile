@@ -6,7 +6,7 @@
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="../utils.html">
+<link rel="import" href="../map-importer/map-importer.html">
 
 <link rel="import" href="../dtile-state/import.html">
 
@@ -33,6 +33,8 @@
                 border-top: 1px solid rgba(255, 255, 255, 0.12);
             }
         </style>
+
+        <dtile-map-importer id="map-importer" project-tilesets="[[projectTilesets]]"></dtile-map-importer>
 
         <div id="main-container">
             <h1>[[projectName]]</h1>
@@ -86,39 +88,32 @@
                         const project = state.entities.projects[state.ui.currentProjectId];
                         if (project) return project.name;
                     }
+                },
+
+                projectTilesets: {
+                    type: Array,
+                    statePath(state) {
+                        const projectId = state.ui.currentProjectId;
+                        const tilesets = [];
+                        if (!projectId) return;
+                        state.entities.projects[projectId].tilesetIds.forEach(tilesetId => {
+                            tilesets.push({
+                                id: tilesetId,
+                                tileset: state.entities.tilesets[tilesetId]
+                            });
+                        });
+                        return tilesets;
+                    }
                 }
             };
         }
 
         static get actions() {
             return {
-                importMap(projectId, map) {
-                    const maps = DTile.store.getState().entities.maps;
-                    const mapId = DTile.stateHelpers.lastId(maps);
-                    return {
-                        type: "ADD_MAP",
-                        payload: { projectId, mapId, ...map }
-                    };
-                },
-
                 removeMap(map) {
                     return {
                         type: "REMOVE_MAP",
                         payload: { mapId: map.id }
-                    };
-                },
-
-                importTileset(tilesetId, tileset) {
-                    return {
-                        type: "IMPORT_TILESET",
-                        payload: { tilesetId, ...tileset }
-                    };
-                },
-
-                addTilesetToProject(projectId, tilesetId) {
-                    return {
-                        type: "ADD_TILESET_TO_PROJECT",
-                        payload: { projectId, tilesetId }
                     };
                 }
             };
@@ -128,32 +123,7 @@
             super.ready();
 
             this.addEventListener("dtile-file-import", ({ detail: { files }}) => {
-                files.forEach(async (file) => {
-                    const jsonContent = await DTile.utils.readFileAsText(file);
-                    const mapObject = JSON.parse(jsonContent);
-
-                    const tilesetIdMapping = new Map();
-
-                    mapObject.tilesets.forEach((tileset, i) => {
-                        const tilesets = DTile.store.getState().entities.tilesets;
-                        const newId = DTile.stateHelpers.lastId(tilesets);
-
-                        tilesetIdMapping.set(i, newId);
-
-                        this.dispatch("importTileset", newId, tileset);
-                        this.dispatch("addTilesetToProject", this.projectId, newId);
-                    });
-
-                    mapObject.layers = mapObject.layers.map(layer => {
-                        layer.tiles = layer.tiles.map(tile => {
-                            tile.tilesetId = tilesetIdMapping.get(tile.tilesetId);
-                            return tile;
-                        });
-                        return layer;
-                    });
-
-                    this.dispatch("importMap", this.projectId, mapObject);
-                });
+                this.$["map-importer"].importFiles(files);
             });
         }
 

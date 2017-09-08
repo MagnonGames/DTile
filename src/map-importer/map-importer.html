@@ -1,0 +1,231 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+<link rel="import" href="../../bower_components/granite-file-reader/granite-file-reader.html">
+
+<link rel="import" href="../utils.html">
+
+<dom-module id="dtile-map-importer">
+    <template>
+        <style>
+            .tileset {
+                display: flex;
+                align-items: center;
+            }
+
+            .tileset > .image-container {
+                width: 100px;
+                max-height: 70px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .tileset img {
+                max-width: 100px;
+                max-height: 70px;
+            }
+
+            .tileset > .info {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+        </style>
+
+        <paper-dialog id="dialog">
+            <h2>Import map</h2>
+
+            <span>
+                The following tilesets couldn't be automatially imported.
+                Please provide the image file(s) manually.
+            </span>
+
+            <template id="tileset-repeater" is="dom-repeat" items="[[requestedTilesets]]">
+                <div class="tileset">
+                    <div class="image-container">
+                        <img src="[[_getTilesetImage(item.id, importedTilesets.*, _tilesetSelections.*)]]">
+                    </div>
+                    <div class="info">
+                        <span class="title">[[item.tileset.name]]</span>
+                        <paper-dropdown-menu on-selected-item-changed="_setSelectedTileset">
+                            <paper-listbox slot="dropdown-content">
+                                <template class="tilesets-repeater" is="dom-repeat" items="[[projectTilesets]]">
+                                    <paper-item>[[item.tileset.name]]</paper-item>
+                                </template>
+                                <granite-file-reader read-as="dataURL">
+                                    <paper-item>Browse for tileset</paper-item>
+                                </granite-file-reader>
+                            </paper-listbox>
+                        </paper-dropdown-menu>
+                    </div>
+                </div>
+            </template>
+
+            <div class="buttons">
+                <paper-button dialog-dismiss on-tap="_reset">Cancel</paper-button>
+                <paper-button dialog-confirm on-tap="_importTapped">Import</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+</dom-module>
+
+<script>DTile.importers = []</script>
+
+<!-- TODO: This is a double import. Also imported in map-exporter.html -->
+<script src="../../node_modules/pako/dist/pako.min.js"></script>
+<script src="./importers/dtile.js"></script>
+<script src="./importers/tiled.js"></script>
+
+<script>
+    const UPLOADED_TILESET = "@@__TILESET_UPLOAD";
+
+    class DTileMapImporter extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-map-importer"; }
+
+        static get properties() {
+            return {
+                requestedTilesets: { type: Array, value: () => [] },
+                importedTilesets: { type: Object, value: () => ({}) },
+
+                projectTilesets: { type: Array },
+
+                _tilesetSelections: { type: Object, value: () => ({}) }
+            };
+        }
+
+        static get actions() {
+            return {
+                importMap(projectId, map) {
+                    const maps = DTile.store.getState().entities.maps;
+                    const mapId = DTile.stateHelpers.lastId(maps);
+                    return {
+                        type: "ADD_MAP",
+                        payload: { projectId, mapId, ...map }
+                    };
+                },
+
+                importTileset(tilesetId, tileset) {
+                    return {
+                        type: "IMPORT_TILESET",
+                        payload: { tilesetId, ...tileset }
+                    };
+                },
+
+                addTilesetToProject(projectId, tilesetId) {
+                    return {
+                        type: "ADD_TILESET_TO_PROJECT",
+                        payload: { projectId, tilesetId }
+                    };
+                }
+            };
+        }
+
+        async importFiles(files) {
+            const state = this.getState();
+
+            for (let file of files) {
+                const importer = this._findImporter(file);
+                const bytes = new Uint8Array(await DTile.utils.readFileAsArrayBuffer(file));
+                const data = await importer.parseData(bytes, file);
+                this.requestedTilesets = await importer.getNeededTilesets(data);
+
+                if (this.requestedTilesets.length) {
+                    this.$.dialog.open();
+                    const fileReadListener = e => {
+                        const item = this.$["tileset-repeater"].itemForElement(e.target);
+                        this.set(`importedTilesets.${item.id}`, e.detail);
+                    };
+                    this.$.dialog.addEventListener("file-read", fileReadListener);
+                    await this._waitForTilesetImporting();
+                    this.$.dialog.removeEventListener("file-read", fileReadListener);
+                }
+
+                const importedTilesets = Object.keys(this.importedTilesets).reduce((tilesets, tilesetId) => {
+                    const imported = this.importedTilesets[tilesetId];
+                    if (this._tilesetSelections[tilesetId] === UPLOADED_TILESET) {
+                        tilesets[tilesetId] = imported;
+                    }
+                    return tilesets;
+                }, {});
+                const tilesets = await importer.importTilesets(data, importedTilesets);
+                const tilesetIdMapping = new Map();
+
+                Object.keys(this._tilesetSelections).forEach(mapTilesetId => {
+                    const { id: tilesetId } = this._tilesetSelections[mapTilesetId];
+                    tilesetIdMapping.set(parseInt(mapTilesetId), tilesetId);
+                });
+
+                tilesets.forEach(({ tileset, imageBlob }, i) => {
+                    if (this._tilesetSelections[i] !== UPLOADED_TILESET) return;
+
+                    const tilesets = state.entities.tilesets;
+                    const newId = DTile.stateHelpers.lastId(tilesets);
+
+                    tilesetIdMapping.set(i, newId);
+                    DTile.storage.addTilesetImage(newId, URL.createObjectURL(imageBlob));
+
+                    this.dispatch("importTileset", newId, tileset);
+                    this.dispatch("addTilesetToProject", state.ui.currentProjectId, newId);
+                });
+
+                const map = await importer.importMap(data, tilesetIdMapping);
+                this.dispatch("importMap", state.ui.currentProjectId, map);
+
+                this._reset();
+            }
+        }
+
+        _getTileset(id, tilesets) {
+            return tilesets[id];
+        }
+
+        _getTilesetImage(id) {
+            const tilesetSelection = this._tilesetSelections[id];
+            if (!tilesetSelection) return;
+            if (tilesetSelection === UPLOADED_TILESET) {
+                return this.importedTilesets[id];
+            } else {
+                return tilesetSelection.tileset.url;
+            }
+        }
+
+        _setSelectedTileset(e) {
+            const path = `_tilesetSelections.${e.model.item.id}`;
+            if (e.detail.value && e.detail.value.tagName === "GRANITE-FILE-READER") {
+                this.set(path, UPLOADED_TILESET);
+            } else {
+                const tilesetsRepeater = e.target.querySelector(".tilesets-repeater");
+                const tileset = tilesetsRepeater.itemForElement(e.detail.value);
+                this.set(path, tileset);
+            }
+        }
+
+        _waitForTilesetImporting() {
+            return new Promise((resolve, reject) => {
+                this._tilesetImport = { resolve, reject };
+            });
+        }
+
+        _findImporter(file) {
+            return DTile.importers.find(importer => importer.match(file));
+        }
+
+        _reset() {
+            this._tilesetImport.reject();
+            this.requestedTilesets = [];
+            this.importedTilesets = {};
+            this._tilesetSelections = {};
+        }
+
+        _importTapped() {
+            this._tilesetImport.resolve();
+        }
+    }
+
+    customElements.define(DTileMapImporter.is, DTileMapImporter);
+</script>

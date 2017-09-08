@@ -30,7 +30,8 @@
     "paper-tabs": "^2.0.0",
     "polymer-redux": "^1.0.1",
     "paper-card": "PolymerElements/paper-card#^2.0.0",
-    "web-animations-js": "^2.3.1"
+    "web-animations-js": "^2.3.1",
+    "granite-file-reader": "LostInBrittany/granite-file-reader#^1.2.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^2.0.0",
