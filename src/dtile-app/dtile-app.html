@@ -29,9 +29,18 @@
                 width: 100vw;
                 height: 100vh;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                background: rgba(255, 255, 255, 0.8);
                 opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            #file-drop-zone > iron-icon {
+                --iron-icon-height: 72px;
+                --iron-icon-width: 72px;
+                margin: 30px;
             }
         </style>
 
