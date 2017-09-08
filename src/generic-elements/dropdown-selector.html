@@ -51,8 +51,8 @@
 
         static get observers() {
             return [
-                "_onSelectedIdChanged(selectedId)",
-                "_onSelectedIndexChanged(_selectedArrayIndex)"
+                "_onSelectedIdChanged(selectedId, _itemsArray)",
+                "_onSelectedIndexChanged(_selectedArrayIndex, _itemsArray)"
             ];
         }
 
@@ -66,13 +66,23 @@
         }
 
         _onSelectedIdChanged(id) {
-            this._selectedArrayIndex = this._itemsArray.findIndex(item => {
-                return item.item === this.items[id];
+            if (id === this._previousId) return;
+            this._previousId = id;
+
+            const selectedItem = this.items ? this.items[id] : undefined;
+            const selectedIndex = this._itemsArray.findIndex(item => {
+                return item.item === selectedItem;
             });
+            this._selectedArrayIndex = selectedIndex;
         }
 
         _onSelectedIndexChanged(index) {
-            const selectedId = this._itemsArray[index].itemId;
+            if (index === this._previousIndex) return;
+            this._previousIndex = index;
+
+            const item = this._itemsArray[index];
+            if (!item) return;
+            const selectedId = item.itemId;
             this.dispatchEvent(new CustomEvent(`${this.getAttribute("itemType")}-selected`, {
                 detail: selectedId,
                 bubbles: true
