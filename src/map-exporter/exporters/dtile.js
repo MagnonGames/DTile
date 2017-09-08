@@ -38,17 +38,20 @@
                     };
                 }));
 
-            const layers = currentMap.layers.map(layer =>
-                layer.tiles.map(tile => {
-                    if (tile.tileId < 0 || tile.tilesetId < 0) return null;
-                    else {
-                        return {
-                            tileId: parseInt(tile.tileId),
-                            tilesetId: parseInt(tilesetMapping.get(tile.tilesetId))
-                        };
-                    }
-                })
-            );
+            const layers = currentMap.layers.map(layer => {
+                return {
+                    ...layer,
+                    tiles: layer.tiles.map(tile => {
+                        if (tile.tileId < 0 || tile.tilesetId < 0) return null;
+                        else {
+                            return {
+                                tileId: parseInt(tile.tileId),
+                                tilesetId: parseInt(tilesetMapping.get(tile.tilesetId))
+                            };
+                        }
+                    })
+                };
+            });
 
             const mapJson = JSON.stringify({
                 ...currentMap,
