@@ -81,7 +81,7 @@
         <div id="items" role="listbox">
             <template is="dom-repeat" items="[[layers]]" sort="_reverseLayerOrder">
                 <paper-item class="layerItem" on-tap="_selectLayer"
-                    selected$="{{_isLayerSelected(item.index)}}">
+                    selected$="{{_isLayerSelected(item.index, _selectedIndex)}}">
                     <paper-ripple></paper-ripple>
                     <span class="layerName">[[item.name]]</span>
                     <paper-menu-button class="layerMenuButton" on-tap="_stopPropagation">
@@ -112,7 +112,9 @@
                         return mapData.present.layers
                             .map((layer, index) => ({ ...layer, index }));
                     }
-                }
+                },
+
+                _selectedIndex: { type: Number, statePath: "ui.currentLayerIndex" }
             };
         }
 
@@ -153,11 +155,25 @@
             };
         }
 
+        ready() {
+            super.ready();
+
+            window.addEventListener("keydown", e => {
+                const state = this.getState();
+                if (state.ui.currentPage !== "edit-map") return;
+
+                const n = e.key === "0" ? 10 : parseInt(e.key);
+                if (isNaN(n) || n <= 0 || n > this.layers.length) return;
+
+                this.dispatch("setCurrentLayer", n - 1);
+            });
+        }
+
         _stopPropagation(e) { e.stopPropagation(); }
         _reverseLayerOrder(layer1, layer2) {
             return this.layers.indexOf(layer1) < this.layers.indexOf(layer2);
         }
-        _isLayerSelected(index) { return index === this.getState().ui.currentLayerIndex; }
+        _isLayerSelected(index, selected) { return index === selected; }
 
         _layersUpdated(layers) {
             if (!layers) return;
