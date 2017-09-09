@@ -21,7 +21,7 @@
                 }, {});
 
             default:
-                if (!action.payload || !action.payload.mapId) return state;
+                if (!action.payload || typeof action.payload.mapId === "undefined") return state;
                 else {
                     return {
                         ...state,
@@ -130,6 +130,26 @@
 
             case "REMOVE_OBJECT":
                 return state.filter((object, index) => index !== action.payload.objectIndex);
+
+            case "MOVE_OBJECT":
+                return state.map((object, i) => {
+                    if (action.payload.objectIndex !== i) return object;
+                    return {
+                        ...object,
+                        x: action.payload.x || object.x,
+                        y: action.payload.y || object.y
+                    };
+                });
+
+            case "RESIZE_OBJECT":
+                return state.map((object, i) => {
+                    if (action.payload.objectIndex !== i) return object;
+                    return {
+                        ...object,
+                        width: action.payload.width || object.width,
+                        height: action.payload.height || object.height
+                    };
+                });
 
             default: return state;
         }
