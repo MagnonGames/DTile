@@ -119,8 +119,8 @@
                     ...state,
                     {
                         name: action.payload.name,
-                        x: action.payload.x,
-                        y: action.payload.y,
+                        x: action.payload.x || 0,
+                        y: action.payload.y || 0,
                         width: 1,
                         height: 1,
 
