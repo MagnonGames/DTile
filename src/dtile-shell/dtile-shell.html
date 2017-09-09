@@ -26,11 +26,11 @@
 
             @apply --paper-font-common-base;
 
-            --primary-color: var(--paper-purple-500);
-            --accent-color: var(--paper-cyan-a400);
+            --header-color: var(--paper-grey-900);
+            --primary-color: var(--paper-cyan-a400);
             --primary-text-color: white;
             --secondary-text-color: rgba(255, 255, 255, 0.7);
-            --contrasting-text-color: white;
+            --contrasting-text-color: rgba(0, 0, 0, 0.87);
             --primary-background-color: #424242;
             --page-background-color: #303030;
         }
@@ -41,8 +41,8 @@
     <template>
         <style>
             app-toolbar {
-                color: var(--contrasting-text-color);
-                background: var(--primary-color);
+                color: var(--primary-text-color);
+                background: var(--header-color);
             }
 
             paper-icon-button + [main-title] {
