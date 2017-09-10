@@ -4,17 +4,20 @@
 
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 
 <dom-module id="dtile-shell-status-indicator">
     <template>
         <style>
-            :host {
+            div {
                 width: 40px;
                 height: 40px;
                 display: block;
                 position: relative;
             }
-            * {
+            div > * {
                 position: absolute;
                 top: 0;
                 left: 0;
@@ -29,10 +32,35 @@
             #icon {
                 cursor: default;
             }
+            a {
+                color: white !important;
+            }
+
+            #failed-toast paper-button {
+                color: var(--paper-red-300);
+            }
         </style>
 
-        <paper-spinner-lite id="spinner" active></paper-spinner-lite>
-        <paper-icon-button id="icon" icon="check"></paper-icon-button>
+        <div>
+            <paper-spinner-lite id="spinner" active></paper-spinner-lite>
+            <paper-icon-button id="icon" icon="check" on-tap="_showFailedInfo"
+                title$="[[_getStatusMessage(status)]]"></paper-icon-button>
+        </div>
+
+        <paper-toast id="failed-toast" text="Oops. Something went wrong." duration="0">
+            <paper-button on-tap="_showFailedInfo">Show more</paper-button>
+        </paper-toast>
+
+        <paper-dialog id="error-dialog">
+            <h2>An error occured</h2>
+            <span>
+                An unexpected error occured within DTile. Please report this on the
+                <a href$="[[_getDTileIssuesLink(failedMessage)]]" target="_blank">
+                    DTile GitHub issues page
+                </a>.
+            </span>
+            <pre>[[failedMessage]]</pre>
+        </paper-dialog>
     </template>
 </dom-module>
 
@@ -45,7 +73,9 @@
                 status: {
                     type: String,
                     value: "none"
-                }
+                },
+
+                failedMessage: String
             };
         }
 
@@ -70,7 +100,23 @@
                 this.$.spinner.style.opacity = 0;
                 this.$.icon.style.opacity = 1;
                 this.$.icon.icon = "warning";
+                this.$["failed-toast"].open();
             }
+        }
+
+        _showFailedInfo() {
+            if (!this.failedMessage) return;
+            this.$["failed-toast"].close();
+            this.$["error-dialog"].open();
+        }
+
+        _getStatusMessage(status) {
+            if (status === "done") return "All changes saved";
+            else if (status === "failed") return "An error occured, click for more info";
+        }
+
+        _getDTileIssuesLink(body) {
+            return `https://github.com/theMagnon/DTile/issues/new?body="${body}"`;
         }
     }
 

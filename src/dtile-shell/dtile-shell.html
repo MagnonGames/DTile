@@ -85,7 +85,8 @@
 
                         <paper-icon-button icon="undo" on-tap="_undo" disabled="[[!_hasPast]]"></paper-icon-button>
                         <paper-icon-button icon="redo" on-tap="_redo" disabled="[[!_hasFuture]]"></paper-icon-button>
-                        <dtile-shell-status-indicator status="[[_status]]"></dtile-shell-status-indicator>
+                        <dtile-shell-status-indicator status="[[_status]]"
+                            failed-message=[[_failedMessage]]></dtile-shell-status-indicator>
                     </app-toolbar>
                 </app-header>
 
@@ -111,6 +112,7 @@
                     type: String,
                     value: "done"
                 },
+                _failedMessage: String,
 
                 _version: {
                     type: String,
@@ -161,8 +163,13 @@
         constructor() {
             super();
 
-            DTile.status.subscribe(actions => {
-                this._status = actions > 0 ? "activity" : "done";
+            DTile.status.subscribe((actions, failed) => {
+                if (failed) {
+                    this._status = "failed";
+                    this._failedMessage = failed;
+                } else {
+                    this._status = actions > 0 ? "activity" : "done";
+                }
             });
         }
 

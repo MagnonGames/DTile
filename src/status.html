@@ -2,6 +2,7 @@
     DTile.status = new class {
         constructor() {
             this.actionsRunning = 0;
+            this.failedAction = false;
             this.subscribers = [];
         }
 
@@ -15,13 +16,19 @@
             this._updateSubscribers();
         }
 
+        actionFailed(error) {
+            this.failedAction = error;
+            this.actionsRunning--;
+            this._updateSubscribers();
+        }
+
         subscribe(listener) {
             this.subscribers.push(listener);
             this._updateSubscribers();
         }
 
         _updateSubscribers() {
-            this.subscribers.forEach(callback => callback(this.actionsRunning));
+            this.subscribers.forEach(callback => callback(this.actionsRunning, this.failedAction));
         }
     }();
 </script>
