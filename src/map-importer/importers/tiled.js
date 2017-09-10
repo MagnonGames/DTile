@@ -11,8 +11,12 @@
             const mapElement = doc.getElementsByTagName("map")[0];
             const tilesetElements = mapElement.getElementsByTagName("tileset");
             const layerElements = mapElement.getElementsByTagName("layer");
+            const objectElements = mapElement.getElementsByTagName("object");
 
             const name = file.name.match(/(.+?)\.tmx/)[1];
+
+            const tileWidth = parseInt(mapElement.getAttribute("tilewidth"));
+            const tileHeight = parseInt(mapElement.getAttribute("tileheight"));
 
             let mapType = mapElement.getAttribute("orientation");
             switch (mapType) {
@@ -60,13 +64,24 @@
                 };
             });
 
+            const objects = [...objectElements].map(objectElement => {
+                return {
+                    name: objectElement.getAttribute("name"),
+                    x: parseInt(objectElement.getAttribute("x")) / tileWidth,
+                    y: parseInt(objectElement.getAttribute("y")) / tileHeight,
+                    width: parseInt(objectElement.getAttribute("width")) / tileWidth,
+                    height: parseInt(objectElement.getAttribute("height")) / tileHeight
+                };
+            });
+
             return {
                 name,
                 width: parseInt(mapElement.getAttribute("width")),
                 height: parseInt(mapElement.getAttribute("height")),
-                tileWidth: parseInt(mapElement.getAttribute("tilewidth")),
-                tileHeight: parseInt(mapElement.getAttribute("tileheight")),
+                tileWidth,
+                tileHeight,
                 layers,
+                objects,
                 tilesets
             };
         }

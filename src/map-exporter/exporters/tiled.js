@@ -10,6 +10,8 @@
             const currentProject = state.entities.projects[state.ui.currentProjectId];
             let gidCount = 1;
 
+            const { tileWidth, tileHeight } = currentMap;
+
             const tilesets = await Promise.all(currentProject.tilesetIds.map(async id => {
                 const tileset = state.entities.tilesets[id];
 
@@ -33,11 +35,12 @@
 
             const layers = currentMap.layers.map(layer => {
                 const tileArray = layer.tiles.map(tile => {
-                    // eslint-disable-next-line eqeqeq
+                    /* eslint-disable eqeqeq */
                     if (tile.tileId == -1 || tile.tilesetId == -1) return 0;
 
-                    const tileset = tilesets.find(t => t.id === parseInt(tile.tilesetId));
+                    const tileset = tilesets.find(t => t.id == tile.tilesetId);
                     return tileset.firstgid + tile.tileId;
+                    /* eslint-enable eqeqeq */
                 });
                 const tileBytes = new Uint8Array(tileArray.map(id => {
                     // little-endian 32-bit integer
@@ -71,6 +74,17 @@
                             </image>
                         </tileset>
                     `).join("")}
+
+                    <objectgroup name="Objects" color="#8000E5FF">
+                        ${currentMap.objects.map((object, i) => `
+                            <object id="${i}" name="${object.name}"
+                                x="${object.x * tileWidth}"
+                                y="${object.y * tileHeight}"
+                                width="${object.width * tileWidth}"
+                                height="${object.height * tileHeight}">
+                            </object>
+                        `).join("")}
+                    </objectgroup>
 
                     ${layers.map(layer => `
                         <layer name="${layer.name}" width="${currentMap.width}" height="${currentMap.height}">
