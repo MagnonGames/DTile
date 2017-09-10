@@ -4,6 +4,8 @@
     /* globals localforage */
     DTile.storage = new class DTileStorage {
         constructor() {
+            this.attemptedResotre = false;
+
             (async () => {
                 DTile.status.actionInitiated();
                 await this.restore();
@@ -27,6 +29,7 @@
         async restore() {
             const state = await localforage.getItem("state");
 
+            this.attemptedResotre = true;
             if (!state) return;
 
             await Promise.all(Object.keys(state.entities.tilesets).map(async tilesetId => {
@@ -42,6 +45,10 @@
         }
 
         async save() {
+            // Saving before a restore has been attempted can overwite everything
+            // saved before.
+            if (!this.attemptedResotre) return;
+
             const state = DTile.store.getState();
             const replace = t => {
                 if (t instanceof Array) {
