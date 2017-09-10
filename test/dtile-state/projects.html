@@ -75,6 +75,17 @@
                         }));
                         expect(state()[id].mapIds).to.not.include(99);
                     });
+
+                    it("shouldn't cause other properties to be erased", () => {
+                        DTile.store.dispatch(action("ADD_MAP", {
+                            projectId: id,
+                            mapId: 99
+                        }));
+                        DTile.store.dispatch(action("REMOVE_MAP", {
+                            mapId: 99
+                        }));
+                        expect(state()[id].name).to.equal("test");
+                    });
                 });
 
                 describe("ADD_TILESET_TO_PROJECT", () => {

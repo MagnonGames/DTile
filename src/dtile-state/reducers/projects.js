@@ -37,7 +37,7 @@
                 return {
                     ...state,
                     [projectId]: {
-                        ...projectId,
+                        ...state[projectId],
                         mapIds: state[projectId].mapIds.filter(id => id !== action.payload.mapId)
                     }
                 };
