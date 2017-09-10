@@ -174,51 +174,42 @@
                         });
                     });
 
-                    describe("MOVE_OBJECT", () => {
-                        it("sets an objects x and y values", () => {
+                    describe("SET_BOUNDS_FOR_OBJECT", () => {
+                        it("sets an objects width and height values", () => {
                             DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
-                            DTile.store.dispatch(action("MOVE_OBJECT", {
-                                mapId: id,
-                                objectIndex: 0,
-                                x: 55,
-                                y: 99
+                            DTile.store.dispatch(action("SET_BOUNDS_FOR_OBJECT", {
+                                mapId: id, objectIndex: 0,
+                                x: 1, y: 2,
+                                width: 3, height: 4
                             }));
-                            expect(state()[id].present.objects[0].x).to.equal(55);
-                            expect(state()[id].present.objects[0].y).to.equal(99);
+                            expect(state()[id].present.objects[0].x).to.equal(1);
+                            expect(state()[id].present.objects[0].y).to.equal(2);
+                            expect(state()[id].present.objects[0].width).to.equal(3);
+                            expect(state()[id].present.objects[0].height).to.equal(4);
                         });
 
                         it("keeps previous values if none are provided", () => {
                             DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
-                            DTile.store.dispatch(action("MOVE_OBJECT", {
-                                mapId: id,
-                                objectIndex: 0
+                            DTile.store.dispatch(action("SET_BOUNDS_FOR_OBJECT", {
+                                mapId: id, objectIndex: 0
                             }));
                             expect(state()[id].present.objects[0].x).to.equal(0);
                             expect(state()[id].present.objects[0].y).to.equal(0);
-                        });
-                    });
-
-                    describe("RESIZE_OBJECT", () => {
-                        it("sets an objects width and height values", () => {
-                            DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
-                            DTile.store.dispatch(action("RESIZE_OBJECT", {
-                                mapId: id,
-                                objectIndex: 0,
-                                width: 3,
-                                height: 2
-                            }));
-                            expect(state()[id].present.objects[0].width).to.equal(3);
-                            expect(state()[id].present.objects[0].height).to.equal(2);
-                        });
-
-                        it("keeps previous values if none are provided", () => {
-                            DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
-                            DTile.store.dispatch(action("RESIZE_OBJECT", {
-                                mapId: id,
-                                objectIndex: 0
-                            }));
                             expect(state()[id].present.objects[0].width).to.equal(1);
                             expect(state()[id].present.objects[0].height).to.equal(1);
+                        });
+
+                        it("can be set to 0", () => {
+                            DTile.store.dispatch(action("ADD_OBJECT", {
+                                mapId: id, x: 1, y: 1, width: 1, height: 1
+                            }));
+                            DTile.store.dispatch(action("SET_BOUNDS_FOR_OBJECT", {
+                                mapId: id, objectIndex: 0, x: 0, y: 0, width: 0, height: 0
+                            }));
+                            expect(state()[id].present.objects[0].x).to.equal(0);
+                            expect(state()[id].present.objects[0].y).to.equal(0);
+                            expect(state()[id].present.objects[0].width).to.equal(0);
+                            expect(state()[id].present.objects[0].height).to.equal(0);
                         });
                     });
                 });

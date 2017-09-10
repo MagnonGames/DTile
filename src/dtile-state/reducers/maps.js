@@ -131,23 +131,16 @@
             case "REMOVE_OBJECT":
                 return state.filter((object, index) => index !== action.payload.objectIndex);
 
-            case "MOVE_OBJECT":
+            case "SET_BOUNDS_FOR_OBJECT":
                 return state.map((object, i) => {
                     if (action.payload.objectIndex !== i) return object;
+                    const x = "x" in action.payload ? action.payload.x : object.x;
+                    const y = "y" in action.payload ? action.payload.y : object.y;
+                    const width = "width" in action.payload ? action.payload.width : object.width;
+                    const height = "height" in action.payload ? action.payload.height : object.height;
                     return {
                         ...object,
-                        x: action.payload.x || object.x,
-                        y: action.payload.y || object.y
-                    };
-                });
-
-            case "RESIZE_OBJECT":
-                return state.map((object, i) => {
-                    if (action.payload.objectIndex !== i) return object;
-                    return {
-                        ...object,
-                        width: action.payload.width || object.width,
-                        height: action.payload.height || object.height
+                        x, y, width, height
                     };
                 });
 
