@@ -8,6 +8,8 @@
 
 <link rel="import" href="../../bower_components/neon-animation/web-animations.html">
 
+<link rel="import" href="../generic-elements/menu-subtitle.html">
+
 <dom-module id="dtile-layer-list">
     <template>
         <style>
@@ -16,20 +18,6 @@
                 position: relative;
                 overflow: hidden;
                 color: var(--primary-text-color);
-            }
-
-            #header {
-                display: flex;
-                padding-left: 16px;
-                padding-right: 8px;
-            }
-
-            #title {
-                text-align: left;
-                flex-grow: 1;
-                display: flex;
-                align-items: center;
-                @apply --paper-font-subhead;
             }
 
             #items {
@@ -73,10 +61,9 @@
             }
         </style>
 
-        <div id="header">
-            <span id="title">Layers</span>
+        <menu-subtitle text="Layers">
             <paper-icon-button icon="add" on-tap="_addLayer"></paper-icon-button>
-        </div>
+        </menu-subtitle>
 
         <div id="items" role="listbox">
             <template is="dom-repeat" items="[[layers]]" sort="_reverseLayerOrder">

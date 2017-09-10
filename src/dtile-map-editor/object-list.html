@@ -6,22 +6,11 @@
 <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
+<link rel="import" href="../generic-elements/menu-subtitle.html">
+
 <dom-module id="dtile-object-list">
     <template>
         <style>
-            #header {
-                display: flex;
-                padding-left: 16px;
-                padding-right: 8px;
-            }
-
-            #title {
-                display: flex;
-                align-items: center;
-                flex-grow: 1;
-                @apply --paper-font-subhead;
-            }
-
             #items {
                 max-height: 50vh;
                 overflow-x: hidden;
@@ -47,10 +36,9 @@
             }
         </style>
 
-        <div id="header">
-            <span id="title">Objects</span>
+        <menu-subtitle text="Objects">
             <paper-icon-button icon="add" on-tap="_addObject"></paper-icon-button>
-        </div>
+        </menu-subtitle>
 
         <div id="items" role="listbox">
             <template is="dom-repeat" id="object-repeater" items="[[objects]]">

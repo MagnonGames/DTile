@@ -1,0 +1,41 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="menu-subtitle">
+    <template>
+        <style>
+            :host {
+                display: flex;
+                padding-left: 16px;
+                padding-right: 8px;
+            }
+
+            #subtitle {
+                text-align: left;
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                @apply --paper-font-subhead;
+            }
+        </style>
+
+        <span id="subtitle">[[text]]</span>
+        <slot></slot>
+    </template>
+</dom-module>
+
+<script>
+    class MenuSubtitle extends Polymer.Element {
+        static get is() { return "menu-subtitle"; }
+
+        static get properties() {
+            return {
+                text: {
+                    type: String,
+                    reflectToAttribute: true
+                }
+            };
+        }
+    }
+
+    customElements.define(MenuSubtitle.is, MenuSubtitle);
+</script>
