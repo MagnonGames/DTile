@@ -97,6 +97,15 @@
                             name
                         }
                     };
+                },
+
+                removeObject(mapId, objectIndex) {
+                    return {
+                        type: "REMOVE_OBJECT",
+                        payload: {
+                            mapId, objectIndex
+                        }
+                    };
                 }
             };
         }
@@ -117,6 +126,15 @@
                 .map(name => parseInt(/.*?(\d+)/.exec(name)[1]))
                 .reduce((acc, n) => Math.max(acc, n + 1), 1);
             this.dispatch("addObject", currentMapId, `Object ${lastNumber}`);
+        }
+
+        _removeObject(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            const currentMapId = this.getState().ui.currentMapId;
+            const index = e.model.index;
+            this.dispatch("removeObject", currentMapId, index);
         }
     }
 
