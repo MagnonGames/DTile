@@ -1,6 +1,10 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
 <link rel="import" href="../../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="../dtile-tilemap-viewer/dtile-tilemap-viewer.html">
@@ -12,6 +16,7 @@
 
 <link rel="import" href="./paper-icon-radio-group.html">
 <link rel="import" href="./layer-list.html">
+<link rel="import" href="./object-list.html">
 <link rel="import" href="./tool-icons.html">
 
 <dom-module id="dtile-map-editor">
@@ -23,6 +28,24 @@
                 position: relative;
             }
 
+            #object-info {
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                height: 26px;
+                min-width: 80px;
+                border-radius: 13px;
+                padding: 0 15px;
+                font-size: 13px;
+                color: white;
+                background: var(--page-background-color);
+                @apply --shadow-elevation-2dp;
+                pointer-events: none;
+            }
+
             #sheet {
                 position: absolute;
                 top: 20px;
@@ -30,13 +53,18 @@
                 border-radius: 2px;
                 background: var(--header-color);
                 @apply --shadow-elevation-8dp;
+                color: var(--primary-text-color);
+                width: 300px;
+
+                --paper-tabs-selection-bar-color: var(--primary-color);
+                --paper-tab-ink: var(--primary-color);
             }
 
-            #sheet > paper-icon-radio-group {
+            paper-icon-radio-group {
                 --paper-icon-selected-color: rgba(255, 255, 255, 0.2);
             }
 
-            #sheet > paper-icon-radio-group > paper-icon-button {
+            paper-icon-radio-group > paper-icon-button {
                 color: white;
             }
         </style>
@@ -45,29 +73,43 @@
 
         <div id="container">
             <dtile-tilemap-viewer id="viewer"
-                map="[[map]]"
+                map="[[_preivewObject(map, _manipulatingObjectIndex, _manipulatingObjectRect)]]"
                 tilesets="[[tilesets]]"
                 selection="[[_getSelection(mapSelection, _temporarySelection, _useTemporarySelection)]]">
             </dtile-tilemap-viewer>
 
-            <div id="sheet">
-                <paper-icon-radio-group selected="{{selectedTool}}">
-                    <template is="dom-repeat" items="[[_getTools()]]">
-                        <paper-icon-button
-                            icon="[[item.constructor.icon]]"
-                            name="[[item.constructor.toolName]]">
-                        </paper-icon-button>
-                    </template>
-                </paper-icon-radio-group>
-                <dtile-layer-list></dtile-layer-list>
+            <div id="object-info"></div>
 
-                <dtile-dropdown-selector id="tileset-selector" itemType="tileset"
-                    selected-id="[[currentTilesetId]]" items="[[tilesets]]">
-                </dtile-dropdown-selector>
-                <dtile-tileset-viewer id="tileset-viewer"
-                    tileset-id="[[currentTilesetId]]" tilesets="[[tilesets]]"
-                    selection="[[tilesetSelection]]">
-                </dtile-tileset-viewer>
+            <div id="sheet">
+                <paper-tabs selected="{{_modeSelection}}">
+                    <paper-tab>Tiles</paper-tab>
+                    <paper-tab>Objects</paper-tab>
+                </paper-tabs>
+
+                <iron-pages selected="{{_modeSelection}}">
+                    <div>
+                        <paper-icon-radio-group selected="{{selectedTool}}">
+                            <template is="dom-repeat" items="[[_getTools()]]">
+                                <paper-icon-button
+                                    icon="[[item.constructor.icon]]"
+                                    name="[[item.constructor.toolName]]">
+                                </paper-icon-button>
+                            </template>
+                        </paper-icon-radio-group>
+                        <dtile-layer-list></dtile-layer-list>
+
+                        <dtile-dropdown-selector id="tileset-selector" itemType="tileset"
+                            selected-id="[[currentTilesetId]]" items="[[tilesets]]">
+                        </dtile-dropdown-selector>
+                        <dtile-tileset-viewer id="tileset-viewer"
+                            tileset-id="[[currentTilesetId]]" tilesets="[[tilesets]]"
+                            selection="[[tilesetSelection]]">
+                        </dtile-tileset-viewer>
+                    </div>
+                    <div>
+                        <dtile-object-list id="object-list"></dtile-object-list>
+                    </div>
+                </iron-pages>
             </div>
         </div>
     </template>
@@ -117,7 +159,12 @@
                 _ghostData: Object,
 
                 _temporarySelection: Array,
-                _useTemporarySelection: Boolean
+                _useTemporarySelection: Boolean,
+
+                _modeSelection: { type: String, value: "0" },
+
+                _manipulatingObjectIndex: { type: Number, value: -1 },
+                _manipulatingObjectRect: Object
             };
         }
 
@@ -166,9 +213,21 @@
                             mapId, layerIndex, tiles
                         }
                     };
+                },
+
+                setObjectBounds(mapId, objectIndex, bounds) {
+                    return {
+                        type: "SET_BOUNDS_FOR_OBJECT",
+                        payload: { mapId, objectIndex, ...bounds }
+                    };
                 }
             };
         }
+
+        /* eslint-disable eqeqeq */
+        get tileMode() { return this._modeSelection == 0; }
+        get objectMode() { return this._modeSelection == 1; }
+        /* eslint-enable eqeqeq */
 
         ready() {
             super.ready();
@@ -181,9 +240,18 @@
                 this.$["tileset-viewer"].resetView();
             });
 
-            this.$.viewer.addEventListener("tile-tap", e => this._handlePointerEvent(e));
-            this.$.viewer.addEventListener("tile-track", e => this._handlePointerEvent(e));
-            this.$.viewer.addEventListener("tile-move", e => this._handlePointerEvent(e));
+            this.$.viewer.addEventListener("tile-tap", e => {
+                if (this.tileMode) this._sendEventToTools(e);
+                else if (this.objectMode) this._onObjectTap(e);
+            });
+            this.$.viewer.addEventListener("tile-track", e => {
+                if (this.tileMode) this._sendEventToTools(e);
+                else if (this.objectMode) this._onObjectTrack(e);
+            });
+            this.$.viewer.addEventListener("tile-move", e => {
+                if (this.tileMode) this._sendEventToTools(e);
+                else if (this.objectMode) this._onObjectMove(e);
+            });
 
             this.$["tileset-selector"].addEventListener("tileset-selected", e => {
                 e.stopPropagation();
@@ -224,15 +292,17 @@
             window.addEventListener("keydown", e => {
                 if (!this.classList.contains("iron-selected")) return;
 
-                const setTool = tool => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    this.selectedTool = tool;
-                };
+                if (this.tileMode) {
+                    const setTool = tool => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        this.selectedTool = tool;
+                    };
 
-                if (e.key === "a") setTool("pen");
-                else if (e.key === "s") setTool("bucket");
-                else if (e.key === "d") setTool("select");
+                    if (e.key === "a") setTool("pen");
+                    else if (e.key === "s") setTool("bucket");
+                    else if (e.key === "d") setTool("select");
+                }
             });
 
             window.addEventListener("dtile-map-export-request", () => {
@@ -265,7 +335,7 @@
             this.$.viewer.update("tiles");
         }
 
-        _handlePointerEvent(e) {
+        _sendEventToTools(e) {
             if (!this._toolInstance) return;
 
             if (!this._pointerEventTemplate) {
@@ -308,6 +378,150 @@
                 ...this._pointerEventTemplate,
                 ...e.detail
             });
+        }
+
+        /*
+         * --- All things object manipulation
+         * TODO: Move this somewhere else so it doesn't clutter up here.
+         */
+
+        _preivewObject(map, objectIndex, objectRect) {
+            if (objectIndex < 0) return map;
+
+            return {
+                ...map,
+                objects: map.objects.map((object, i) => {
+                    if (i !== objectIndex) return object;
+                    else return { ...object, ...objectRect };
+                })
+            };
+        }
+
+        _getObjectIndexAt(tx, ty) {
+            return this.map.objects.findIndex(({ x, y, width, height }) => {
+                return !(x > tx || y > ty || x + width < tx || y + height < ty);
+            });
+        }
+
+        _mouseOnObjectEdge(mtx, mty, { x, y, width, height }) {
+            const OBJECT_EDGE_SIZE = 0.1;
+
+            const top = mty >= y && mty < y + OBJECT_EDGE_SIZE;
+            const right = mtx <= x + width && mtx > x + width - OBJECT_EDGE_SIZE;
+            const bottom = mty <= y + height && mty > y + height - OBJECT_EDGE_SIZE;
+            const left = mtx >= x && mtx < x + OBJECT_EDGE_SIZE;
+
+            return { top, right, bottom, left };
+        }
+
+        _onObjectTap(e) {
+            const objectIndex = this._getObjectIndexAt(e.detail.perciseTileX, e.detail.perciseTileY);
+            if (objectIndex < 0) return;
+            this.$["object-list"].highlightObject(objectIndex);
+        }
+
+        _onObjectTrack(e) {
+            this.$["object-info"].style.display = "none";
+
+            const { perciseTileX, perciseTileY, tileX, tileY } = e.detail;
+
+            if (e.detail.state === "start") {
+                const objectIndex = this._getObjectIndexAt(perciseTileX, perciseTileY);
+                if (objectIndex < 0) return;
+                const object = this.map.objects[objectIndex];
+
+                this._objectEdgesMoving = this._mouseOnObjectEdge(perciseTileX, perciseTileY, object);
+                this._manipulatingObjectIndex = objectIndex;
+                this._startTilePos = { perciseTileX, perciseTileY, tileX, tileY };
+                this._initialObjectRect = { x: object.x, y: object.y, width: object.width, height: object.height};
+            } else if (e.detail.state === "track") {
+                if (this._manipulatingObjectIndex < 0) return;
+
+                const { top, right, bottom, left } = this._objectEdgesMoving;
+
+                const deltaX = perciseTileX - this._startTilePos.perciseTileX;
+                const deltaY = perciseTileY - this._startTilePos.perciseTileY;
+
+                if (top || right || bottom || left) {
+                    const align = e.detail.shift ? v => v : Math.round;
+                    let { x, y, width, height } = this._initialObjectRect;
+
+                    if (right) {
+                        width = align(width) + align(deltaX);
+                    } else if (left) {
+                        x = align(x) + align(deltaX);
+                        width = this._initialObjectRect.x - x + width;
+                    }
+                    if (bottom) {
+                        height = align(height) + align(deltaY);
+                    } else if (top) {
+                        y = align(y) + align(deltaY);
+                        height = this._initialObjectRect.y - y + height;
+                    }
+
+                    this._manipulatingObjectRect = { x, y, width, height };
+                } else {
+                    const x = e.detail.shift
+                        ? this._initialObjectRect.x + deltaX
+                        : Math.floor(this._initialObjectRect.x -
+                            this._startTilePos.perciseTileX) + tileX + 1;
+                    const y = e.detail.shift
+                        ? this._initialObjectRect.y + deltaY
+                        : Math.floor(this._initialObjectRect.y -
+                            this._startTilePos.perciseTileY) + tileY + 1;
+
+                    this._manipulatingObjectRect = { ...this._initialObjectRect, x, y };
+                }
+            } else if (e.detail.state === "end") {
+                if (this._manipulatingObjectIndex < 0) return;
+
+                const state = this.getState();
+                this.dispatch(
+                    "setObjectBounds",
+                    state.ui.currentMapId,
+                    this._manipulatingObjectIndex,
+                    this._manipulatingObjectRect
+                );
+
+                this._objectEdgesMoving = null;
+                this._manipulatingObjectIndex = -1;
+                this._manipulatingObjectRect = null;
+                this._startTilePos = null;
+                this._initialObjectRect = null;
+            }
+        }
+
+        _onObjectMove(e) {
+            const { perciseTileX, perciseTileY } = e.detail;
+
+            const infoElement = this.$["object-info"];
+            const objectIndex = this._getObjectIndexAt(perciseTileX, perciseTileY);
+
+            if (objectIndex >= 0) {
+                const object = this.map.objects[objectIndex];
+
+                infoElement.textContent = object.name;
+                infoElement.style.transform = `translate(calc(${e.detail.x}px - 50%), ${e.detail.y + 25}px)`;
+                infoElement.style.display = "flex";
+
+                const {
+                    top: onTopEdge,
+                    right: onRightEdge,
+                    bottom: onBottomEdge,
+                    left: onLeftEdge
+                } = this._mouseOnObjectEdge(perciseTileX, perciseTileY, object);
+
+                if (onTopEdge || onRightEdge || onBottomEdge || onLeftEdge) {
+                    const vResize = onTopEdge ? "n" : onBottomEdge ? "s" : "";
+                    const hResize = onLeftEdge ? "w" : onRightEdge ? "e" : "";
+                    this.style.cursor = vResize + hResize + "-resize";
+                } else {
+                    this.style.cursor = "move";
+                }
+            } else {
+                this.style.cursor = "";
+                infoElement.style.display = "";
+            }
         }
     }
 

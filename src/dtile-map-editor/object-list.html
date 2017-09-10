@@ -1,0 +1,124 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="dtile-object-list">
+    <template>
+        <style>
+            #header {
+                display: flex;
+                padding-left: 16px;
+                padding-right: 8px;
+            }
+
+            #title {
+                display: flex;
+                align-items: center;
+                flex-grow: 1;
+                @apply --paper-font-subhead;
+            }
+
+            #items {
+                max-height: 50vh;
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
+            #items > paper-item {
+                user-select: none;
+                cursor: default;
+                padding-right: 0;
+            }
+
+            #items > paper-item:focus::before {
+                background: transparent;
+            }
+
+            #items > paper-item > paper-ripple {
+                color: var(--primary-color);
+            }
+
+            .objectName {
+                flex-grow: 1;
+            }
+        </style>
+
+        <div id="header">
+            <span id="title">Objects</span>
+            <paper-icon-button icon="add" on-tap="_addObject"></paper-icon-button>
+        </div>
+
+        <div id="items" role="listbox">
+            <template is="dom-repeat" id="object-repeater" items="[[objects]]">
+                <paper-item>
+                    <paper-ripple></paper-ripple>
+                    <span class="objectName">[[item.name]]</span>
+                    <paper-menu-button class="objectMenuButton">
+                        <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
+
+                        <div slot="dropdown-content">
+                            <paper-item on-tap="_removeObject">Remove</paper-item>
+                        </div>
+                    </paper-menu-button>
+                </paper-item>
+            </template>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileObjectList extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-object-list"; }
+
+        static get properties() {
+            return {
+                objects: {
+                    type: Array,
+                    statePath(state) {
+                        const map = state.entities.maps[state.ui.currentMapId];
+                        if (!map) return;
+                        return map.present.objects;
+                    }
+                }
+            };
+        }
+
+        static get actions() {
+            return {
+                addObject(mapId, name) {
+                    return {
+                        type: "ADD_OBJECT",
+                        payload: {
+                            mapId,
+                            name
+                        }
+                    };
+                }
+            };
+        }
+
+        highlightObject(index) {
+            const objectNodes = [...this.$["items"].childNodes].filter(n => n.tagName === "PAPER-ITEM");
+            const rippleElement = objectNodes[index].querySelector("paper-ripple");
+            rippleElement.simulatedRipple();
+        }
+
+        _addObject() {
+            const state = this.getState();
+            const currentMapId = state.ui.currentMapId;
+            const objects = state.entities.maps[currentMapId].present.objects;
+
+            const lastNumber = objects.map(object => object.name)
+                .filter(name => /Object \d/.exec(name))
+                .map(name => parseInt(/.*?(\d+)/.exec(name)[1]))
+                .reduce((acc, n) => Math.max(acc, n + 1), 1);
+            this.dispatch("addObject", currentMapId, `Object ${lastNumber}`);
+        }
+    }
+
+    customElements.define(DTileObjectList.is, DTileObjectList);
+</script>
