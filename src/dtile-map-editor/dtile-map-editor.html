@@ -281,8 +281,8 @@
                         const inSelection = e.detail.find(tilePos =>
                             tilePos.x === rx && tilePos.y === ry);
                         tileArea.tiles.push({
-                            tileId: inSelection ? ry * tilesetTileWidth + rx : -1,
-                            tilesetId: this.currentTilesetId
+                            tileId: parseInt(inSelection ? ry * tilesetTileWidth + rx : -1),
+                            tilesetId: parseInt(this.currentTilesetId)
                         });
                     }
                 }

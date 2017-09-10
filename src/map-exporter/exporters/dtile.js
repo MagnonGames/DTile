@@ -13,7 +13,7 @@
             const currentProject = state.entities.projects[state.ui.currentProjectId];
             const tilesets = await Promise.all(currentProject.tilesetIds
                 .map((id, index) => {
-                    tilesetMapping.set(`${id}`, `${index}`);
+                    tilesetMapping.set(id, index);
                     return state.entities.tilesets[id];
                 })
                 .map(async tileset => {
@@ -45,8 +45,8 @@
                         if (tile.tileId < 0 || tile.tilesetId < 0) return null;
                         else {
                             return {
-                                tileId: parseInt(tile.tileId),
-                                tilesetId: parseInt(tilesetMapping.get(tile.tilesetId))
+                                tileId: tile.tileId,
+                                tilesetId: tilesetMapping.get(tile.tilesetId)
                             };
                         }
                     })
