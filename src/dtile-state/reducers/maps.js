@@ -57,9 +57,15 @@
                 console.warn("changing map tile size is not implemented");
                 return state;
 
+            case "MODIFY_MAP_META":
+                return {
+                    ...state,
+                    meta: action.payload.meta
+                };
+
             default:
-                const isLayer = action.type.endsWith("LAYER");
-                const isObject = action.type.endsWith("OBJECT");
+                const isLayer = action.type.match(/LAYER(?:_META)?$/);
+                const isObject = action.type.match(/OBJECT(?:_META)?$/);
 
                 if (!(isLayer || isObject)) return state;
                 const type = isLayer ? "layers" : isObject ? "objects" : "";
@@ -107,6 +113,15 @@
                     };
                 });
 
+            case "MODIFY_LAYER_META":
+                return state.map((layer, i) => {
+                    if (action.payload.layerIndex !== i) return layer;
+                    return {
+                        ...layer,
+                        meta: action.payload.meta
+                    };
+                });
+
             default: return state;
         }
     };
@@ -141,6 +156,15 @@
                     return {
                         ...object,
                         x, y, width, height
+                    };
+                });
+
+            case "MODIFY_OBJECT_META":
+                return state.map((object, i) => {
+                    if (action.payload.objectIndex !== i) return object;
+                    return {
+                        ...object,
+                        meta: action.payload.meta
                     };
                 });
 

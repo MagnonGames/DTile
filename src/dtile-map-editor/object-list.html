@@ -50,6 +50,7 @@
 
                         <div slot="dropdown-content">
                             <paper-item on-tap="_removeObject">Remove</paper-item>
+                            <paper-item on-tap="_openMeta">Edit meta</paper-item>
                         </div>
                     </paper-menu-button>
                 </paper-item>
@@ -94,6 +95,15 @@
                             mapId, objectIndex
                         }
                     };
+                },
+
+                modifyObjectMeta(mapId, objectIndex, meta) {
+                    return {
+                        type: "MODIFY_OBJECT_META",
+                        payload: {
+                            mapId, objectIndex, meta
+                        }
+                    };
                 }
             };
         }
@@ -123,6 +133,25 @@
             const currentMapId = this.getState().ui.currentMapId;
             const index = e.model.index;
             this.dispatch("removeObject", currentMapId, index);
+        }
+
+        _openMeta(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            const mapId = this.getState().ui.currentMapId;
+            const { index, item } = e.model;
+            this.dispatchEvent(new CustomEvent("dtile-open-meta", {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    meta: item.meta,
+                    callback: meta => {
+                        if (!meta) return;
+                        this.dispatch("modifyObjectMeta", mapId, index, meta);
+                    }
+                }
+            }));
         }
     }
 

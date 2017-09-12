@@ -1,0 +1,131 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-expansion-panel/paper-expansion-panel.html">
+
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
+
+<dom-module id="dtile-meta-editor">
+    <template>
+        <style>
+            :host {
+                display: block;
+                min-width: 50vw;
+            }
+
+            vaadin-grid, vaadin-grid * {
+                background: var(--primary-background-color);
+                color: white;
+                border: none !important;
+
+                --vaadin-grid-cell: {
+                    padding: 8px 16px;
+                };
+            }
+        </style>
+
+        <paper-expansion-panel header="Public properties" opened>
+            <vaadin-grid id="public-meta-grid" items="[[_publicMeta]]">
+                <vaadin-grid-column>
+                    <template class="header">Key</template>
+                    <template>
+                        <paper-input value="{{item.key}}" no-label-float></paper-input>
+                    </template>
+                    <template class="footer">
+                        <paper-input id="new-key" no-label-float label="Key"
+                            on-keydown="_checkEntryEnter">
+                        </paper-input>
+                    </template>
+                </vaadin-grid-column>
+
+                <vaadin-grid-column>
+                    <template class="header">Value</template>
+                    <template>
+                        <paper-input value="{{item.value}}" no-label-float></paper-input>
+                    </template>
+                    <template class="footer">
+                        <paper-input id="new-value" no-label-float label="Value"
+                            on-keydown="_checkEntryEnter">
+                        </paper-input>
+                    </template>
+                </vaadin-grid-column>
+
+                <vaadin-grid-column width="72px" flex-grow="0">
+                    <template>
+                        <paper-icon-button icon="clear" on-tap="_removeTapped"></paper-icon-button>
+                    </template>
+                    <template class="footer">
+                        <paper-icon-button icon="add" on-tap="_addPublicEntry"></paper-icon-button>
+                    </template>
+                </vaadin-grid-column>
+            </vaadin-grid>
+        </paper-expansion-panel>
+    </template>
+</dom-module>
+
+<script>
+    class DTileMetaEditor extends Polymer.Element {
+        static get is() { return "dtile-meta-editor"; }
+
+        static get properties() {
+            return {
+                meta: Object,
+
+                _publicMeta: Array
+            };
+        }
+
+        static get observers() {
+            return [
+                "_setPublicMeta(meta)"
+            ];
+        }
+
+        _setPublicMeta(meta = {}) {
+            this._publicMeta = Object.keys(meta)
+                .filter(k => !k.startsWith("@"))
+                .map(key => {
+                    return {
+                        key,
+                        value: meta[key]
+                    };
+                });
+        }
+
+        _checkEntryEnter(e) { if (e.key === "Enter") this._addPublicEntry(); }
+
+        _addPublicEntry() {
+            const keyInput = this.shadowRoot.querySelector("#new-key");
+            const valueInput = this.shadowRoot.querySelector("#new-value");
+
+            const key = keyInput.value;
+            const value = valueInput.value;
+
+            if (!key || !value) return;
+
+            this._publicMeta.push({ key, value });
+            keyInput.value = valueInput.value = "";
+            this.$["public-meta-grid"].clearCache();
+
+            keyInput.focus();
+        }
+
+        _removeTapped(e) {
+            this._publicMeta.splice(e.model.index, 1);
+            this.$["public-meta-grid"].clearCache();
+        }
+
+        buildMeta() {
+            const meta = {};
+
+            this._publicMeta.forEach(({ key, value }) => {
+                meta[key] = value;
+            });
+
+            return meta;
+        }
+    }
+
+    customElements.define(DTileMetaEditor.is, DTileMetaEditor);
+</script>

@@ -76,6 +76,7 @@
 
                         <div slot="dropdown-content">
                             <paper-item on-tap="_removeLayer">Remove</paper-item>
+                            <paper-item on-tap="_openMeta">Edit meta</paper-item>
                         </div>
                     </paper-menu-button>
                 </paper-item>
@@ -138,6 +139,17 @@
                         type: "SET_CURRENT_LAYER_INDEX",
                         payload: index
                     };
+                },
+
+                modifyLayerMeta(mapId, index, meta) {
+                    return {
+                        type: "MODIFY_LAYER_META",
+                        payload: {
+                            mapId,
+                            layerIndex: index,
+                            meta
+                        }
+                    };
                 }
             };
         }
@@ -198,6 +210,23 @@
 
         _selectLayer(e) {
             this.dispatch("setCurrentLayer", e.model.item.index);
+        }
+
+        _openMeta(e) {
+            const { index, ...layer } = e.model.item;
+            const mapId = this.getState().ui.currentMapId;
+
+            this.dispatchEvent(new CustomEvent("dtile-open-meta", {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    meta: layer.meta,
+                    callback: meta => {
+                        if (!meta) return;
+                        this.dispatch("modifyLayerMeta", mapId, index, meta);
+                    }
+                }
+            }));
         }
     }
 

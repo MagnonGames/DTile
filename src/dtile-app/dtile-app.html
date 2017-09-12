@@ -10,6 +10,7 @@
 <link rel="import" href="./tileset-importer.html">
 <link rel="import" href="./new-map-page.html">
 <link rel="import" href="../dtile-map-editor/dtile-map-editor.html">
+<link rel="import" href="../dtile-meta-editor/dtile-meta-editor.html">
 
 <link rel="import" href="../status.html">
 <link rel="import" href="../storage.html">
@@ -50,6 +51,15 @@
         </div>
 
         <app-location id="location" route="{{route}}"></app-location>
+
+        <paper-dialog id="meta-editor-dialog" modal>
+            <h2>Edit meta data</h2>
+            <dtile-meta-editor id="meta-editor"></dtile-meta-editor>
+            <div class="buttons">
+                <paper-button dialog-dismiss on-tap="_metaDialogClose">Cancel</paper-button>
+                <paper-button dialog-confirm on-tap="_metaDialogClose">Apply</paper-button>
+            </div>
+        </paper-dialog>
 
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">
@@ -113,6 +123,22 @@
                     }
                 }));
             });
+
+            this.addEventListener("dtile-open-meta", e => {
+                const metaEditorDialog = this.$["meta-editor-dialog"];
+
+                this._metaCallback = e.detail.callback;
+                this.$["meta-editor"].meta = e.detail.meta;
+                metaEditorDialog.open();
+            });
+        }
+
+        _metaDialogClose(e) {
+            if (e.target.hasAttribute("dialog-confirm")) {
+                this._metaCallback(this.$["meta-editor"].buildMeta());
+            } else {
+                this._metaCallback();
+            }
         }
 
         _pageStateUpdated(page) {

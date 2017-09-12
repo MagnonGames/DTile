@@ -90,6 +90,16 @@
                 // describe("CHANGE_MAP_SIZE", () => {});
                 // describe("CHANGE_MAP_TILE_SIZE", () => {});
 
+                describe("MODIFY_MAP_META", () => {
+                    it("replaces the meta of a map", () => {
+                        const meta = { property: "map" };
+                        DTile.store.dispatch(action("MODIFY_MAP_META", {
+                            mapId: id, meta
+                        }));
+                        expect(state()[id].present.meta).equal(meta);
+                    });
+                });
+
                 describe("maps.layers state", () => {
                     describe("ADD_LAYER", () => {
                         it("adds a layer to the map", () => {
@@ -148,6 +158,19 @@
                                 mapId: id, layerIndex: 1, tiles
                             }));
                             expect(state()[id].present.layers[0].tiles).to.not.equal(tiles);
+                        });
+                    });
+
+                    describe("MODIFY_LAYER_META", () => {
+                        it("replaces the meta of a layer", () => {
+                            DTile.store.dispatch(action("ADD_LAYER", {
+                                name: "test", mapId: id
+                            }));
+                            const meta = { property: "layer" };
+                            DTile.store.dispatch(action("MODIFY_LAYER_META", {
+                                mapId: id, layerIndex: 0, meta
+                            }));
+                            expect(state()[id].present.layers[0].meta).to.equal(meta);
                         });
                     });
                 });
@@ -210,6 +233,17 @@
                             expect(state()[id].present.objects[0].y).to.equal(0);
                             expect(state()[id].present.objects[0].width).to.equal(0);
                             expect(state()[id].present.objects[0].height).to.equal(0);
+                        });
+                    });
+
+                    describe("MODIFY_OBJECT_META", () => {
+                        it("replaces the meta of an object", () => {
+                            DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
+                            const meta = { property: "object" };
+                            DTile.store.dispatch(action("MODIFY_OBJECT_META", {
+                                mapId: id, objectIndex: 0, meta
+                            }));
+                            expect(state()[id].present.objects[0].meta).to.equal(meta);
                         });
                     });
                 });
