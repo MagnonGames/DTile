@@ -290,6 +290,8 @@
             });
 
             window.addEventListener("keydown", e => {
+                const ironOverlay = document.querySelector("iron-overlay-backdrop");
+                if (ironOverlay && ironOverlay.opened) return;
                 if (!this.classList.contains("iron-selected")) return;
 
                 if (this.tileMode) {
