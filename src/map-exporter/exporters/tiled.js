@@ -72,6 +72,8 @@
                                     source="${tileset.tileset.name.toLowerCase()}.png">
                                 `}
                             </image>
+
+                            ${getPropertiesXML(tileset.meta)}
                         </tileset>
                     `).join("")}
 
@@ -82,6 +84,8 @@
                                 y="${object.y * tileHeight}"
                                 width="${object.width * tileWidth}"
                                 height="${object.height * tileHeight}">
+
+                                ${getPropertiesXML(object.meta)}
                             </object>
                         `).join("")}
                     </objectgroup>
@@ -91,8 +95,11 @@
                             <data encoding="base64" compression="zlib">
                                 ${layer.tileData}
                             </data>
+                            ${getPropertiesXML(layer.meta)}
                         </layer>
                     `).join("")}
+
+                    ${getPropertiesXML(currentMap.meta)}
                 </map>
             `.trim().replace(/^\s+/gm, "").replace(/(\w+=".+?")\n/g, "$1 ");
 
@@ -104,5 +111,19 @@
 
     function base64EncodeBytes(byteArray) {
         return btoa(byteArray.reduce((acc, b) => acc + String.fromCharCode(b), ""));
+    }
+
+    function getPropertiesXML(meta = {}) {
+        const entries = Object.entries(meta);
+
+        if (entries.length <= 0) return "";
+
+        return `
+            <properties>
+                ${entries.map(([key, value]) => `
+                    <property name="${key}" type="string">${value}</property>
+                `).join("")}
+            </properties>
+        `.trim();
     }
 })();
