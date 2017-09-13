@@ -6,6 +6,8 @@
 
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 
+<link rel="import" href="../standard-plugins/code-editor.html">
+
 <dom-module id="dtile-meta-editor">
     <template>
         <style>
@@ -61,6 +63,8 @@
                 </vaadin-grid-column>
             </vaadin-grid>
         </paper-expansion-panel>
+
+        <div id="plugin-meta"></div>
     </template>
 </dom-module>
 
@@ -72,14 +76,43 @@
             return {
                 meta: Object,
 
-                _publicMeta: Array
+                _publicMeta: Array,
+                _metaPlugins: Array
             };
         }
 
         static get observers() {
             return [
-                "_setPublicMeta(meta)"
+                "_setPublicMeta(meta)",
+                "_setPluginMeta(meta)"
             ];
+        }
+
+        ready() {
+            super.ready();
+
+            const PaperExpansionPanel = customElements.get("paper-expansion-panel");
+
+            this._metaPlugins = DTile.metaPlugins.map(Plugin => {
+                const panel = new PaperExpansionPanel();
+                panel.header = Plugin.pluginName;
+
+                const plugin = new Plugin();
+                panel.appendChild(plugin);
+                this.$["plugin-meta"].appendChild(panel);
+                return plugin;
+            });
+
+            this.addEventListener("toggle", e => {
+                if (e.detail.tagName === "PAPER-EXPANSION-PANEL" && e.detail.opened) {
+                    const panels = [...this.shadowRoot.querySelectorAll("paper-expansion-panel")];
+                    panels.forEach(panel => {
+                        if (panel !== e.detail) {
+                            panel.opened = false;
+                        }
+                    });
+                }
+            });
         }
 
         _setPublicMeta(meta = {}) {
@@ -91,6 +124,17 @@
                         value: meta[key]
                     };
                 });
+        }
+
+        _setPluginMeta(meta = {}) {
+            const pluginMeta = {};
+            Object.entries(meta)
+                .filter(([key]) => key.startsWith("@"))
+                .forEach(([key, value]) => (pluginMeta[key] = value));
+
+            this._metaPlugins.forEach(plugin => {
+                plugin.meta = pluginMeta;
+            });
         }
 
         _checkEntryEnter(e) { if (e.key === "Enter") this._addPublicEntry(); }
@@ -121,6 +165,13 @@
 
             this._publicMeta.forEach(({ key, value }) => {
                 meta[key] = value;
+            });
+
+            this._metaPlugins.forEach(plugin => {
+                const pluginMeta = plugin.buildMeta();
+                Object.entries(pluginMeta).forEach(([key, value]) => {
+                    meta[key] = value;
+                });
             });
 
             return meta;
