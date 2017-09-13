@@ -24,13 +24,15 @@
             }
 
             const tilesets = [...tilesetElements].map(tilesetElement => {
+                const propertiesElement = tilesetElement.getElementsByTagName("properties")[0];
                 return {
                     name: tilesetElement.getAttribute("name"),
                     firstGid: parseInt(tilesetElement.getAttribute("firstgid")),
                     tileWidth: parseInt(tilesetElement.getAttribute("tilewidth")),
                     tileHeight: parseInt(tilesetElement.getAttribute("tileheight")),
                     path: tilesetElement.getElementsByTagName("image")[0].getAttribute("source"),
-                    tilesetType: mapType
+                    tilesetType: mapType,
+                    meta: parseMeta(propertiesElement)
                 };
             });
 
@@ -58,21 +60,28 @@
                     return { tileId, tilesetId };
                 });
 
+                const propertiesElement = layerElement.getElementsByTagName("properties")[0];
+
                 return {
                     name: layerElement.getAttribute("name"),
-                    tiles
+                    tiles,
+                    meta: parseMeta(propertiesElement)
                 };
             });
 
             const objects = [...objectElements].map(objectElement => {
+                const propertiesElement = objectElement.getElementsByTagName("properties")[0];
                 return {
                     name: objectElement.getAttribute("name"),
                     x: parseInt(objectElement.getAttribute("x")) / tileWidth,
                     y: parseInt(objectElement.getAttribute("y")) / tileHeight,
                     width: parseInt(objectElement.getAttribute("width")) / tileWidth,
-                    height: parseInt(objectElement.getAttribute("height")) / tileHeight
+                    height: parseInt(objectElement.getAttribute("height")) / tileHeight,
+                    meta: parseMeta(propertiesElement)
                 };
             });
+
+            const meta = parseMeta(mapElement.getElementsByTagName("properties")[0]);
 
             return {
                 name,
@@ -82,7 +91,8 @@
                 tileHeight,
                 layers,
                 objects,
-                tilesets
+                tilesets,
+                meta
             };
         }
 
@@ -137,5 +147,23 @@
                 bytes[byteIndex + 3] * 16581375;
         }
         return array;
+    }
+
+    function parseMeta(propertiesElement) {
+        const meta = {};
+
+        if (!propertiesElement) return meta;
+
+        const propertyElements = [...propertiesElement.getElementsByTagName("property")];
+
+        propertyElements.forEach(propertyElement => {
+            const key = propertyElement.getAttribute("name");
+            const value = propertyElement.getAttribute("value") ||
+                propertyElement.innerHTML;
+
+            meta[key] = value;
+        });
+
+        return meta;
     }
 })();
