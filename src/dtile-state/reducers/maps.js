@@ -16,7 +16,12 @@
 
             case "REPLACE":
                 return Object.keys(state).reduce((obj = {}, key) => {
-                    obj[key] = map(state[key], action);
+                    obj[key] = map({
+                        past: [],
+                        present: state[key],
+                        future: [],
+                        index: 0
+                    }, action);
                     return obj;
                 }, {});
 

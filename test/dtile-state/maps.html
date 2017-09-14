@@ -100,6 +100,18 @@
                     });
                 });
 
+                describe("REPLACE", () => {
+                    it("replaces multiple maps", () => {
+                        const map1 = { name: "map" }, map2 = { name: "map2" };
+                        DTile.store.dispatch(action("REPLACE", {
+                            entities: { maps: { 0: map1, 1: map2 } },
+                            ui: {}
+                        }));
+                        expect(state()[0].present.name).to.equal(map1.name);
+                        expect(state()[1].present.name).to.equal(map2.name);
+                    });
+                });
+
                 describe("maps.layers state", () => {
                     describe("ADD_LAYER", () => {
                         it("adds a layer to the map", () => {
