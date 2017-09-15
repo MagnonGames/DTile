@@ -1,0 +1,151 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="dtile-tabs">
+    <template>
+        <style>
+            :host {
+                --paper-tabs-selection-bar-color: var(--primary-color);
+                --paper-tab-ink: var(--primary-color);
+            }
+
+            paper-tab {
+                min-width: 200px;
+            }
+
+            .tab-name {
+                flex-grow: 1;
+            }
+        </style>
+
+        <paper-tabs id="tabs" selected="[[_selectedTabIndex]]">
+            <template is="dom-repeat" items="[[_openTabs]]">
+                <paper-tab>
+                    <span class="tab-name">[[_getTabName(item)]]</span>
+                    <paper-icon-button
+                        icon="close"
+                        on-tap="_closeTab">
+                    </paper-icon-button>
+                </paper-tab>
+            </template>
+        </paper-tabs>
+    </template>
+</dom-module>
+
+<script>
+    class DTileTabs extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-tabs"; }
+
+        static get properties() {
+            return {
+                tabsOpen: { type: Boolean, computed: "_hasOpenTabs(_openTabs)", notify: true },
+
+                _currentMapId: { type: String, statePath: "ui.currentMapId" },
+                _currentPage: { type: String, statePath: "ui.currentPage" },
+
+                _openTabs: { type: Array, statePath: state => state.ui.openTabs || [] },
+                _selectedTabIndex: Number
+            };
+        }
+
+        static get actions() {
+            return {
+                setCurrentMap(id) {
+                    return {
+                        type: "SET_CURRENT_MAP_ID",
+                        payload: id
+                    };
+                },
+
+                openTab(type, id) {
+                    return {
+                        type: "OPEN_TAB",
+                        payload: { type, id }
+                    };
+                },
+
+                closeTab(index) {
+                    return {
+                        type: "CLOSE_TAB",
+                        payload: index
+                    };
+                }
+            };
+        }
+
+        static get observers() {
+            return [
+                "_mapChanged(_currentMapId)",
+                "_tabChanged(_selectedTabIndex, _openTabs)",
+                "_pageChanged(_currentPage)"
+            ];
+        }
+
+        ready() {
+            super.ready();
+
+            this.$.tabs.addEventListener("selected-changed", e => {
+                const tabIndex = e.detail.value;
+                this._selectedTabIndex = tabIndex;
+            });
+        }
+
+        _hasOpenTabs() { return this._openTabs ? this._openTabs.length > 0 : false; }
+        _getTabName(tab) {
+            const state = this.getState();
+            if (tab.type === "map") {
+                return state.entities.maps[tab.id].present.name;
+            }
+        }
+        _mapChanged(id) {
+            const openTabs = this.getState().ui.openTabs;
+            let index = openTabs ? openTabs.findIndex(tab => tab.id === id) : -1;
+            if (index < 0) {
+                this.dispatch("openTab", "map", id);
+                index = this._openTabs.findIndex(tab => tab.id === id);
+            }
+            this._selectedTabIndex = index;
+        }
+        _tabChanged(index) {
+            if (index < 0) return;
+            const tab = this._openTabs[index];
+            if (!tab) return;
+
+            if (tab.type === "map") {
+                if (tab.id !== this._currentMapId) {
+                    this.dispatch("setCurrentMap", tab.id);
+                }
+                if (this.getState().ui.currentPage !== "edit-map") {
+                    this.dispatch("setCurrentPage", "edit-map");
+                }
+            }
+        }
+        _pageChanged(page) {
+            const state = this.getState();
+            if (page === "edit-map") {
+                this._selectedTabIndex = state.ui.openTabs.findIndex(tab => {
+                    return tab.type === "map" && tab.id === state.ui.currentMapId;
+                });
+            } else this._selectedTabIndex = -1;
+        }
+        _closeTab(e) {
+            e.stopPropagation();
+
+            this.dispatch("closeTab", e.model.index);
+
+            if (this._openTabs.length) {
+                if (this._selectedTabIndex >= this._openTabs.length) {
+                    this._selectedTabIndex--;
+                }
+            } else if (this._selectedTabIndex >= 0) {
+                this._selectedTabIndex = -1;
+                this.dispatch("setCurrentPage", "project");
+            }
+        }
+    }
+
+    customElements.define(DTileTabs.is, DTileTabs);
+</script>

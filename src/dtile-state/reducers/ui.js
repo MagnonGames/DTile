@@ -50,6 +50,21 @@
                     currentTileArea: action.payload
                 };
 
+            case "OPEN_TAB":
+                return {
+                    ...state,
+                    openTabs: (state.openTabs || []).concat([{
+                        type: action.payload.type,
+                        id: action.payload.id
+                    }])
+                };
+
+            case "CLOSE_TAB":
+                return {
+                    ...state,
+                    openTabs: state.openTabs.filter((_, i) => i !== action.payload)
+                };
+
             default: return state;
         }
     };

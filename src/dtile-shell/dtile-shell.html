@@ -5,8 +5,6 @@
 
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 
 <link rel="import" href="../../bower_components/app-layout/app-layout.html">
 
@@ -14,6 +12,7 @@
 
 <link rel="import" href="./main-drawer.html">
 <link rel="import" href="./status-indicator.html">
+<link rel="import" href="./dtile-tabs.html">
 
 <custom-style>
     <style>
@@ -43,6 +42,14 @@
             app-toolbar {
                 color: var(--primary-text-color);
                 background: var(--header-color);
+            }
+
+            app-toolbar:last-of-type {
+                height: 48px;
+            }
+
+            app-toolbar[hidden] {
+                display: none;
             }
 
             paper-icon-button + [main-title] {
@@ -77,7 +84,7 @@
                 </dtile-shell-main-drawer>
             </app-drawer>
 
-            <app-header-layout fullbleed>
+            <app-header-layout id="header" fullbleed>
                 <app-header slot="header" shadow fixed>
                     <app-toolbar>
                         <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
@@ -87,6 +94,10 @@
                         <paper-icon-button icon="redo" on-tap="_redo" disabled="[[!_hasFuture]]"></paper-icon-button>
                         <dtile-shell-status-indicator status="[[_status]]"
                             failed-message=[[_failedMessage]]></dtile-shell-status-indicator>
+                    </app-toolbar>
+
+                    <app-toolbar hidden$="[[!_tabsOpen]]">
+                        <dtile-tabs tabs-open="{{_tabsOpen}}"></dtile-tabs>
                     </app-toolbar>
                 </app-header>
 
@@ -127,18 +138,23 @@
                     type: Boolean,
                     statePath(state) {
                         if (state.ui.currentPage !== "edit-map") return false;
-                        return state.entities.maps[state.ui.currentMapId].past.length;
+                        const map = state.entities.maps[state.ui.currentMapId];
+                        if (!map) return false;
+                        return map.past.length;
                     }
                 },
                 _hasFuture: {
                     type: Boolean,
                     statePath(state) {
                         if (state.ui.currentPage !== "edit-map") return false;
-                        return state.entities.maps[state.ui.currentMapId].future.length;
+                        const map = state.entities.maps[state.ui.currentMapId];
+                        if (!map) return false;
+                        return map.future.length;
                     }
                 },
 
-                _enableMapExport: { type: Boolean, statePath: state => state.ui.currentPage === "edit-map" }
+                _enableMapExport: { type: Boolean, statePath: state => state.ui.currentPage === "edit-map" },
+                _tabsOpen: Boolean
             };
         }
 
@@ -158,6 +174,12 @@
                     };
                 }
             };
+        }
+
+        static get observers() {
+            return [
+                "_tabsOpenChanged(_tabsOpen)"
+            ];
         }
 
         constructor() {
@@ -198,6 +220,10 @@
 
         _undo() { this.dispatch("undo", this._currentMapId); }
         _redo() { this.dispatch("redo", this._currentMapId); }
+
+        _tabsOpenChanged() {
+            this.$.header.notifyResize();
+        }
     }
 
     customElements.define(DTileShell.is, DTileShell);

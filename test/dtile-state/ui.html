@@ -107,6 +107,26 @@
                         expect(state().currentTileArea.tiles[1].tileId).to.equal(32);
                     });
                 });
+
+                describe("OPEN_TAB", () => {
+                    it("adds a tab entry with name, type and id", () => {
+                        DTile.store.dispatch(action("OPEN_TAB", {
+                            name: "a tab",
+                            type: "map",
+                            id: 45
+                        }));
+                        expect(state().openTabs[0].type).to.equal("map");
+                        expect(state().openTabs[0].id).to.equal(45);
+                    });
+                });
+
+                describe("CLOSE_TAB", () => {
+                    it("removes a tab entry", () => {
+                        DTile.store.dispatch(action("OPEN_TAB", {}));
+                        DTile.store.dispatch(action("CLOSE_TAB", 0));
+                        expect(state().openTabs).to.have.lengthOf(0);
+                    });
+                });
             });
         </script>
     </body>
