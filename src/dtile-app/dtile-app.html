@@ -82,6 +82,8 @@
             return {
                 route: String,
                 page: { type: String, statePath: "ui.currentPage" },
+                uiState: { type: Object, statePath: "ui" },
+                pageId: { type: String, computed: "_getIdForPage(page, uiState)" },
 
                 isReady: Boolean
             };
@@ -89,7 +91,7 @@
 
         static get observers() {
             return [
-                "_pageStateUpdated(page)",
+                "_pageStateUpdated(page, pageId)",
                 "_pathUpdated(route.path)"
             ];
         }
@@ -141,8 +143,12 @@
             }
         }
 
-        _pageStateUpdated(page) {
-            if (this._previousPage === page) return;
+        _pageStateUpdated(page, pageId) {
+            if (this._previousPage !== page) {
+                this._previousPage = page;
+            } else if (this._previousPageId !== pageId) {
+                this._previousPageId = pageId;
+            } else return;
 
             if (this._previousView) {
                 this._previousView.dispatchEvent(new CustomEvent("dtile-page-away"));
@@ -152,11 +158,9 @@
                 const currentView = this.shadowRoot.querySelector(".iron-selected");
                 currentView.dispatchEvent(new CustomEvent("dtile-page-to"));
 
-                this._previousPage = page;
                 this._previousView = currentView;
             });
 
-            const pageId = this._getIdForPage(page);
             const newPath = `/${page}${pageId !== null ? `/${pageId}` : ""}`;
 
             if (newPath !== location.pathname) {
