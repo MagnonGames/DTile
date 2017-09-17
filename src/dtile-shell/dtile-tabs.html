@@ -115,11 +115,17 @@
             if (!tab) return;
 
             if (tab.type === "map") {
-                if (tab.id !== this._currentMapId) {
-                    this.dispatch("setCurrentMap", tab.id);
-                }
-                if (this.getState().ui.currentPage !== "edit-map") {
-                    this.dispatch("setCurrentPage", "edit-map");
+                const state = this.getState();
+
+                const needsChange =
+                    state.ui.currentPage !== "edit-map" ||
+                    state.currentMapId !== tab.id;
+
+                if (needsChange) {
+                    this.dispatch("setCurrentPage", {
+                        page: "edit-map",
+                        mapId: tab.id
+                    });
                 }
             }
         }
@@ -142,7 +148,7 @@
                 }
             } else if (this._selectedTabIndex >= 0) {
                 this._selectedTabIndex = -1;
-                this.dispatch("setCurrentPage", "project");
+                this.dispatch("setCurrentPage", { page: "project" });
             }
         }
     }

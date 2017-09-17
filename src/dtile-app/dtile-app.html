@@ -182,12 +182,12 @@
 
             // eslint-disable-next-line eqeqeq
             if (this.page != page || this._getIdForPage(page) != pageId) {
-                this.dispatch("setCurrentPage", page);
+                const pagePayload = { page };
                 if (pageId) {
-                    const idName = page === "edit-map" ? "map" : page;
-                    const actionName = `setCurrent${idName[0].toUpperCase() + idName.substring(1)}Id`;
-                    this.dispatch(actionName, pageId);
+                    const idKey = (page === "edit-map" ? "map" : page) + "Id";
+                    pagePayload[idKey] = pageId;
                 }
+                this.dispatch("setCurrentPage", pagePayload);
             }
 
             this._previousPathname = pathname;

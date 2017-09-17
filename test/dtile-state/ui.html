@@ -26,21 +26,33 @@
                 });
 
                 describe("SET_CURRENT_PAGE", () => {
-                    it("sets the value correctly", () => {
-                        DTile.store.dispatch(action("SET_CURRENT_PAGE", "projects"));
+                    it("sets the page correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_PAGE", {
+                            page: "projects"
+                        }));
                         expect(state().currentPage).to.equal("projects");
                     });
-                });
 
-                describe("SET_CURRENT_PROJECT_ID", () => {
-                    it("sets the value correctly", () => {
-                        DTile.store.dispatch(action("SET_CURRENT_PROJECT_ID", 10));
-                        expect(state().currentProjectId).to.equal(10);
+                    it("can set different page ids", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_PAGE", {
+                            page: "project",
+                            projectId: "1"
+                        }));
+                        expect(state().currentProjectId).to.equal("1");
+
+                        DTile.store.dispatch(action("SET_CURRENT_PAGE", {
+                            page: "edit-map",
+                            mapId: "0"
+                        }));
+                        expect(state().currentMapId).to.equal("0");
                     });
                 });
 
-                describe("SET_CURRENT_MAP_ID", () => {
-                    it("sets the value correctly", () => {
+                describe("SET_CURRENT_*_ID", () => {
+                    it("sets a current id correctly", () => {
+                        DTile.store.dispatch(action("SET_CURRENT_PROJECT_ID", 10));
+                        expect(state().currentProjectId).to.equal(10);
+
                         DTile.store.dispatch(action("SET_CURRENT_MAP_ID", 10));
                         expect(state().currentMapId).to.equal(10);
                     });

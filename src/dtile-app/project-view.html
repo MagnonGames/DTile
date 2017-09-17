@@ -129,7 +129,7 @@
         }
 
         _addMap(name) {
-            this.dispatch("setCurrentPage", "new-map");
+            this.dispatch("setCurrentPage", { page: "new-map" });
         }
 
         _removeMap(e) {
@@ -137,12 +137,14 @@
         }
 
         _openMap(e) {
-            this.dispatch("setCurrentMapId", e.model.item.id);
-            this.dispatch("setCurrentPage", "edit-map");
+            this.dispatch("setCurrentPage", {
+                page: "edit-map",
+                mapId: e.model.item.id
+            });
         }
 
         _openTilesetImport() {
-            this.dispatch("setCurrentPage", "import-tileset");
+            this.dispatch("setCurrentPage", { page: "import-tileset" });
         }
     }
 

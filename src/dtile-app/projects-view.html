@@ -108,7 +108,7 @@
 
         _openProject(e) {
             this.dispatch("setCurrentProjectId", e.model.item.id);
-            this.dispatch("setCurrentPage", "project");
+            this.dispatch("setCurrentPage", { page: "project" });
         }
     }
 

@@ -143,7 +143,7 @@
             this._tilesetName = this._imageUrl = "";
             this._tileWidth = this._tileHeight = 16;
             this.$.preview.removeAttribute("loaded");
-            this.dispatch("setCurrentPage", "project");
+            this.dispatch("setCurrentPage", { page: "project" });
         }
     }
 

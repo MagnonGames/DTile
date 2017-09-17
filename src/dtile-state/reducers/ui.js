@@ -1,35 +1,34 @@
 (() => {
+    // Produces "Uppercamel" from "UPPERCAMEL"
+    function toUpperCamel(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    }
+
     // ui
     DTile.reducers.ui = (state = {}, action) => {
         switch (action.type) {
             case "SET_CURRENT_PAGE":
-                return {
-                    ...state,
-                    currentPage: action.payload
-                };
-
-            case "SET_CURRENT_PROJECT_ID":
-                return {
-                    ...state,
-                    currentProjectId: action.payload
-                };
-
-            case "SET_CURRENT_MAP_ID":
-                return {
-                    ...state,
-                    currentMapId: action.payload
-                };
+                const pageIdKey = Object.keys(action.payload).find(key => {
+                    return key.endsWith("Id");
+                });
+                if (pageIdKey) {
+                    const uiIdKey = `current${toUpperCamel(pageIdKey.match(/(\w+?)Id/)[1])}Id`;
+                    return {
+                        ...state,
+                        currentPage: action.payload.page,
+                        [uiIdKey]: action.payload[pageIdKey]
+                    };
+                } else {
+                    return {
+                        ...state,
+                        currentPage: action.payload.page
+                    };
+                }
 
             case "SET_CURRENT_LAYER_INDEX":
                 return {
                     ...state,
                     currentLayerIndex: action.payload
-                };
-
-            case "SET_CURRENT_TILESET_ID":
-                return {
-                    ...state,
-                    currentTilesetId: action.payload
                 };
 
             case "SET_MAP_SELECTION":
@@ -65,7 +64,17 @@
                     openTabs: state.openTabs.filter((_, i) => i !== action.payload)
                 };
 
-            default: return state;
+            default:
+                const idMatch = action.type.match(/SET_CURRENT_([A-Z]+?)_ID/);
+                if (idMatch) {
+                    const keyUpperCamel = toUpperCamel(idMatch[1]);
+                    return {
+                        ...state,
+                        [`current${keyUpperCamel}Id`]: action.payload
+                    };
+                } else {
+                    return state;
+                }
         }
     };
 })();

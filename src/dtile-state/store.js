@@ -22,7 +22,7 @@
             window.PolymerRedux(DTile.store)(class extends superclass {
                 static get actions() {
                     return {
-                        setCurrentPage: page => ({ type: "SET_CURRENT_PAGE", payload: page }),
+                        setCurrentPage: payload => ({ type: "SET_CURRENT_PAGE", payload }),
                         setCurrentProjectId: id => ({ type: "SET_CURRENT_PROJECT_ID", payload: id }),
                         setCurrentMapId: id => ({ type: "SET_CURRENT_MAP_ID", payload: id })
                     };
