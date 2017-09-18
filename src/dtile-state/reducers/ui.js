@@ -52,10 +52,10 @@
             case "OPEN_TAB":
                 return {
                     ...state,
-                    openTabs: (state.openTabs || []).concat([{
+                    openTabs: [...state.openTabs, {
                         type: action.payload.type,
                         id: action.payload.id
-                    }])
+                    }]
                 };
 
             case "CLOSE_TAB":

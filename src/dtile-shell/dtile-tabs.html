@@ -46,7 +46,12 @@
                 _currentMapId: { type: String, statePath: "ui.currentMapId" },
                 _currentPage: { type: String, statePath: "ui.currentPage" },
 
-                _openTabs: { type: Array, statePath: state => state.ui.openTabs || [] },
+                _openTabs: {
+                    type: Array,
+                    statePath(state) {
+                        return DTile.store.getState().ui.openTabs || [];
+                    }
+                },
                 _selectedTabIndex: Number
             };
         }
@@ -112,14 +117,15 @@
         _tabChanged(index) {
             if (index < 0) return;
             const tab = this._openTabs[index];
-            if (!tab) return;
+            if (!tab || this._previousIndex === index) return;
+            this._previousIndex = index;
 
             if (tab.type === "map") {
                 const state = this.getState();
 
                 const needsChange =
                     state.ui.currentPage !== "edit-map" ||
-                    state.currentMapId !== tab.id;
+                    state.ui.currentMapId !== tab.id;
 
                 if (needsChange) {
                     this.dispatch("setCurrentPage", {
