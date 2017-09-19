@@ -9,7 +9,8 @@
                         tilesetType: action.payload.tilesetType,
                         tileWidth: action.payload.tileWidth,
                         tileHeight: action.payload.tileHeight,
-                        url: action.payload.url
+                        url: action.payload.url,
+                        meta: action.payload.meta
                     }
                 };
             case "REMOVE_TILESET":
@@ -20,6 +21,14 @@
 
                 return {
                     restState
+                };
+            case "MODIFY_TILESET_META":
+                return {
+                    ...state,
+                    [action.payload.tilesetId]: {
+                        ...state[action.payload.tilesetId],
+                        meta: action.payload.meta
+                    }
                 };
             default: return state;
         }

@@ -74,6 +74,16 @@
                         expect(state()).not.have.property(id);
                     });
                 });
+
+                describe("MODIFY_TILESET_META", () => {
+                    it("replaces the meta of a tileset", () => {
+                        const meta = { property: "object" };
+                        DTile.store.dispatch(action("MODIFY_OBJECT_META", {
+                            tilesetId: id, meta
+                        }));
+                        expect(state()[id].meta).to.equal(meta);
+                    });
+                });
             });
         </script>
     </body>
