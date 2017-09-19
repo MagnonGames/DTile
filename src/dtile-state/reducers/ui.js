@@ -52,7 +52,7 @@
             case "OPEN_TAB":
                 return {
                     ...state,
-                    openTabs: [...state.openTabs, {
+                    openTabs: [...(state.openTabs || []), {
                         type: action.payload.type,
                         id: action.payload.id
                     }]
