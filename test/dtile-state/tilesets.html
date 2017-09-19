@@ -52,33 +52,38 @@
                         const url = "https://developer.cdn.mozilla.net/static/img/web-docs-sprite.22a6a085cf14.svg";
                         DTile.store.dispatch(action("IMPORT_TILESET", {
                             name: "created",
-                            tilesetId: 0,
+                            tilesetId: id, // Replaces the one created in beforeEach
                             tilesetType: "ortho",
                             tileWidth: 16,
                             tileHeight: 32,
                             url
                         }));
-                        expect(state()["0"].name).to.equal("created");
-                        expect(state()["0"].tilesetType).to.equal("ortho");
-                        expect(state()["0"].tileWidth).to.equal(16);
-                        expect(state()["0"].tileHeight).to.equal(32);
-                        expect(state()["0"].url).to.equal(url);
+                        expect(state()[id].name).to.equal("created");
+                        expect(state()[id].tilesetType).to.equal("ortho");
+                        expect(state()[id].tileWidth).to.equal(16);
+                        expect(state()[id].tileHeight).to.equal(32);
+                        expect(state()[id].url).to.equal(url);
                     });
                 });
 
                 describe("REMOVE_TILESET", () => {
                     it("removes an existing tileset", () => {
+                        DTile.store.dispatch(action("IMPORT_TILESET", {
+                            name: "hello",
+                            tilesetId: "1"
+                        }));
+                        const otherTileset = state()["1"];
                         DTile.store.dispatch(action("REMOVE_TILESET", {
                             tilesetId: id
                         }));
-                        expect(state()).not.have.property(id);
+                        expect(state()).to.deep.equal({ "1": otherTileset });
                     });
                 });
 
                 describe("MODIFY_TILESET_META", () => {
                     it("replaces the meta of a tileset", () => {
                         const meta = { property: "object" };
-                        DTile.store.dispatch(action("MODIFY_OBJECT_META", {
+                        DTile.store.dispatch(action("MODIFY_TILESET_META", {
                             tilesetId: id, meta
                         }));
                         expect(state()[id].meta).to.equal(meta);

@@ -19,9 +19,7 @@
                     ...restState
                 } = state;
 
-                return {
-                    restState
-                };
+                return restState;
             case "MODIFY_TILESET_META":
                 return {
                     ...state,
