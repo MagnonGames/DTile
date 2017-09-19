@@ -19,15 +19,38 @@
                 box-sizing: border-box;
             }
 
-            #maps-container {
+            #items-container {
+                display: flex;
+                margin: 0 -30px;
+                align-items: flex-start;
+            }
+
+            #items-container > * {
                 display: flex;
                 flex-wrap: wrap;
-                margin: 0 -30px;
+            }
+
+            #items-container > * > paper-card {
+                margin: 30px;
+                image-rendering: pixelated;
+            }
+
+            #maps-container {
+                flex-grow: 1;
+                align-items: flex-start;
+                justify-content: flex-start;
             }
 
             #maps-container > paper-card {
                 flex: 0 0 calc(33.3% - 60px);
-                margin: 30px;
+            }
+
+            #tilesets-container {
+                flex-direction: column;
+            }
+
+            #tilesets-container > paper-card {
+                width: 20vw;
             }
 
             paper-card > .card-actions {
@@ -35,27 +58,68 @@
             }
         </style>
 
+        <paper-dialog id="remove-map-dialog">
+            <h2>Remove Map</h2>
+            <p>
+                Are you sure you want to remove this map?
+            </p>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm on-tap="_removeMap">Remove</paper-button>
+            </div>
+        </paper-dialog>
+
+        <paper-dialog id="remove-tileset-dialog">
+            <h2>Remove Tileset</h2>
+            <p>
+                Are you sure you want to remove this tileset? It could still
+                be in use.
+            </p>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm on-tap="_removeTileset">Remove</paper-button>
+            </div>
+        </paper-dialog>
+
         <dtile-map-importer id="map-importer" project-tilesets="[[projectTilesets]]"></dtile-map-importer>
 
         <div id="main-container">
             <h1>[[projectName]]</h1>
             <paper-icon-button icon="add" on-tap="_addMap"></paper-icon-button>
             <paper-button on-tap="_openTilesetImport">Add Tileset</paper-button>
-            <div id="maps-container">
-                <template is="dom-repeat" items="{{maps}}">
-                    <paper-card>
-                        <div class="card-content">
-                            <h2>[[item.name]]</h2>
-                        </div>
-                        <div class="card-actions">
-                            <paper-icon-button
-                                icon="delete"
-                                on-tap="_removeMap">
-                            </paper-icon-button>
-                            <paper-button on-tap="_openMap">Open</paper-button>
-                        </div>
-                    </paper-card>
-                </template>
+            <div id="items-container">
+                <div id="maps-container">
+                    <template is="dom-repeat" items="{{maps}}">
+                        <paper-card>
+                            <div class="card-content">
+                                <h2>[[item.name]]</h2>
+                            </div>
+                            <div class="card-actions">
+                                <paper-icon-button
+                                    icon="delete"
+                                    on-tap="_askRemoveMap">
+                                </paper-icon-button>
+                                <paper-button on-tap="_openMap">Open</paper-button>
+                            </div>
+                        </paper-card>
+                    </template>
+                </div>
+                <div id="tilesets-container">
+                    <template is="dom-repeat" items="[[projectTilesets]]">
+                        <paper-card image="[[item.tileset.url]]" fade-image>
+                            <div class="card-content">
+                                <h2>[[item.tileset.name]]</h2>
+                            </div>
+                            <div class="card-actions">
+                                <paper-icon-button
+                                    icon="delete"
+                                    on-tap="_askRemoveTileset">
+                                </paper-icon-button>
+                                <paper-button on-tap="_openTileset">Edit</paper-button>
+                            </div>
+                        </paper-card>
+                    </template>
+                </div>
             </div>
         </div>
     </template>
@@ -111,10 +175,23 @@
 
         static get actions() {
             return {
-                removeMap(map) {
+                removeMap(mapId) {
                     return {
                         type: "REMOVE_MAP",
-                        payload: { mapId: map.id }
+                        payload: { mapId }
+                    };
+                },
+
+                removeTilesetFromProject(projectId, tilesetId) {
+                    return {
+                        type: "REMOVE_TILESET_FROM_PROJECT",
+                        payload: { projectId, tilesetId }
+                    };
+                },
+                removeTileset(tilesetId) {
+                    return {
+                        type: "REMOVE_TILESET",
+                        payload: { tilesetId }
                     };
                 }
             };
@@ -132,14 +209,34 @@
             this.dispatch("setCurrentPage", { page: "new-map" });
         }
 
-        _removeMap(e) {
-            this.dispatch("removeMap", e.model.item);
+        _askRemoveMap(e) {
+            this._removeMapId = e.model.item.id;
+            this.$["remove-map-dialog"].open();
+        }
+        _removeMap() {
+            this.dispatch("removeMap", this._removeMapId);
         }
 
         _openMap(e) {
             this.dispatch("setCurrentPage", {
                 page: "edit-map",
                 mapId: e.model.item.id
+            });
+        }
+
+        _askRemoveTileset(e) {
+            this._removeTilesetId = e.model.item.id;
+            this.$["remove-tileset-dialog"].open();
+        }
+        _removeTileset() {
+            this.dispatch("removeTilesetFromProject", this.projectId, this._removeTilesetId);
+            this.dispatch("removeTileset", this._removeTilesetId);
+        }
+
+        _openTileset(e) {
+            this.dispatch("setCurrentPage", {
+                page: "edit-tileset",
+                tilesetId: e.model.item.id
             });
         }
 
