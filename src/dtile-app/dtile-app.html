@@ -10,6 +10,7 @@
 <link rel="import" href="./tileset-importer.html">
 <link rel="import" href="./new-map-page.html">
 <link rel="import" href="../dtile-map-editor/dtile-map-editor.html">
+<link rel="import" href="../dtile-tileset-editor/dtile-tileset-editor.html">
 <link rel="import" href="../dtile-meta-editor/dtile-meta-editor.html">
 
 <link rel="import" href="../status.html">
@@ -65,7 +66,7 @@
             <iron-pages selected="[[page]]" attr-for-selected="page">
                 <dtile-projects-view page="projects"></dtile-projects-view>
                 <dtile-project-view page="project"></dtile-project-view>
-                <span page="tilesets">Tilesets</span>
+                <dtile-tileset-editor page="edit-tileset"></dtile-tileset-editor>
                 <dtile-map-editor page="edit-map"></dtile-map-editor>
                 <dtile-tileset-importer page="import-tileset"></dtile-tileset-importer>
                 <dtile-new-map-page page="new-map"></dtile-new-map-page>
@@ -196,6 +197,7 @@
         _getIdForPage(page) {
             if (page === "project") return this.getState().ui.currentProjectId;
             else if (page === "edit-map") return this.getState().ui.currentMapId;
+            else if (page === "edit-tileset") return this.getState().ui.currentTilesetId;
             return null;
         }
     }

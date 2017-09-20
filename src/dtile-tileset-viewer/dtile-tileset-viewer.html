@@ -13,7 +13,7 @@
 
         <dtile-tilemap-viewer
             id="tileset-map-viewer"
-            map="[[_tilesetMap]]"
+            map="[[tilesetMap]]"
             tilesets="[[tilesets]]"
             selection="[[_getSelection(selection, _temporarySelection, _useTemporarySelection)]]">
         </dtile-tilemap-viewer>
@@ -29,22 +29,25 @@
                 tilesets: Object,
                 tilesetId: String,
 
+                tilesetMap: Object,
+
+                showMeta: Boolean,
+
                 selection: Array,
                 _temporarySelection: Array,
-                _useTemporarySelection: Boolean,
-
-                _tilesetMap: Object
+                _useTemporarySelection: Boolean
             };
         }
 
         static get observers() {
             return [
-                "_generateTilesetMap(tilesetId, tilesets)"
+                "_generateTilesetMap(tilesetId, tilesets, showMeta)",
+                "_toggleAnimation(showMeta)"
             ];
         }
 
-        get tilesetTileWidth() { return this._tilesetMap.width; }
-        get tilesetTileHeight() { return this._tilesetMap.height; }
+        get tilesetTileWidth() { return this.tilesetMap.width; }
+        get tilesetTileHeight() { return this.tilesetMap.height; }
 
         ready() {
             super.ready();
@@ -68,8 +71,8 @@
                 for (let x = Math.min(...xValues); x <= Math.max(...xValues); x++) {
                     for (let y = Math.min(...yValues); y <= Math.max(...yValues); y++) {
                         if (x < 0 || y < 0 ||
-                            x > this._tilesetMap.width ||
-                            y > this._tilesetMap.height) continue;
+                            x > this.tilesetMap.width ||
+                            y > this.tilesetMap.height) continue;
                         selection.push({ x, y, layer: 0 });
                     }
                 }
@@ -92,11 +95,23 @@
 
         async _generateTilesetMap(tilesetId, tilesets) {
             if (!tilesetId || !tilesets) return;
-            this._tilesetMap = await generateTilesetMap(tilesetId, tilesets[tilesetId]);
+            this.tilesetMap = await generateTilesetMap(tilesetId, tilesets[tilesetId]);
         }
 
         _getSelection(selection, temporary, useTemporary) {
             return useTemporary ? temporary : selection;
+        }
+
+        _toggleAnimation(animate) {
+            if (animate) {
+                const animate = () => {
+                    // TODO: Make viewer animate
+
+                    if (this.showMeta) requestAnimationFrame(animate);
+                };
+
+                animate();
+            }
         }
     }
 

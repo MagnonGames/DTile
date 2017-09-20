@@ -1,0 +1,172 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../dtile-tileset-viewer/dtile-tileset-viewer.html">
+
+<dom-module id="dtile-tileset-editor">
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+
+            #action-buttons {
+                display: flex;
+            }
+
+            #action-buttons > span {
+                flex-grow: 1;
+            }
+
+            #action-buttons > paper-button {
+                margin: 20px;
+                color: white;
+            }
+
+            paper-button > iron-icon {
+                margin-right: 10px;
+            }
+
+            #container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #tileset-viewer {
+                flex-grow: 1;
+            }
+        </style>
+
+        <div id="container">
+            <div id="action-buttons">
+                <paper-button on-tap="_openTileMeta">
+                    <iron-icon icon="create"></iron-icon>
+                    Edit Tile Meta
+                </paper-button>
+                <paper-button>
+                    <iron-icon icon="image:burst-mode"></iron-icon>
+                    Create Animation
+                </paper-button>
+                <paper-button>
+                    <iron-icon icon="visibility"></iron-icon>
+                    Toggle Visibility
+                </paper-button>
+
+                <span></span>
+
+                <paper-button on-tap="_openTilesetMeta">
+                    <iron-icon icon="create"></iron-icon>
+                    Edit Tileset Meta
+                </paper-button>
+            </div>
+            <dtile-tileset-viewer id="tileset-viewer"
+                tilesets="[[tilesets]]"
+                tileset-id="[[tilesetId]]"
+                selection="[[_selection]]">
+            </dtile-tileset-viewer>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileTilesetEditor extends DTile.ReduxMixin(Polymer.Element) {
+        static get is() { return "dtile-tileset-editor"; }
+
+        static get properties() {
+            return {
+                tilesets: {
+                    type: Array,
+                    statePath: "entities.tilesets"
+                },
+
+                tilesetId: {
+                    type: String,
+                    statePath: "ui.currentTilesetId"
+                },
+
+                _selection: Array
+            };
+        }
+
+        static get actions() {
+            return {
+                modifyTilesetMeta(tilesetId, meta) {
+                    return {
+                        type: "MODIFY_TILESET_META",
+                        payload: { tilesetId, meta }
+                    };
+                },
+
+                modifyTilesetTileMeta(tilesetId, tileIds, meta) {
+                    return {
+                        type: "MODIFY_TILESET_TILE_META",
+                        payload: { tilesetId, tileIds, meta }
+                    };
+                }
+            };
+        }
+
+        ready() {
+            super.ready();
+
+            this.addEventListener("dtile-page-to", () => {
+                this.$["tileset-viewer"].resetView();
+            });
+
+            this.$["tileset-viewer"].addEventListener("tileset-selection", e => {
+                this._selection = e.detail;
+            });
+        }
+
+        _openTileMeta() {
+            const mapWidth = this.$["tileset-viewer"].tilesetMap.width;
+            const selectedIds = this._selection.map(({ x, y }) => {
+                return y * mapWidth + x;
+            });
+
+            const tileMeta = selectedIds.length > 1
+                ? {}
+                : this.tilesets[this.tilesetId].tileMeta[selectedIds[0]];
+
+            this.dispatchEvent(new CustomEvent("dtile-open-meta", {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    meta: tileMeta,
+                    callback: meta => {
+                        if (!meta) return;
+                        this.dispatch(
+                            "modifyTilesetTileMeta",
+                            this.tilesetId,
+                            selectedIds,
+                            meta
+                        );
+                    }
+                }
+            }));
+        }
+
+        _openTilesetMeta() {
+            this.dispatchEvent(new CustomEvent("dtile-open-meta", {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    meta: this.tilesets[this.tilesetId].meta,
+                    callback: meta => {
+                        if (!meta) return;
+                        this.dispatch("modifyTilesetMeta", this.tilesetId, meta);
+                    }
+                }
+            }));
+        }
+    }
+
+    customElements.define(DTileTilesetEditor.is, DTileTilesetEditor);
+</script>
