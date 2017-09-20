@@ -146,6 +146,7 @@
                 composed: true,
                 detail: {
                     meta: item.meta,
+                    metaType: "object",
                     callback: meta => {
                         if (!meta) return;
                         this.dispatch("modifyObjectMeta", mapId, index, meta);

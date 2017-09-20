@@ -221,6 +221,7 @@
                 composed: true,
                 detail: {
                     meta: layer.meta,
+                    metaType: "layer",
                     callback: meta => {
                         if (!meta) return;
                         this.dispatch("modifyLayerMeta", mapId, index, meta);

@@ -140,6 +140,7 @@
                 composed: true,
                 detail: {
                     meta: tileMeta,
+                    metaType: "tilesetTile",
                     callback: meta => {
                         if (!meta) return;
                         this.dispatch(
@@ -159,6 +160,7 @@
                 composed: true,
                 detail: {
                     meta: this.tilesets[this.tilesetId].meta,
+                    metaType: "tileset",
                     callback: meta => {
                         if (!meta) return;
                         this.dispatch("modifyTilesetMeta", this.tilesetId, meta);

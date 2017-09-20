@@ -25,6 +25,10 @@
                     padding: 8px 16px;
                 };
             }
+
+            paper-expansion-panel[hidden] {
+                display: none;
+            }
         </style>
 
         <paper-expansion-panel header="Public properties" opened>
@@ -75,6 +79,7 @@
         static get properties() {
             return {
                 meta: Object,
+                metaType: String,
 
                 _publicMeta: Array,
                 _metaPlugins: Array
@@ -111,6 +116,18 @@
                             panel.opened = false;
                         }
                     });
+                }
+            });
+        }
+
+        prepare() {
+            this._metaPlugins.forEach(plugin => {
+                console.log(plugin.typeMatch);
+                if (plugin.typeMatch) {
+                    const show = plugin.typeMatch(this.metaType);
+                    console.log(show, this.metaType);
+                    if (show) plugin.parentElement.removeAttribute("hidden");
+                    else plugin.parentElement.setAttribute("hidden", true);
                 }
             });
         }
