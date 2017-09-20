@@ -10,7 +10,8 @@
                         tileWidth: action.payload.tileWidth,
                         tileHeight: action.payload.tileHeight,
                         url: action.payload.url,
-                        meta: action.payload.meta
+                        meta: action.payload.meta,
+                        tileMeta: action.payload.tileMeta || {}
                     }
                 };
             case "REMOVE_TILESET":
@@ -28,6 +29,20 @@
                         meta: action.payload.meta
                     }
                 };
+
+            case "MODIFY_TILESET_TILE_META":
+                const tileMeta = { ...state.tileMeta };
+                action.payload.tileIds.forEach(tileId => {
+                    tileMeta[tileId] = action.payload.meta;
+                });
+                return {
+                    ...state,
+                    [action.payload.tilesetId]: {
+                        ...state[action.payload.tilesetId],
+                        tileMeta
+                    }
+                };
+
             default: return state;
         }
     };

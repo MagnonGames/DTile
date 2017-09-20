@@ -89,6 +89,18 @@
                         expect(state()[id].meta).to.equal(meta);
                     });
                 });
+
+                describe("MODIFY_TILESET_TILE_META", () => {
+                    it("replaces meta of the requested tiles", () => {
+                        const meta = { property: "object" };
+                        DTile.store.dispatch(action("MODIFY_TILESET_TILE_META", {
+                            tilesetId: id, tileIds: [0, 1], meta
+                        }));
+                        expect(state()[id].tileMeta[0]).to.equal(meta);
+                        expect(state()[id].tileMeta[1]).to.equal(meta);
+                        expect(state()[id].tileMeta[2]).to.not.equal(meta);
+                    });
+                });
             });
         </script>
     </body>
