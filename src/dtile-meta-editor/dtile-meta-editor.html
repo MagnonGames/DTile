@@ -127,10 +127,8 @@
 
         prepare() {
             this._metaPlugins.forEach(plugin => {
-                console.log(plugin.typeMatch);
                 if (plugin.typeMatch) {
                     const show = plugin.typeMatch(this.metaType);
-                    console.log(show, this.metaType);
                     if (show) plugin.parentElement.removeAttribute("hidden");
                     else plugin.parentElement.setAttribute("hidden", true);
                 }
