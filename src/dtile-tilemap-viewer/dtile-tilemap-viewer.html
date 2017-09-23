@@ -152,7 +152,8 @@
             if (!map) return;
 
             const set = (tile, selected) => {
-                const renderTile = this.renderer.getLayer(tile.layer).getTile(tile.x, tile.y);
+                const topLayer = this.renderer.getLayer(this.map.layers.length - 1);
+                const renderTile = topLayer.getTile(tile.x, tile.y);
                 if (!renderTile) return;
                 renderTile.tint = selected ? 0xffffff : false;
             };
