@@ -168,7 +168,7 @@
         _setUpPointerEvents() {
             let startEvent = {}, startTilePos = {},
                 startOffsetPos = {},
-                mouseDown = false, mouseMoved = false;
+                mouseDown = false, mouseMoved = false, mouseButton;
 
             const toTilePos = pos => this.renderer.unprojectToTilePosition(pos, true);
 
@@ -191,7 +191,7 @@
                         x, y,
 
                         shift: e.shiftKey, ctrl: e.ctrlKey,
-                        button: e.button,
+                        button: mouseButton,
 
                         ...(skipStart ? {} : start),
 
@@ -205,6 +205,10 @@
                 });
             };
 
+            this.addEventListener("contextmenu", e => {
+                e.preventDefault();
+            });
+
             this.addEventListener("mousedown", e => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -214,6 +218,7 @@
                 startTilePos = toTilePos(startOffsetPos);
                 mouseDown = true;
                 mouseMoved = false;
+                mouseButton = e.button;
             });
             this.addEventListener("mousemove", e => {
                 this._lastMoveEvent = e;
@@ -247,6 +252,7 @@
                 }
 
                 mouseDown = false;
+                mouseButton = undefined;
             });
 
             this.addEventListener("wheel", () => {
