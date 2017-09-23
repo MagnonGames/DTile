@@ -127,6 +127,11 @@
         }
 
         prepare() {
+            if (typeof this.meta === "undefined") {
+                this._setPublicMeta();
+                this._setPluginMeta();
+            }
+
             this._metaPlugins.forEach(plugin => {
                 if (plugin.typeMatch) {
                     const show = plugin.typeMatch(this.metaType);
