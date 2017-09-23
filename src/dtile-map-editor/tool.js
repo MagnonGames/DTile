@@ -40,6 +40,7 @@
         }
 
         getTileMeta(tilesetId, tileId) {
+            if (tilesetId < 0 || tileId < 0) return {};
             return DTileTool.state.entities.tilesets[tilesetId].tileMeta[tileId] || {};
         }
 
