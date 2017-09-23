@@ -98,6 +98,8 @@
             if (!this.renderer) return;
             this.renderer.outlineEnabled = outline;
             this.renderer.backdropEnabled = backdrop;
+
+            this.update("tiles");
         }
 
         updateSize() {
