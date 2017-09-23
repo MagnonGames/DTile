@@ -1,0 +1,83 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="dtile-tile-viewer">
+    <template>
+        <style>
+            :host, #tile {
+                display: block;
+                image-rendering: pixelated;
+                transform-origin: top left;
+            }
+        </style>
+
+        <span id="tile"></span>
+    </template>
+</dom-module>
+
+<script>
+    class DTileTileViewer extends Polymer.Element {
+        static get is() { return "dtile-tile-viewer"; }
+
+        static get properties() {
+            return {
+                tileset: Object,
+                tileId: Number,
+
+                width: { type: Number, value: 64, reflectToAttribute: true },
+                height: { type: Number, value: 64, reflectToAttribute: true },
+
+                tilesWide: { type: Number, computed: "_getTilesWide(tileset, _tilesetWidth)" },
+                tilesTall: { type: Number, computed: "_getTilesTall(tileset, _tilesetHeight)" },
+
+                _tilesetWidth: Number,
+                _tilesetHeight: Number
+            };
+        }
+
+        static get observers() {
+            return [
+                "_applyTileset(tileset, width, height)",
+                "_applyTileId(tileId, tileset, _tilesetWidth, _tilesetHeight)"
+            ];
+        }
+
+        _applyTileset(tileset, width, height) {
+            if (!tileset) return;
+
+            this._tilesetWidth = this._tilesetHeight = 0;
+
+            const img = new Image();
+            img.src = tileset.url;
+            img.onload = () => {
+                this._tilesetWidth = img.width;
+                this._tilesetHeight = img.height;
+            };
+
+            this.style.width = `${width}px`;
+            this.style.height = `${height}px`;
+
+            this.$.tile.style.backgroundImage = `url("${tileset.url}")`;
+            this.$.tile.style.width = `${tileset.tileWidth}px`;
+            this.$.tile.style.height = `${tileset.tileHeight}px`;
+            this.$.tile.style.transform = `scale(
+                ${width / tileset.tileWidth},
+                ${height / tileset.tileHeight}
+            )`;
+        }
+
+        _applyTileId(tileId, tileset, tilesetWidth, tilesetHeight) {
+            if (!tileset) return;
+
+            const tilesetHTiles = Math.floor(tilesetWidth / tileset.tileWidth);
+            const x = (tileId % tilesetHTiles) * tileset.tileWidth;
+            const y = Math.floor(tileId / tilesetHTiles) * tileset.tileHeight;
+
+            this.$.tile.style.backgroundPosition = `${-x}px ${-y}px`;
+        }
+
+        _getTilesWide(tileset, width) { return Math.floor(width / tileset.tileWidth); }
+        _getTilesTall(tileset, height) { return Math.floor(height / tileset.tileHeight); }
+    }
+
+    customElements.define(DTileTileViewer.is, DTileTileViewer);
+</script>
