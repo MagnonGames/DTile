@@ -216,6 +216,8 @@
                 mouseMoved = false;
             });
             this.addEventListener("mousemove", e => {
+                this._lastMoveEvent = e;
+
                 if (mouseDown) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -245,6 +247,18 @@
                 }
 
                 mouseDown = false;
+            });
+
+            this.addEventListener("wheel", () => {
+                if (mouseDown) {
+                    this.dispatchEvent(
+                        buildEvent("tile-track", this._lastMoveEvent, { state: "track" })
+                    );
+                } else {
+                    this.dispatchEvent(
+                        buildEvent("tile-move", this._lastMoveEvent, {}, true)
+                    );
+                }
             });
         }
     }
