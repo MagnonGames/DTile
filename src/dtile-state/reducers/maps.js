@@ -69,8 +69,8 @@
                 };
 
             default:
-                const isLayer = action.type.match(/LAYER(?:_META)?$/);
-                const isObject = action.type.match(/OBJECT(?:_META)?$/);
+                const isLayer = action.type.match(/LAYER(?:(?:_META)|S)?$/);
+                const isObject = action.type.match(/OBJECT(?:(?:_META)|S)?$/);
 
                 if (!(isLayer || isObject)) return state;
                 const type = isLayer ? "layers" : isObject ? "objects" : "";
@@ -108,13 +108,15 @@
             case "REMOVE_LAYER":
                 return state.filter((layer, index) => index !== action.payload.layerIndex);
 
-            case "MODIFY_TILES_IN_LAYER":
+            case "MODIFY_TILE_LAYERS":
                 return state.map((layer, index) => {
-                    if (index !== action.payload.layerIndex) return layer;
+                    if (!(index in action.payload.layerTiles)) return layer;
 
                     return {
                         ...layer,
-                        tiles: action.payload.tiles
+                        tiles: layer.tiles.map((tile, i) => {
+                            return action.payload.layerTiles[index][i] || tile;
+                        })
                     };
                 });
 

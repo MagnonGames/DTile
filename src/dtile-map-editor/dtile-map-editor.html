@@ -206,11 +206,11 @@
                     };
                 },
 
-                modifyTiles(mapId, layerIndex, tiles) {
+                modifyTiles(mapId, layerTiles) {
                     return {
-                        type: "MODIFY_TILES_IN_LAYER",
+                        type: "MODIFY_TILE_LAYERS",
                         payload: {
-                            mapId, layerIndex, tiles
+                            mapId, layerTiles
                         }
                     };
                 },
@@ -331,7 +331,9 @@
 
         _ghostDataChanged(ghostData) {
             const ghostArray = [];
-            ghostArray[ghostData.layer] = ghostData.tiles;
+            Object.entries(ghostData).forEach(([id, value]) => {
+                ghostArray[id] = value;
+            });
             this.$.viewer.renderer.setGhosts(ghostArray);
 
             this.$.viewer.update("tiles");
@@ -342,17 +344,13 @@
 
             if (!this._pointerEventTemplate) {
                 this._pointerEventTemplate = {
-                    previewTiles: (tiles, layerIndex) => {
-                        this._ghostData = {
-                            layer: layerIndex || this.getState().ui.currentLayerIndex,
-                            tiles
-                        };
+                    previewTiles: layerTiles => {
+                        this._ghostData = layerTiles;
                     },
-                    commitTiles: (tiles, layerIndex) => {
+                    commitTiles: layerTiles => {
                         const state = this.getState();
-                        if (typeof layerIndex === "undefined") layerIndex = state.ui.currentLayerIndex;
-                        this.dispatch("modifyTiles", state.ui.currentMapId, layerIndex, tiles);
-                        this._ghostData = { layer: layerIndex, tiles: [] };
+                        this.dispatch("modifyTiles", state.ui.currentMapId, layerTiles);
+                        this._ghostData = {};
                     },
                     previewSelection: selection => {
                         this._useTemporarySelection = true;

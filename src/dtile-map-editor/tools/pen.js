@@ -3,14 +3,19 @@
     static get toolName() { return "pen"; }
     static get icon() { return "tool:pen"; }
 
-    onMove({ tileX, tileY, previewTiles }) {
-        const layerTileArea = this.layerAsTileArea;
-        const tileArea = this.tileArea;
-        if (!layerTileArea || !tileArea) return;
-        previewTiles(TileTools.mergeTileAreas(layerTileArea, tileArea, tileX, tileY).tiles);
+    onMove({ tileX, tileY, shiftKey, button, previewTiles }) {
+        this.doTap(tileX, tileY, shiftKey, button);
+        previewTiles(this._tiles);
+        this._tiles = {};
     }
 
     onTap({ tileX, tileY, shiftKey, button, commitTiles }) {
+        this.doTap(tileX, tileY, shiftKey, button);
+        commitTiles(this._tiles);
+        this._tiles = {};
+    }
+
+    doTap(tileX, tileY, shiftKey, button) {
         const shouldRemove = button === 2;
 
         this._paintOrigin = { x: tileX, y: tileY };
@@ -19,15 +24,13 @@
         }
         this._paintTo(tileX, tileY, shouldRemove);
         this._lastPaintPosition = { x: tileX, y: tileY };
-
-        commitTiles(this._tiles);
-        this._tiles = null;
     }
 
     onTrack({ tileX, tileY, state, button, previewTiles, commitTiles }) {
         const shouldRemove = button === 2;
 
         if (state === "start") {
+            this._tiles = {};
             this._paintOrigin = this._lastPaintPosition = { x: tileX, y: tileY };
             this._paintTo(tileX, tileY, shouldRemove);
         } else if (state === "track") {
@@ -36,7 +39,7 @@
             previewTiles(this._tiles);
         } else if (state === "end") {
             commitTiles(this._tiles);
-            this._tiles = null;
+            this._tiles = {};
         }
     }
 
@@ -45,7 +48,7 @@
         const tileArea = this.tileArea;
 
         const layerTileArea = this.layerAsTileArea;
-        const newTiles = [...(this._tiles || layerTileArea.tiles)];
+        const newTiles = { ...this._tiles };
 
         for (let lx = 0; lx < (shouldRemove ? 1 : tileArea.width); lx++) {
             for (let ly = 0; ly < (shouldRemove ? 1 : tileArea.height); ly++) {
@@ -62,8 +65,11 @@
                 if (x < 0 || y < 0 || x >= map.width || y >= map.height ||
                     (!shouldRemove && tile.tileId === -1 || tile.tilesetId === -1)) continue;
 
+                const layerIndex = this.currentLayerIndex;
+
                 const tileIndex = TileTools.getTileIndex(layerTileArea, x, y);
-                newTiles[tileIndex] = { ...tile };
+                if (!newTiles[layerIndex]) newTiles[layerIndex] = [];
+                newTiles[layerIndex][tileIndex] = { ...tile };
             }
         }
 

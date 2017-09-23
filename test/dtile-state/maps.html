@@ -143,21 +143,23 @@
                         });
                     });
 
-                    describe("MODIFY_TILES_IN_LAYER", () => {
+                    describe("MODIFY_TILE_LAYERS", () => {
                         it("replaces the tiles property", () => {
-                            const tiles = [];
+                            const tile = "hello";
                             DTile.store.dispatch(action("ADD_LAYER", {
                                 name: "test",
                                 mapId: id
                             }));
-                            DTile.store.dispatch(action("MODIFY_TILES_IN_LAYER", {
-                                mapId: id, layerIndex: 0, tiles
+                            DTile.store.dispatch(action("MODIFY_TILE_LAYERS", {
+                                mapId: id, layerTiles: {
+                                    0: [tile]
+                                }
                             }));
-                            expect(state()[id].present.layers[0].tiles).to.equal(tiles);
+                            expect(state()[id].present.layers[0].tiles[0]).to.equal(tile);
                         });
 
                         it("doesn't modify other layers", () => {
-                            const tiles = [];
+                            const tile = "hello";
                             DTile.store.dispatch(action("ADD_LAYER", {
                                 name: "test",
                                 mapId: id
@@ -166,10 +168,28 @@
                                 name: "test2",
                                 mapId: id
                             }));
-                            DTile.store.dispatch(action("MODIFY_TILES_IN_LAYER", {
-                                mapId: id, layerIndex: 1, tiles
+                            DTile.store.dispatch(action("MODIFY_TILE_LAYERS", {
+                                mapId: id, layerTiles: {
+                                    1: tile
+                                }
                             }));
-                            expect(state()[id].present.layers[0].tiles).to.not.equal(tiles);
+                            expect(state()[id].present.layers[0].tiles[0]).to.not.equal(tile);
+                        });
+
+                        it("skips all empty indices", () => {
+                            DTile.store.dispatch(action("ADD_LAYER", {
+                                name: "test",
+                                mapId: id
+                            }));
+                            const tile = "hello";
+                            const before = state()[id].present.layers[0].tiles;
+                            DTile.store.dispatch(action("MODIFY_TILE_LAYERS", {
+                                mapId: id, layerTiles: {
+                                    0: [tile]
+                                }
+                            }));
+                            expect(state()[id].present.layers[0].tiles[0]).to.equal(tile);
+                            expect(state()[id].present.layers[0].tiles[1]).to.equal(before[1]);
                         });
                     });
 

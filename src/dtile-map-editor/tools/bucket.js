@@ -22,9 +22,12 @@
 
         if (!layerTileArea || !tileArea) return;
         if (this._isOutside(tileX, tileY, layerTileArea)) {
-            previewTiles([]);
+            previewTiles({});
         } else {
-            previewTiles(TileTools.fillTileAreaAt(layerTileArea, tileX, tileY, tileArea).tiles);
+            const tiles = TileTools.fillTileAreaAt(layerTileArea, tileX, tileY, tileArea).tiles;
+            previewTiles({
+                [this.currentLayerIndex]: tiles
+            });
         }
     }
 
@@ -34,7 +37,9 @@
         if (button || this._isOutside(tileX, tileY, tileArea)) return;
 
         const newTileArea = TileTools.fillTileAreaAt(tileArea, tileX, tileY, this.tileArea);
-        commitTiles(newTileArea.tiles);
+        commitTiles({
+            [this.currentLayerIndex]: newTileArea.tiles
+        });
     }
 
     _isOutside(tileX, tileY, area) {
