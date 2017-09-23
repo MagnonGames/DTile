@@ -141,6 +141,11 @@
                 detail: {
                     meta: tileMeta,
                     metaType: "tilesetTile",
+                    context: {
+                        tileset: this.tilesets[this.tilesetId],
+                        tilesetId: this.tilesetId,
+                        tileIds: selectedIds
+                    },
                     callback: meta => {
                         if (!meta) return;
                         this.dispatch(
@@ -161,6 +166,10 @@
                 detail: {
                     meta: this.tilesets[this.tilesetId].meta,
                     metaType: "tileset",
+                    context: {
+                        tileset: this.tilesets[this.tilesetId],
+                        tilesetId: this.tilesetId
+                    },
                     callback: meta => {
                         if (!meta) return;
                         this.dispatch("modifyTilesetMeta", this.tilesetId, meta);
