@@ -46,6 +46,13 @@
                 pointer-events: none;
             }
 
+            #mouse-info {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                color: rgba(255, 255, 255, 0.8);
+            }
+
             #sheet {
                 position: absolute;
                 top: 20px;
@@ -79,6 +86,10 @@
             </dtile-tilemap-viewer>
 
             <div id="object-info"></div>
+
+            <div id="mouse-info">
+                (x: [[mouseTileX]]; y: [[mouseTileY]])
+            </div>
 
             <div id="sheet">
                 <paper-tabs selected="{{_modeSelection}}">
@@ -155,6 +166,9 @@
                 currentTileArea: { type: Object, statePath: "ui.currentTileArea" },
 
                 selectedTool: { type: String, value: "pen" },
+
+                mouseTileX: Number,
+                mouseTileY: Number,
 
                 _ghostData: Object,
 
@@ -249,6 +263,9 @@
                 else if (this.objectMode) this._onObjectTrack(e);
             });
             this.$.viewer.addEventListener("tile-move", e => {
+                this.mouseTileX = e.detail.perciseTileX.toFixed(2);
+                this.mouseTileY = e.detail.perciseTileY.toFixed(2);
+
                 if (this.tileMode) this._sendEventToTools(e);
                 else if (this.objectMode) this._onObjectMove(e);
             });
