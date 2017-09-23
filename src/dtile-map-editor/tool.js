@@ -39,6 +39,10 @@
             return DTileTool.state.ui.currentTileArea;
         }
 
+        getTileMeta(tilesetId, tileId) {
+            return DTileTool.state.entities.tilesets[tilesetId].tileMeta[tileId] || {};
+        }
+
         onMove() {}
         onTap() {}
         onTrack() {}

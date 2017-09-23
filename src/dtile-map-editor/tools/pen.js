@@ -65,7 +65,17 @@
                 if (x < 0 || y < 0 || x >= map.width || y >= map.height ||
                     (!shouldRemove && tile.tileId === -1 || tile.tilesetId === -1)) continue;
 
-                const layerIndex = this.currentLayerIndex;
+                const tileMeta = this.getTileMeta(tile.tilesetId, tile.tileId);
+                let layerIndex;
+                if (tileMeta["@map-to-name"]) {
+                    layerIndex = this.currentMap.layers.findIndex(layer => {
+                        return layer.name === tileMeta["@map-to-name"];
+                    });
+                } else if (tileMeta["@map-to-index"]) {
+                    layerIndex = tileMeta["@map-to-index"];
+                } else {
+                    layerIndex = this.currentLayerIndex;
+                }
 
                 const tileIndex = TileTools.getTileIndex(layerTileArea, x, y);
                 if (!newTiles[layerIndex]) newTiles[layerIndex] = [];
