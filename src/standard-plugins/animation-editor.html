@@ -133,7 +133,6 @@
         }
 
         _setAnimationFromMeta(meta) {
-            console.log(meta, meta.hasOwnProperty("@is-animated"));
             this._hasAnimation = meta.hasOwnProperty("@is-animated");
             this.tpf = meta["@animation-time-per-frame"];
             this.tw = meta["@animation-tiles-wide"];
