@@ -142,6 +142,8 @@
         }
 
         buildMeta() {
+            if (!this.code) return {};
+
             return {
                 "@code-language": this._modeMap[this._selectedLanguageIndex][1],
                 "@code": this.code
