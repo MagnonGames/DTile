@@ -85,6 +85,7 @@
             return {
                 meta: Object,
                 metaType: String,
+                context: Object,
 
                 _publicMeta: Array,
                 _metaPlugins: Array
@@ -153,6 +154,7 @@
                 .forEach(([key, value]) => (pluginMeta[key] = value));
 
             this._metaPlugins.forEach(plugin => {
+                plugin.context = this.context;
                 plugin.meta = pluginMeta;
             });
         }

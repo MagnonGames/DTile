@@ -131,6 +131,7 @@
                 const metaEditorDialog = this.$["meta-editor-dialog"];
 
                 this._metaCallback = e.detail.callback;
+                this.$["meta-editor"].context = e.detail.context;
                 this.$["meta-editor"].metaType = e.detail.metaType;
                 this.$["meta-editor"].meta = e.detail.meta;
                 this.$["meta-editor"].prepare();
