@@ -1,0 +1,171 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../dtile-tile-viewer/dtile-tile-viewer.html">
+
+<script>
+    class DTileAnimationEditorPlugin extends Polymer.Element {
+        static get is() { return "dtile-animation-editor-plugin"; }
+        static get pluginName() { return "Animation"; }
+
+        static get template() {
+            return `
+                <style>
+                    :host > div[no-animation] #has-animation {
+                        display: none;
+                    }
+
+                    :host > div:not([no-animation]) #no-animation {
+                        display: none;
+                    }
+
+                    :host > div {
+                        display: flex;
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                    :host > div > div {
+                        flex-grow: 1;
+                    }
+
+                    #no-animation {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #no-animation > * {
+                        margin: 10px;
+                    }
+
+                    #has-animation {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    }
+
+                    #preview-container {
+                        flex-grow: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #has-animation > paper-input {
+                        width: 100%;
+                    }
+                </style>
+
+                <div no-animation$="[[!_hasAnimation]]">
+                    <div id="no-animation">
+                        This tile doesn't have an animation defined.
+                        <paper-button on-tap="_enableAnimation">Add animation</paper-button>
+                    </div>
+
+                    <div id="has-animation">
+                        <div id="preview-container">
+                            <dtile-tile-viewer id="tile-viewer"
+                                width="192"
+                                height="192"
+                                tileset="[[tileset]]"
+                                tile-id="[[tileId]]">
+                            </dtile-tile-viewer>
+                        </div>
+
+                        <paper-input
+                            type="number" label="Time per frame"
+                            value="{{tpf}}" on-change="_resetAnimation">
+                        </paper-input>
+                        <paper-input
+                            type="number" label="Tiles wide"
+                            value="{{tw}}" on-change="_resetAnimation">
+                        </paper-input>
+                        <paper-input
+                            type="number" label="Tiles tall"
+                            value="{{tt}}" on-change="_resetAnimation">
+                        </paper-input>
+                    </div>
+                </div>
+            `;
+        }
+
+        static get properties() {
+            return {
+                meta: Object,
+                context: Object,
+
+                tileset: Object,
+                tileId: { type: Number, value: 0 },
+
+                tpf: { type: Number, value: 10 }, // time per frame
+                tw: { type: Number, value: 1 }, // tiles wide
+                tt: { type: Number, value: 1 }, // tiles tall
+
+                _hasAnimation: Boolean
+            };
+        }
+
+        static get observers() {
+            return [
+                "_setAnimationFromMeta(meta)"
+            ];
+        }
+
+        typeMatch(type) { return type === "tilesetTile"; }
+
+        ready() {
+            super.ready();
+
+            this._animate();
+        }
+
+        buildMeta() {
+            return {
+                "@is-animated": true,
+                "@animation-time-per-frame": this.tpf,
+                "@animation-tiles-wide": this.tw,
+                "@animation-tiles-tall": this.tt
+            };
+        }
+
+        _setAnimationFromMeta(meta) {
+            console.log(meta, meta.hasOwnProperty("@is-animated"));
+            this._hasAnimation = meta.hasOwnProperty("@is-animated");
+            this.tpf = meta["@animation-time-per-frame"];
+            this.tw = meta["@animation-tiles-wide"];
+            this.tt = meta["@animation-tiles-tall"];
+            this.tileset = this.context.tileset;
+            this._resetAnimation();
+        }
+
+        _enableAnimation() {
+            this._hasAnimation = true;
+        }
+
+        _animate() {
+            this._frameCounter++;
+            if (this._frameCounter >= this.tpf) {
+                this._frameCounter -= this.tpf;
+
+                this.tileId++;
+
+                const tilesWide = this.$["tile-viewer"].tilesWide;
+                const finalTileId = this.context.tileIds[0] + (this.tt - 1) * tilesWide + (this.tw - 1);
+
+                if (this.tileId > finalTileId) this._resetAnimation();
+                else if (this.tileId % tilesWide > this.tw) this.tileId += (tilesWide - this.tw);
+            }
+            requestAnimationFrame(() => this._animate());
+        }
+
+        _resetAnimation() {
+            this.tileId = this.context.tileIds[0];
+            this._frameCounter = 0;
+        }
+    }
+
+    DTile.metaPlugins = DTile.metaPlugins || [];
+    DTile.metaPlugins.push(DTileAnimationEditorPlugin);
+    customElements.define(DTileAnimationEditorPlugin.is, DTileAnimationEditorPlugin);
+</script>
