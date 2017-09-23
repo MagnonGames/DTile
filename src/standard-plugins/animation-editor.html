@@ -124,6 +124,7 @@
         }
 
         buildMeta() {
+            if (!this._hasAnimation) return {};
             return {
                 "@is-animated": true,
                 "@animation-time-per-frame": this.tpf,
@@ -143,6 +144,7 @@
 
         _enableAnimation() {
             this._hasAnimation = true;
+            this._resetAnimation();
         }
 
         _animate() {
@@ -162,6 +164,7 @@
         }
 
         _resetAnimation() {
+            if (!this._hasAnimation) return;
             this.tileId = this.context.tileIds[0];
             this._frameCounter = 0;
         }
