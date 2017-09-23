@@ -63,7 +63,7 @@
                     );
 
                 if (x < 0 || y < 0 || x >= map.width || y >= map.height ||
-                    (!shouldRemove && tile.tileId === -1 || tile.tilesetId === -1)) continue;
+                    (!shouldRemove && (tile.tileId === -1 || tile.tilesetId === -1))) continue;
 
                 const tileMeta = this.getTileMeta(tile.tilesetId, tile.tileId);
                 let layerIndex;
