@@ -67,8 +67,26 @@
                 --paper-tab-ink: var(--primary-color);
             }
 
-            paper-icon-radio-group {
+            #sheet-top-icons {
                 --paper-icon-selected-color: rgba(255, 255, 255, 0.2);
+                display: flex;
+            }
+
+            #sheet-top-icons > * {
+                margin: 10px;
+            }
+
+            #sheet-top-icons > paper-icon-radio-group {
+                flex-grow: 1;
+            }
+
+            #sheet-top-icons > paper-icon-button {
+                border-radius: 50%;
+                transition: background 0.2s;
+            }
+
+            #sheet-top-icons > paper-icon-button[active] {
+                background: var(--paper-icon-selected-color, rgba(255, 255, 255, 0.3));
             }
 
             paper-icon-radio-group > paper-icon-button {
@@ -82,7 +100,8 @@
             <dtile-tilemap-viewer id="viewer"
                 map="[[_preivewObject(map, _manipulatingObjectIndex, _manipulatingObjectRect)]]"
                 tilesets="[[tilesets]]"
-                selection="[[_getSelection(mapSelection, _temporarySelection, _useTemporarySelection)]]">
+                selection="[[_getSelection(mapSelection, _temporarySelection, _useTemporarySelection)]]"
+                outline="[[showWireframe]]">
             </dtile-tilemap-viewer>
 
             <div id="object-info"></div>
@@ -99,14 +118,21 @@
 
                 <iron-pages selected="{{_modeSelection}}">
                     <div>
-                        <paper-icon-radio-group selected="{{selectedTool}}">
-                            <template is="dom-repeat" items="[[_getTools()]]">
-                                <paper-icon-button
-                                    icon="[[item.constructor.icon]]"
-                                    name="[[item.constructor.toolName]]">
-                                </paper-icon-button>
-                            </template>
-                        </paper-icon-radio-group>
+                        <div id="sheet-top-icons">
+                            <paper-icon-radio-group selected="{{selectedTool}}">
+                                <template is="dom-repeat" items="[[_getTools()]]">
+                                    <paper-icon-button
+                                        icon="[[item.constructor.icon]]"
+                                        name="[[item.constructor.toolName]]">
+                                    </paper-icon-button>
+                                </template>
+                            </paper-icon-radio-group>
+
+                            <paper-icon-button toggles icon="tool:wireframe"
+                                active="{{showWireframe}}">
+                            </paper-icon-button>
+                        </div>
+
                         <dtile-layer-list></dtile-layer-list>
 
                         <dtile-dropdown-selector id="tileset-selector" itemType="tileset"
@@ -169,6 +195,8 @@
 
                 mouseTileX: Number,
                 mouseTileY: Number,
+
+                showWireframe: Boolean,
 
                 _ghostData: Object,
 
