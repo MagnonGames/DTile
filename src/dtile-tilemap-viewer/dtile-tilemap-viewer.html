@@ -34,7 +34,7 @@
                 tilesets: Object,
 
                 outline: Boolean,
-                backdrop: Boolean,
+                backdrop: { type: Boolean, value: true },
 
                 selection: Array,
 
@@ -49,7 +49,7 @@
                 "updateTilesets(tilesets)",
                 "updateCamera(panX, panY, zoom)",
                 "_showSelection(selection, map)",
-                "setRenderValues(outline, backdrop)",
+                "setRenderValues(outline, backdrop, map)",
                 "setDebug(debugEnabled, profilingEnabled)"
             ];
         }
@@ -94,8 +94,8 @@
             this.update(["camera"]);
         }
 
-        setRenderValues(outline, backdrop) {
-            if (!this.renderer) return;
+        setRenderValues(outline, backdrop, map) {
+            if (!this.renderer || !map) return;
             this.renderer.outlineEnabled = outline;
             this.renderer.backdropEnabled = backdrop;
 
