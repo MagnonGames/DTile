@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="rename-dialog">
+    <template>
+        <paper-dialog id="dialog" with-backdrop>
+            <h2>Rename [[itemType]]</h2>
+            <paper-input value="{{name}}" no-label-float></paper-input>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Close</paper-button>
+                <paper-button dialog-confirm on-tap="_rename">Rename</paper-button>
+            </div>
+        </paper-dialog>
+    </template>
+</dom-module>
+
+<script>
+    class RenameDialog extends Polymer.Element {
+        static get is() { return "rename-dialog"; }
+
+        static get properties() {
+            return {
+                itemType: String,
+                name: String
+            };
+        }
+
+        ready() {
+            super.ready();
+
+            window.addEventListener("rename", e => {
+                this.itemType = e.detail.itemType;
+                this.name = e.detail.currentName;
+                this._callback = e.detail.callback;
+                this.open();
+            });
+        }
+
+        open() {
+            this.$.dialog.open();
+        }
+
+        _rename() {
+            if (!this._callback) return;
+            this._callback({
+                newName: this.name
+            });
+        }
+    }
+
+    customElements.define(RenameDialog.is, RenameDialog);
+</script>

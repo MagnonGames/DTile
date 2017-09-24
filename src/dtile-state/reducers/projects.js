@@ -20,6 +20,15 @@
                 const { [action.payload.projectId]: _, ...projectRemovedState } = state;
                 return projectRemovedState;
 
+            case "RENAME_PROJECT":
+                return {
+                    ...state,
+                    [action.payload.projectId]: {
+                        ...state[action.payload.projectId],
+                        name: action.payload.name
+                    }
+                };
+
             case "ADD_MAP":
                 const addMapProject = state[action.payload.projectId];
                 return {

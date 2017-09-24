@@ -12,6 +12,7 @@
 <link rel="import" href="../dtile-map-editor/dtile-map-editor.html">
 <link rel="import" href="../dtile-tileset-editor/dtile-tileset-editor.html">
 <link rel="import" href="../dtile-meta-editor/dtile-meta-editor.html">
+<link rel="import" href="../generic-elements/rename-dialog.html">
 
 <link rel="import" href="../status.html">
 <link rel="import" href="../storage.html">
@@ -61,6 +62,8 @@
                 <paper-button dialog-confirm on-tap="_metaDialogClose">Apply</paper-button>
             </div>
         </paper-dialog>
+
+        <rename-dialog></rename-dialog>
 
         <dtile-shell>
             <iron-pages selected="[[page]]" attr-for-selected="page">

@@ -56,6 +56,15 @@
             paper-card > .card-actions {
                 border-top: 1px solid rgba(255, 255, 255, 0.12);
             }
+
+            paper-card .card-header {
+                display: flex;
+                align-items: center;
+            }
+
+            paper-card .card-header > h2 {
+                flex-grow: 1;
+            }
         </style>
 
         <paper-dialog id="remove-map-dialog">
@@ -92,7 +101,18 @@
                     <template is="dom-repeat" items="{{maps}}">
                         <paper-card>
                             <div class="card-content">
-                                <h2>[[item.name]]</h2>
+                                <div class="card-header">
+                                    <h2>[[item.name]]</h2>
+                                    <paper-menu-button>
+                                        <paper-icon-button icon="more-vert"
+                                            slot="dropdown-trigger">
+                                        </paper-icon-button>
+
+                                        <div slot="dropdown-content">
+                                            <paper-item on-tap="_renameMap">Rename</paper-item>
+                                        </div>
+                                    </paper-menu-button>
+                                </div>
                             </div>
                             <div class="card-actions">
                                 <paper-icon-button
@@ -108,7 +128,18 @@
                     <template is="dom-repeat" items="[[projectTilesets]]">
                         <paper-card image="[[item.tileset.url]]" fade-image>
                             <div class="card-content">
-                                <h2>[[item.tileset.name]]</h2>
+                                <div class="card-header">
+                                    <h2>[[item.tileset.name]]</h2>
+                                    <paper-menu-button>
+                                        <paper-icon-button icon="more-vert"
+                                            slot="dropdown-trigger">
+                                        </paper-icon-button>
+
+                                        <div slot="dropdown-content">
+                                            <paper-item on-tap="_renameTileset">Rename</paper-item>
+                                        </div>
+                                    </paper-menu-button>
+                                </div>
                             </div>
                             <div class="card-actions">
                                 <paper-icon-button
@@ -181,6 +212,12 @@
                         payload: { mapId }
                     };
                 },
+                renameMap(mapId, name) {
+                    return {
+                        type: "RENAME_MAP",
+                        payload: { mapId, name }
+                    };
+                },
 
                 removeTilesetFromProject(projectId, tilesetId) {
                     return {
@@ -192,6 +229,12 @@
                     return {
                         type: "REMOVE_TILESET",
                         payload: { tilesetId }
+                    };
+                },
+                renameTileset(tilesetId, name) {
+                    return {
+                        type: "RENAME_TILESET",
+                        payload: { tilesetId, name }
                     };
                 }
             };
@@ -216,6 +259,22 @@
         _removeMap() {
             this.dispatch("removeMap", this._removeMapId);
         }
+        _renameMap(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            this.dispatchEvent(new CustomEvent("rename", {
+                composed: true,
+                bubbles: true,
+                detail: {
+                    itemType: "Map",
+                    currentName: e.model.item.name,
+                    callback: ({ newName }) => {
+                        this.dispatch("renameMap", e.model.index, newName);
+                    }
+                }
+            }));
+        }
 
         _openMap(e) {
             this.dispatch("setCurrentPage", {
@@ -231,6 +290,22 @@
         _removeTileset() {
             this.dispatch("removeTilesetFromProject", this.projectId, this._removeTilesetId);
             this.dispatch("removeTileset", this._removeTilesetId);
+        }
+        _renameTileset(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            this.dispatchEvent(new CustomEvent("rename", {
+                composed: true,
+                bubbles: true,
+                detail: {
+                    itemType: "Tileset",
+                    currentName: e.model.item.tileset.name,
+                    callback: ({ newName }) => {
+                        this.dispatch("renameTileset", e.model.index, newName);
+                    }
+                }
+            }));
         }
 
         _openTileset(e) {

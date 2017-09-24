@@ -54,6 +54,12 @@
                     meta: action.payload.meta
                 };
 
+            case "RENAME_MAP":
+                return {
+                    ...state,
+                    name: action.payload.name
+                };
+
             case "CHANGE_MAP_SIZE":
                 console.warn("changing size is not implemented");
                 return state;
@@ -108,6 +114,15 @@
             case "REMOVE_LAYER":
                 return state.filter((layer, index) => index !== action.payload.layerIndex);
 
+            case "RENAME_LAYER":
+                return state.map((layer, index) => {
+                    if (index !== action.payload.layerIndex) return layer;
+                    return {
+                        ...layer,
+                        name: action.payload.name
+                    };
+                });
+
             case "MODIFY_TILE_LAYERS":
                 return state.map((layer, index) => {
                     if (!(index in action.payload.layerTiles)) return layer;
@@ -152,6 +167,15 @@
 
             case "REMOVE_OBJECT":
                 return state.filter((object, index) => index !== action.payload.objectIndex);
+
+            case "RENAME_OBJECT":
+                return state.map((object, index) => {
+                    if (index !== action.payload.objectIndex) return object;
+                    return {
+                        ...object,
+                        name: action.payload.name
+                    };
+                });
 
             case "SET_BOUNDS_FOR_OBJECT":
                 return state.map((object, i) => {

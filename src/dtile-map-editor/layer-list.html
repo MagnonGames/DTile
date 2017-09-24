@@ -75,6 +75,7 @@
                         <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
 
                         <div slot="dropdown-content">
+                            <paper-item on-tap="_renameLayer">Rename</paper-item>
                             <paper-item on-tap="_removeLayer">Remove</paper-item>
                             <paper-item on-tap="_openMeta">Edit meta</paper-item>
                         </div>
@@ -131,6 +132,13 @@
                             mapId,
                             layerIndex: index
                         }
+                    };
+                },
+
+                renameLayer(mapId, layerIndex, name) {
+                    return {
+                        type: "RENAME_LAYER",
+                        payload: { mapId, layerIndex, name }
                     };
                 },
 
@@ -206,6 +214,27 @@
             if (layerIndex <= currentLayerIndex) {
                 this.dispatch("setCurrentLayer", currentLayerIndex - 1);
             }
+        }
+
+        _renameLayer(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            this.dispatchEvent(new CustomEvent("rename", {
+                composed: true,
+                bubbles: true,
+                detail: {
+                    itemType: "Layer",
+                    currentName: e.model.item.name,
+                    callback: ({ newName }) => {
+                        const state = this.getState();
+                        this.dispatch(
+                            "renameLayer", state.ui.currentMapId,
+                            e.model.item.index, newName
+                        );
+                    }
+                }
+            }));
         }
 
         _selectLayer(e) {

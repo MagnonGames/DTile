@@ -14,6 +14,7 @@
                         tileMeta: action.payload.tileMeta || {}
                     }
                 };
+
             case "REMOVE_TILESET":
                 const {
                     [action.payload.tilesetId]: _,
@@ -21,6 +22,16 @@
                 } = state;
 
                 return restState;
+
+            case "RENAME_TILESET":
+                return {
+                    ...state,
+                    [action.payload.tilesetId]: {
+                        ...state[action.payload.tilesetId],
+                        name: action.payload.name
+                    }
+                };
+
             case "MODIFY_TILESET_META":
                 return {
                     ...state,

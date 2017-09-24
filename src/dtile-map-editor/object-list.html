@@ -49,6 +49,7 @@
                         <paper-icon-button icon="more-vert" slot="dropdown-trigger"></paper-icon-button>
 
                         <div slot="dropdown-content">
+                            <paper-item on-tap="_renameObject">Rename</paper-item>
                             <paper-item on-tap="_removeObject">Remove</paper-item>
                             <paper-item on-tap="_openMeta">Edit meta</paper-item>
                         </div>
@@ -97,6 +98,13 @@
                     };
                 },
 
+                renameObject(mapId, objectIndex, name) {
+                    return {
+                        type: "RENAME_OBJECT",
+                        payload: { mapId, objectIndex, name }
+                    };
+                },
+
                 modifyObjectMeta(mapId, objectIndex, meta) {
                     return {
                         type: "MODIFY_OBJECT_META",
@@ -133,6 +141,27 @@
             const currentMapId = this.getState().ui.currentMapId;
             const index = e.model.index;
             this.dispatch("removeObject", currentMapId, index);
+        }
+
+        _renameObject(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            this.dispatchEvent(new CustomEvent("rename", {
+                composed: true,
+                bubbles: true,
+                detail: {
+                    itemType: "Object",
+                    currentName: e.model.item.name,
+                    callback: ({ newName }) => {
+                        const state = this.getState();
+                        this.dispatch(
+                            "renameObject", state.ui.currentMapId,
+                            e.model.index, newName
+                        );
+                    }
+                }
+            }));
         }
 
         _openMeta(e) {

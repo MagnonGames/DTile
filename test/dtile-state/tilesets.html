@@ -80,6 +80,16 @@
                     });
                 });
 
+                describe("RENAME_TILESET", () => {
+                    it("replaces the name of a tileset", () => {
+                        const name = "foo";
+                        DTile.store.dispatch(action("RENAME_TILESET", {
+                            tilesetId: id, name
+                        }));
+                        expect(state()[id].name).to.equal(name);
+                    });
+                });
+
                 describe("MODIFY_TILESET_META", () => {
                     it("replaces the meta of a tileset", () => {
                         const meta = { property: "object" };

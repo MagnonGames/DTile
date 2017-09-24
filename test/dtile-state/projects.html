@@ -54,6 +54,16 @@
                     });
                 });
 
+                describe("RENAME_PROJECT", () => {
+                    it("replaces the name of a project", () => {
+                        const name = "foo";
+                        DTile.store.dispatch(action("RENAME_PROJECT", {
+                            projectId: id, name
+                        }));
+                        expect(state()[id].name).to.equal(name);
+                    });
+                });
+
                 describe("ADD_MAP", () => {
                     it("should add a map reference correctly", () => {
                         DTile.store.dispatch(action("ADD_MAP", {

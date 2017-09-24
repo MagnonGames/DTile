@@ -86,6 +86,16 @@
                     });
                 });
 
+                describe("RENAME_MAP", () => {
+                    it("replaces the name of a map", () => {
+                        const name = "foo";
+                        DTile.store.dispatch(action("RENAME_MAP", {
+                            mapId: id, name
+                        }));
+                        expect(state()[id].present.name).to.equal(name);
+                    });
+                });
+
                 // --- To be implemented...
                 // describe("CHANGE_MAP_SIZE", () => {});
                 // describe("CHANGE_MAP_TILE_SIZE", () => {});
@@ -140,6 +150,17 @@
                                 mapId: id
                             }));
                             expect(state()[id].present.layers).to.have.lengthOf(0);
+                        });
+                    });
+
+                    describe("RENAME_LAYER", () => {
+                        it("replaces the name of a layer", () => {
+                            DTile.store.dispatch(action("ADD_LAYER", { mapId: id }));
+                            const name = "foo";
+                            DTile.store.dispatch(action("RENAME_LAYER", {
+                                mapId: id, layerIndex: 0, name
+                            }));
+                            expect(state()[id].present.layers[0].name).to.equal(name);
                         });
                     });
 
@@ -226,6 +247,17 @@
                                 mapId: id
                             }));
                             expect(state()[id].present.objects).to.have.lengthOf(0);
+                        });
+                    });
+
+                    describe("RENAME_OBJECT", () => {
+                        it("replaces the name of an object", () => {
+                            DTile.store.dispatch(action("ADD_OBJECT", { mapId: id }));
+                            const name = "foo";
+                            DTile.store.dispatch(action("RENAME_OBJECT", {
+                                mapId: id, objectIndex: 0, name
+                            }));
+                            expect(state()[id].present.objects[0].name).to.equal(name);
                         });
                     });
 

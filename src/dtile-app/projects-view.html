@@ -5,6 +5,8 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 
 <link rel="import" href="../dtile-state/import.html">
 
@@ -31,6 +33,15 @@
             paper-card > .card-actions {
                 border-top: 1px solid rgba(255, 255, 255, 0.12);
             }
+
+            paper-card .card-header {
+                display: flex;
+                align-items: center;
+            }
+
+            paper-card .card-header > h2 {
+                flex-grow: 1;
+            }
         </style>
 
         <div id="main-container">
@@ -40,7 +51,18 @@
                 <template is="dom-repeat" items="{{projects}}">
                     <paper-card>
                         <div class="card-content">
-                            <h2>[[item.name]]</h2>
+                            <div class="card-header">
+                                <h2>[[item.name]]</h2>
+                                <paper-menu-button>
+                                    <paper-icon-button icon="more-vert"
+                                        slot="dropdown-trigger">
+                                    </paper-icon-button>
+
+                                    <div slot="dropdown-content">
+                                        <paper-item on-tap="_renameProject">Rename</paper-item>
+                                    </div>
+                                </paper-menu-button>
+                            </div>
                         </div>
                         <div class="card-actions">
                             <paper-icon-button
@@ -93,6 +115,13 @@
                         type: "REMOVE_PROJECT",
                         payload: { projectId: project.id }
                     };
+                },
+
+                renameProject(projectId, name) {
+                    return {
+                        type: "RENAME_PROJECT",
+                        payload: { projectId, name }
+                    };
                 }
             };
         }
@@ -104,6 +133,23 @@
         _removeProject(e) {
             const toRemove = e.model.item;
             this.dispatch("removeProject", toRemove);
+        }
+
+        _renameProject(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            this.dispatchEvent(new CustomEvent("rename", {
+                composed: true,
+                bubbles: true,
+                detail: {
+                    itemType: "Project",
+                    currentName: e.model.item.name,
+                    callback: ({ newName }) => {
+                        this.dispatch("renameProject", e.model.index, newName);
+                    }
+                }
+            }));
         }
 
         _openProject(e) {
