@@ -1,15 +1,32 @@
-# DTile - The simple, non-clutter tilemap editor
-[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=next)](https://travis-ci.org/theMagnon/DTile)
+# DTile - The tilemap editor for everyone
+[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=master)](https://travis-ci.org/theMagnon/DTile)
 [![dependencies Status](https://david-dm.org/theMagnon/DTile/status.svg)](https://david-dm.org/theMagnon/DTile)
 [![devDependencies Status](https://david-dm.org/theMagnon/DTile/dev-status.svg)](https://david-dm.org/theMagnon/DTile?type=dev)
 
-DTile aims to be the best tilemap editor available today. It's made with Three.js, Polymer and ES2015, meaning it has a lot of potential, but is currently kind of slow and only runs on recent browsers (read: essentially only latest stable Chrome).
+DTile aims to be the best tilemap editor available today. It runs in your browser
+(right now only Chrome) and has the ability to adapt to what you need it to do.
+If you're making a complete game with it, you can make your own custom game
+plugin that allows you to have all the options you need right at your fingertips
+or if you just want to show off a cool tileset you made, DTile is already
+configured with all the essentials out of the box.
 
-## Why another tilemap editor? Isn't Tiled enough?
-Tiled is a great program with a lot of features and we're absolutely not saying that you can't create great games with it. However, where it's lacking is in terms of ease-of-use. Tiled has a lot of features which makes it capable of doing a lot of things such as different types of maps and a lot of other things, but that takes a pretty huge hit on usability. What DTile aims to do is to strip out all of the unnecessary features and provide you with a great out-of-the-box experience while still allowing for expandability with plugins (again, coming... Well, later).
+## DTile is in Alpha
+DTile is using some of the latest cutting edge features of the web-platform
+and therefore is only functional in Chrome right now. It's also not really
+super stable, though you can certainly play around with it or even use it for a
+game if your feeling daring.
 
-## Using DTile
-DTile is NOT ready for production in any kind of way at all. It's currently very much in development and the master branch can not be considered stable. If you're not planning on contributing to DTile then you should probably wait a while until we're done with a relatively stable version at least.
+## Contributing
+We want to make contributing to DTile as easy and frictionless as possible. If
+you want to help out, but you have something you're unsure about, send an email
+to [dtile@magnon.net]() and someone (most likely @magnonellie) will help you
+out! We don't bite and you can help out no matter what your skillset is. You
+don't have to be able to code to make a good contribution!
+
+If you want to add a new feature, a good idea is to open an issue first before
+starting to write code to see if others may have valuable feedback.
 
 ## License
-MIT - Basically you can do whatever you want with it as long as you credit us for making it originally.
+MIT - Basically you can do whatever you want with it as long as you credit us
+for making it originally. That said, we always appreciate seeing what you have
+made and we're absolutely not against merging good changes.

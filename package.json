@@ -1,7 +1,7 @@
 {
   "name": "dtile",
   "version": "0.1.0",
-  "description": "[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=next)](https://travis-ci.org/theMagnon/DTile)",
+  "description": "The tilemap editor for everyone",
   "scripts": {
     "build": "gulp",
     "deploy": "./.deploy-gh.sh",
