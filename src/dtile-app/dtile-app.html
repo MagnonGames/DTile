@@ -79,6 +79,8 @@
 </dom-module>
 
 <script>
+    window.DTile = window.DTile || {};
+
     class DTileApp extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-app"; }
 
@@ -168,7 +170,10 @@
                 this._previousView = currentView;
             });
 
-            const newPath = `/${page}${pageId !== null ? `/${pageId}` : ""}`;
+            const usePrefix = (!DTile.disablePrefix && location.pathname.match(/^\/DTile/));
+            const newPath =
+                `${usePrefix ? "/DTile" : ""}` +
+                `/${page}${pageId !== null ? `/${pageId}` : ""}`;
 
             if (newPath !== location.pathname) {
                 history.pushState(null, null, newPath);
@@ -177,15 +182,20 @@
         }
 
         _pathUpdated(pathname) {
-            if (pathname === "/") {
-                history.replaceState(null, null, "/projects");
+            const prefixedRoot = !DTile.disablePrefix && pathname === "/DTile";
+            if (pathname === "/" || prefixedRoot) {
+                history.replaceState(null, null, (prefixedRoot ? "/DTile" : "") + "/projects");
                 window.dispatchEvent(new CustomEvent("location-changed"));
                 return;
             }
 
             if (this._previousPathname === pathname) return;
 
-            const [_, page, pageId] = pathname.match(/\/([\w-]+)(?:\/(\d+))?/);
+            const pathRegex = new RegExp(
+                (DTile.disablePrefix ? "" : "(?:\\/DTile)?") +
+                "\\/([\\w-]+)(?:\\/(\\d+))?"
+            );
+            const [_, page, pageId] = pathname.match(pathRegex);
 
             // eslint-disable-next-line eqeqeq
             if (this.page != page || this._getIdForPage(page) != pageId) {
