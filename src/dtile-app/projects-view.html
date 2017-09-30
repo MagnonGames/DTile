@@ -9,6 +9,8 @@
 <link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
 
 <link rel="import" href="../dtile-state/import.html">
+<link rel="import" href="../imports/file-saver.html">
+<link rel="import" href="../imports/pako.html">
 
 <dom-module id="dtile-projects-view">
     <template>
@@ -60,6 +62,7 @@
 
                                     <div slot="dropdown-content">
                                         <paper-item on-tap="_renameProject">Rename</paper-item>
+                                        <paper-item on-tap="_exportProject">Export</paper-item>
                                     </div>
                                 </paper-menu-button>
                             </div>
@@ -79,6 +82,7 @@
 </dom-module>
 
 <script>
+    /* globals pako saveAs */
     class DTileProjectsView extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-projects-view"; }
 
@@ -155,6 +159,69 @@
         _openProject(e) {
             this.dispatch("setCurrentProjectId", e.model.item.id);
             this.dispatch("setCurrentPage", { page: "project" });
+        }
+
+        async _exportProject(e) {
+            // Close paper-menu-button
+            e.target.parentElement.parentElement.close();
+
+            const state = this.getState();
+            const project = state.entities.projects[e.model.item.id];
+
+            const tilesetIdToIndexMap = new Map();
+
+            const tilesets = await Promise.all(project.tilesetIds.map(async (id, index) => {
+                tilesetIdToIndexMap.set(id, index);
+
+                const tileset = state.entities.tilesets[id];
+                const blob = await (await fetch(tileset.url)).blob();
+
+                const imageBase64 = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+
+                return {
+                    ...tileset,
+                    url: imageBase64
+                };
+            }));
+
+            const maps = project.mapIds.map(id => {
+                if (!state.entities.maps[id]) return;
+                const map = state.entities.maps[id].present;
+                return {
+                    ...map,
+                    layers: map.layers.map(layer => {
+                        return {
+                            ...layer,
+                            tiles: layer.tiles.map(tile => {
+                                if (tile.tileId < 0 || tile.tilesetId < 0) return null;
+                                else {
+                                    return {
+                                        tileId: tile.tileId,
+                                        tilesetId: tilesetIdToIndexMap.get(tile.tilesetId)
+                                    };
+                                }
+                            })
+                        };
+                    })
+                };
+            });
+
+            const projectJson = JSON.stringify({
+                projects: [{
+                    name: project.name,
+                    meta: project.meta,
+                    tilesets,
+                    maps
+                }]
+            });
+
+            const jsonBlob = new Blob([pako.gzip(projectJson)]);
+
+            saveAs(jsonBlob, `${project.name}.dtile`);
         }
     }
 
