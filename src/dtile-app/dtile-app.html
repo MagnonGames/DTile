@@ -177,7 +177,7 @@
         }
 
         _pathUpdated(pathname) {
-            if (pathname === "") {
+            if (pathname === "/") {
                 history.replaceState(null, null, "/projects");
                 window.dispatchEvent(new CustomEvent("location-changed"));
                 return;
