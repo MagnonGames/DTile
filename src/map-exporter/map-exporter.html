@@ -6,6 +6,9 @@
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
+<link rel="import" href="../imports/file-saver.html">
+<link rel="import" href="../imports/pako.html">
+
 <dom-module id="dtile-map-exporter">
     <template>
         <paper-dialog id="dialog">
@@ -29,8 +32,6 @@
 
 <script>DTile.exporters = [];</script>
 
-<script src="../../node_modules/pako/dist/pako.min.js"></script>
-<script src="../../node_modules/file-saver/FileSaver.min.js"></script>
 <script src="./exporters/dtile.js"></script>
 <script src="./exporters/tiled.js"></script>
 

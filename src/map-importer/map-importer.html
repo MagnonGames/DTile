@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/granite-file-reader/granite-file-reader.html">
 
 <link rel="import" href="../utils.html">
+<link rel="import" href="../imports/pako.html">
 
 <dom-module id="dtile-map-importer">
     <template>
@@ -76,8 +77,6 @@
 
 <script>DTile.importers = []</script>
 
-<!-- TODO: This is a double import. Also imported in map-exporter.html -->
-<script src="../../node_modules/pako/dist/pako.min.js"></script>
 <script src="./importers/dtile.js"></script>
 <script src="./importers/tiled.js"></script>
 
