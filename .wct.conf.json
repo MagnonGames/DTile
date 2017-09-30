@@ -1,5 +1,8 @@
 {
     "plugins": {
+        "local": {
+            "browsers": ["chrome"]
+        },
         "sauce": {
             "browsers": [
                 {
