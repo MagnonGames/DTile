@@ -9,7 +9,7 @@
     "lint": "eslint --ext .html,.js ./src ./test"
   },
   "dependencies": {
-    "dtile-three-renderer": "^0.12.0",
+    "dtile-three-renderer": "^0.13.1",
     "file-saver": "^1.3.3",
     "gulp-htmlmin": "^3.0.0",
     "localforage": "^1.4.3",
