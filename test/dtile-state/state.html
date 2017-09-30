@@ -21,7 +21,9 @@
 
                 describe("REPLACE", () => {
                     it("replaces the entire state", () => {
-                        expect(() => DTile.store.dispatch(action("REPLACE", "hi"))).to.throw();
+                        const state = { entities: { maps: {}, tilesets: {}, projects: {} }, ui: { foo: true } };
+                        DTile.store.dispatch(action("REPLACE", state));
+                        expect(DTile.store.getState()).to.deep.equal(state);
                     });
                 });
             });
