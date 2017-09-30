@@ -11,9 +11,8 @@ addons:
     - google-chrome-stable
     - oracle-java8-installer
 before_script:
-- npm install -g bower polylint
+- npm install -g bower
 - bower install
-- polylint --no-recursion
 script:
 - npm run build
 - xvfb-run npm test
