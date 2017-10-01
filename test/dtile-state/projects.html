@@ -43,6 +43,16 @@
                         }));
                         expect(state()["10"].name).to.equal("test");
                     });
+
+                    it("accepts predefined arrays with map and tileset ids", () => {
+                        const tilesetIds = [456, 12, 7];
+                        const mapIds = [12, 3, 45];
+                        DTile.store.dispatch(action("ADD_PROJECT", {
+                            tilesetIds, mapIds, projectId: 1
+                        }));
+                        expect(state()[1].tilesetIds).to.equal(tilesetIds);
+                        expect(state()[1].mapIds).to.equal(mapIds);
+                    });
                 });
 
                 describe("REMOVE_PROJECT", () => {

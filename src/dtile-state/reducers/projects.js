@@ -8,10 +8,10 @@
                     [action.payload.projectId]: {
                         name: action.payload.name,
                         description: undefined,
-                        mapIds: [],
-                        tilesetIds: [],
+                        mapIds: action.payload.mapIds || [],
+                        tilesetIds: action.payload.tilesetIds || [],
 
-                        meta: {}
+                        meta: action.payload.meta || {}
                     }
                 };
 
