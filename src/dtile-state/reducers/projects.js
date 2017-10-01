@@ -30,6 +30,7 @@
                 };
 
             case "ADD_MAP":
+                if (typeof action.payload.projectId === "undefined") return state;
                 const addMapProject = state[action.payload.projectId];
                 return {
                     ...state,

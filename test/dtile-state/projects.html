@@ -72,6 +72,14 @@
                         }));
                         expect(state()[id].mapIds).to.include(99);
                     });
+
+                    it("doesn't add the reference if projectId isn't present", () => {
+                        const stateBefore = state();
+                        DTile.store.dispatch(action("ADD_MAP", {
+                            mapId: 12
+                        }));
+                        expect(state()).to.deep.equal(stateBefore);
+                    });
                 });
 
                 describe("REMOVE_MAP", () => {
