@@ -7,6 +7,8 @@
 <link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 
+<link rel="import" href="../../node_modules/tile-tools/tile-tools.html">
+
 <link rel="import" href="../dtile-tilemap-viewer/dtile-tilemap-viewer.html">
 <link rel="import" href="../dtile-tileset-viewer/dtile-tileset-viewer.html">
 
@@ -98,7 +100,7 @@
 
         <div id="container">
             <dtile-tilemap-viewer id="viewer"
-                map="[[_preivewObject(map, _manipulatingObjectIndex, _manipulatingObjectRect)]]"
+                map="[[_preivewObjectAndMap(map, _manipulatingObjectIndex, _manipulatingObjectRect, _mapPreviewInfo)]]"
                 tilesets="[[tilesets]]"
                 selection="[[_getSelection(mapSelection, _temporarySelection, _useTemporarySelection)]]"
                 outline="[[showWireframe]]">
@@ -158,6 +160,7 @@
 <script src="./tools/select.js"></script>
 
 <script>
+    /* globals TileTools */
     class DTileMapEditor extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-map-editor"; }
 
@@ -206,7 +209,9 @@
                 _modeSelection: { type: String, value: "0" },
 
                 _manipulatingObjectIndex: { type: Number, value: -1 },
-                _manipulatingObjectRect: Object
+                _manipulatingObjectRect: Object,
+
+                _mapPreviewInfo: Object
             };
         }
 
@@ -261,6 +266,13 @@
                     return {
                         type: "SET_BOUNDS_FOR_OBJECT",
                         payload: { mapId, objectIndex, ...bounds }
+                    };
+                },
+
+                changeMapSize(mapId, width, height, layers, objects) {
+                    return {
+                        type: "CHANGE_MAP_SIZE",
+                        payload: { mapId, width, height, layers, objects }
                     };
                 }
             };
@@ -425,20 +437,32 @@
         }
 
         /*
-         * --- All things object manipulation
+         * --- All things object (and map size) manipulation
          * TODO: Move this somewhere else so it doesn't clutter up here.
          */
 
-        _preivewObject(map, objectIndex, objectRect) {
-            if (objectIndex < 0) return map;
-
-            return {
-                ...map,
-                objects: map.objects.map((object, i) => {
-                    if (i !== objectIndex) return object;
-                    else return { ...object, ...objectRect };
-                })
-            };
+        _preivewObjectAndMap(map, objectIndex, objectRect, mapPreviewInfo) {
+            if (objectIndex >= 0) {
+                return {
+                    ...map,
+                    objects: map.objects.map((object, i) => {
+                        if (i !== objectIndex) return object;
+                        else return { ...object, ...objectRect };
+                    })
+                };
+            } else if (mapPreviewInfo) {
+                return {
+                    ...map,
+                    ...mapPreviewInfo,
+                    objects: map.objects.map(object => {
+                        return {
+                            ...object,
+                            x: object.x - objectRect.x,
+                            y: object.y - objectRect.y
+                        };
+                    })
+                };
+            } else return map;
         }
 
         _getObjectIndexAt(tx, ty) {
@@ -447,7 +471,7 @@
             });
         }
 
-        _mouseOnObjectEdge(mtx, mty, { x, y, width, height }) {
+        _mouseOnRectEdge(mtx, mty, { x, y, width, height }) {
             const OBJECT_EDGE_SIZE = 0.1;
 
             const top = mty >= y && mty < y + OBJECT_EDGE_SIZE;
@@ -471,16 +495,30 @@
 
             if (e.detail.state === "start") {
                 const objectIndex = this._getObjectIndexAt(perciseTileX, perciseTileY);
-                if (objectIndex < 0) return;
-                const object = this.map.objects[objectIndex];
+                if (objectIndex >= 0) { // Manipulate Object
+                    const object = this.map.objects[objectIndex];
 
-                this._objectEdgesMoving = this._mouseOnObjectEdge(perciseTileX, perciseTileY, object);
-                this._manipulatingObjectIndex = objectIndex;
-                this._startTilePos = { perciseTileX, perciseTileY, tileX, tileY };
-                this._initialObjectRect = { x: object.x, y: object.y, width: object.width, height: object.height};
-            } else if (e.detail.state === "track") {
-                if (this._manipulatingObjectIndex < 0) return;
+                    this._objectEdgesMoving = this._mouseOnRectEdge(perciseTileX, perciseTileY, object);
+                    this._manipulatingObjectIndex = objectIndex;
+                    this._startTilePos = { perciseTileX, perciseTileY, tileX, tileY };
+                    this._initialObjectRect = { x: object.x, y: object.y, width: object.width, height: object.height};
+                } else { // Manipulate Map
+                    const mapRect = {
+                        x: 0, y: 0,
+                        width: parseInt(this.map.width),
+                        height: parseInt(this.map.height)
+                    };
+                    const { top, right, bottom, left } =
+                        this._mouseOnRectEdge(perciseTileX, perciseTileY, mapRect);
 
+                    if (top || right || bottom || left) {
+                        this._objectEdgesMoving = { top, right, bottom, left };
+                        this._manipulatingObjectIndex = "map";
+                        this._startTilePos = { perciseTileX, perciseTileY, tileX, tileY };
+                        this._initialObjectRect = mapRect;
+                    }
+                }
+            } else if (e.detail.state === "track" && this._manipulatingObjectIndex >= 0) {
                 const { top, right, bottom, left } = this._objectEdgesMoving;
 
                 const deltaX = perciseTileX - this._startTilePos.perciseTileX;
@@ -516,9 +554,39 @@
 
                     this._manipulatingObjectRect = { ...this._initialObjectRect, x, y };
                 }
-            } else if (e.detail.state === "end") {
-                if (this._manipulatingObjectIndex < 0) return;
+            } else if (e.detail.state === "track" && this._manipulatingObjectIndex === "map") {
+                const { top, right, bottom, left } = this._objectEdgesMoving;
+                let { x, y, width, height } = this._initialObjectRect;
+                const deltaX = perciseTileX - this._startTilePos.perciseTileX;
+                const deltaY = perciseTileY - this._startTilePos.perciseTileY;
 
+                if (right) {
+                    width = Math.round(width) + Math.round(deltaX);
+                } else if (left) {
+                    x = Math.round(x) + Math.round(deltaX);
+                    width = this._initialObjectRect.x - x + width;
+                }
+                if (bottom) {
+                    height = Math.round(height) + Math.round(deltaY);
+                } else if (top) {
+                    y = Math.round(y) + Math.round(deltaY);
+                    height = this._initialObjectRect.y - y + height;
+                }
+
+                this._manipulatingObjectRect = { x, y, width, height };
+
+                this._mapPreviewInfo = {
+                    layers: this.map.layers.map(layer => {
+                        const tiles = TileTools.getTileAreaSlice({
+                            ...layer,
+                            width: this.map.width,
+                            height: this.map.height
+                        }, x, y, width, height).tiles;
+                        return { ...layer, tiles };
+                    }),
+                    width, height
+                };
+            } else if (e.detail.state === "end" && this._manipulatingObjectIndex >= 0) {
                 const state = this.getState();
                 this.dispatch(
                     "setObjectBounds",
@@ -526,7 +594,26 @@
                     this._manipulatingObjectIndex,
                     this._manipulatingObjectRect
                 );
+            } else if (e.detail.state === "end" && this._manipulatingObjectIndex === "map") {
+                const state = this.getState();
+                this.dispatch(
+                    "changeMapSize",
+                    state.ui.currentMapId,
+                    this._mapPreviewInfo.width,
+                    this._mapPreviewInfo.height,
+                    this._mapPreviewInfo.layers,
+                    this.map.objects.map(object => {
+                        return {
+                            ...object,
+                            x: object.x - this._manipulatingObjectRect.x,
+                            y: object.y - this._manipulatingObjectRect.y
+                        };
+                    })
+                );
+            }
 
+            if (e.detail.state === "end") {
+                this._mapPreviewInfo = null;
                 this._objectEdgesMoving = null;
                 this._manipulatingObjectIndex = -1;
                 this._manipulatingObjectRect = null;
@@ -553,18 +640,37 @@
                     right: onRightEdge,
                     bottom: onBottomEdge,
                     left: onLeftEdge
-                } = this._mouseOnObjectEdge(perciseTileX, perciseTileY, object);
+                } = this._mouseOnRectEdge(perciseTileX, perciseTileY, object);
 
-                if (onTopEdge || onRightEdge || onBottomEdge || onLeftEdge) {
-                    const vResize = onTopEdge ? "n" : onBottomEdge ? "s" : "";
-                    const hResize = onLeftEdge ? "w" : onRightEdge ? "e" : "";
+                this._setCursor(true, onTopEdge, onRightEdge, onBottomEdge, onLeftEdge);
+            } else {
+                const mapRect = {
+                    x: 0, y: 0,
+                    width: this.map.width, height: this.map.height
+                };
+                const { top, right, bottom, left } =
+                    this._mouseOnRectEdge(perciseTileX, perciseTileY, mapRect);
+
+                if (top || right || bottom || left) {
+                    this._setCursor(true, top, right, bottom, left);
+                } else {
+                    this._setCursor();
+                    infoElement.style.display = "";
+                }
+            }
+        }
+
+        _setCursor(onObject, top, right, bottom, left) {
+            if (onObject) {
+                if (top || right || bottom || left) {
+                    const vResize = top ? "n" : bottom ? "s" : "";
+                    const hResize = left ? "w" : right ? "e" : "";
                     this.style.cursor = vResize + hResize + "-resize";
                 } else {
                     this.style.cursor = "move";
                 }
             } else {
                 this.style.cursor = "";
-                infoElement.style.display = "";
             }
         }
     }

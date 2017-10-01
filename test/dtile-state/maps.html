@@ -97,8 +97,20 @@
                 });
 
                 // --- To be implemented...
-                // describe("CHANGE_MAP_SIZE", () => {});
                 // describe("CHANGE_MAP_TILE_SIZE", () => {});
+
+                describe("CHANGE_MAP_SIZE", () => {
+                    it("replaces width, height, layers and objects", () => {
+                        const width = 1, height = 3, layers = [], objects = [];
+                        DTile.store.dispatch(action("CHANGE_MAP_SIZE", {
+                            mapId: id, width, height, layers, objects
+                        }));
+                        expect(state()[id].present.width).to.equal(width);
+                        expect(state()[id].present.height).to.equal(height);
+                        expect(state()[id].present.layers).to.equal(layers);
+                        expect(state()[id].present.objects).to.equal(objects);
+                    });
+                });
 
                 describe("MODIFY_MAP_META", () => {
                     it("replaces the meta of a map", () => {

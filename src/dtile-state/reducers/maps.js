@@ -61,8 +61,13 @@
                 };
 
             case "CHANGE_MAP_SIZE":
-                console.warn("changing size is not implemented");
-                return state;
+                return {
+                    ...state,
+                    width: action.payload.width,
+                    height: action.payload.height,
+                    layers: action.payload.layers,
+                    objects: action.payload.objects
+                };
 
             case "CHANGE_MAP_TILE_SIZE":
                 console.warn("changing map tile size is not implemented");
