@@ -155,7 +155,7 @@
                 return languageId === meta["@code-language"];
             });
 
-            this.code = meta["@code"];
+            this.code = meta["@code"] || "";
             this._selectedLanguageIndex = modeIndex < 0 ? 123 : modeIndex;
         }
 
