@@ -159,6 +159,10 @@
                 .forEach(([key, value]) => (pluginMeta[key] = value));
 
             this._metaPlugins.forEach(plugin => {
+                if (plugin.typeMatch && !plugin.typeMatch(this.metaType)) {
+                    return;
+                }
+                if (plugin.parentElement.hasAttribute("hidden")) return;
                 plugin.context = this.context;
                 plugin.meta = pluginMeta;
             });
@@ -195,6 +199,9 @@
             });
 
             this._metaPlugins.forEach(plugin => {
+                if (plugin.typeMatch && !plugin.typeMatch(this.metaType)) {
+                    return;
+                }
                 const pluginMeta = plugin.buildMeta();
                 Object.entries(pluginMeta).forEach(([key, value]) => {
                     meta[key] = value;
