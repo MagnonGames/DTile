@@ -44,19 +44,19 @@
 
             <div>
                 <paper-input label="Tileset name" required auto-validate
-                    error-message="A name is needed for the tileset" value="{{_tilesetName}}">
+                    error-message="A name is needed for the tileset" value="{{tilesetName}}">
                 </paper-input>
                 <paper-input label="Tile width"
-                    required type="number" value="{{_tileWidth}}">
+                    required type="number" value="{{tileWidth}}">
                 </paper-input>
                 <paper-input label="Tile height"
-                    required type="number" value="{{_tileHeight}}">
+                    required type="number" value="{{tileHeight}}">
                 </paper-input>
             </div>
 
-            <div id="preview">
+            <div id="preview" loaded$="[[_imageLoaded(imageUrl)]]">
                 <span>Upload an image by dragging it here</span>
-                <img src="[[_imageUrl]]">
+                <img src="[[imageUrl]]">
             </div>
 
             <div id="actions">
@@ -82,10 +82,12 @@
                     }
                 },
 
-                _tilesetName: String,
-                _tileWidth: { type: Number, value: 16 },
-                _tileHeight: { type: Number, value: 16 },
-                _imageUrl: String
+                tilesetName: String,
+                tileWidth: { type: Number, value: 16 },
+                tileHeight: { type: Number, value: 16 },
+                imageUrl: String,
+
+                updatingTileset: { type: Number, value: null }
             };
         }
 
@@ -114,24 +116,28 @@
                 const file = files[0];
                 const url = URL.createObjectURL(file);
 
-                this.$.preview.setAttribute("loaded", true);
-                this._imageUrl = url;
+                this.imageUrl = url;
             });
         }
 
         async _import() {
             const state = this.getState();
-            const tileset = {
-                name: this._tilesetName,
-                tilesetType: "ortho",
-                tileWidth: this._tileWidth,
-                tileHeight: this._tileHeight,
-                url: this._imageUrl
-            };
+            const updatingTileset = typeof this.updatingTileset !== "undefined";
             const tilesets = state.entities.tilesets;
-            const tilesetId = DTile.stateHelpers.lastId(tilesets);
+            const tilesetId = !updatingTileset
+                ? DTile.stateHelpers.lastId(tilesets)
+                : this.updatingTileset;
 
-            DTile.storage.addTilesetImage(tilesetId, this._imageUrl);
+            const tileset = {
+                name: this.tilesetName,
+                tilesetType: "ortho",
+                tileWidth: this.tileWidth,
+                tileHeight: this.tileHeight,
+                url: this.imageUrl,
+                meta: updatingTileset ? tilesets[tilesetId].meta : {}
+            };
+
+            DTile.storage.addTilesetImage(tilesetId, this.imageUrl);
 
             this.dispatch("importTileset", tilesetId, tileset);
             this.dispatch("addTilesetToProject", state.ui.currentProjectId, tilesetId);
@@ -140,10 +146,14 @@
         }
 
         _return() {
-            this._tilesetName = this._imageUrl = "";
-            this._tileWidth = this._tileHeight = 16;
-            this.$.preview.removeAttribute("loaded");
+            this.tilesetName = this.imageUrl = "";
+            this.tileWidth = this.tileHeight = 16;
+            this.updatingTileset = null;
             this.dispatch("setCurrentPage", { page: "project" });
+        }
+
+        _imageLoaded(url) {
+            return Boolean(url);
         }
     }
 
