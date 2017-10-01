@@ -104,13 +104,15 @@
 
         static get actions() {
             return {
-                addProject(name) {
-                    const projects = DTile.store.getState().entities.projects;
-                    const projectId = DTile.stateHelpers.lastId(projects);
-                    name = name || `Project ${projectId + 1}`;
+                addProject(projectId, project = {}) {
+                    const name = project.name || `Project ${projectId + 1}`;
                     return {
                         type: "ADD_PROJECT",
-                        payload: { name, projectId }
+                        payload: {
+                            projectId,
+                            ...project,
+                            name
+                        }
                     };
                 },
 
@@ -126,12 +128,96 @@
                         type: "RENAME_PROJECT",
                         payload: { projectId, name }
                     };
+                },
+
+                addMap(mapId, map) {
+                    return {
+                        type: "ADD_MAP",
+                        payload: {
+                            mapId,
+                            ...map
+                        }
+                    };
+                },
+
+                importTileset(tilesetId, tileset) {
+                    return {
+                        type: "IMPORT_TILESET",
+                        payload: { tilesetId, ...tileset }
+                    };
                 }
             };
         }
 
+        ready() {
+            super.ready();
+
+            this.addEventListener("dtile-file-import", async ({ detail: { files }}) => {
+                for (let file of files) {
+                    const bytes = new Uint8Array(await DTile.utils.readFileAsArrayBuffer(file));
+                    const data = await pako.ungzip(bytes);
+                    const string = data.reduce((acc, b) => acc + String.fromCharCode(b), "");
+                    const json = JSON.parse(string);
+
+                    for (let project of json.projects) {
+                        const tilesetIndexToIdMap = new Map();
+                        const mapIds = [];
+
+                        project.tilesets.forEach((tileset, index) => {
+                            const id = DTile.stateHelpers.lastId(this.getState().entities.tilesets);
+
+                            tilesetIndexToIdMap.set(index, id);
+
+                            DTile.storage.addTilesetImage(id, tileset.url);
+                            this.dispatch("importTileset", id, tileset);
+                        });
+
+                        project.maps.forEach(map => {
+                            if (!map) return;
+
+                            const id = DTile.stateHelpers.lastId(this.getState().entities.maps);
+
+                            mapIds.push(id);
+
+                            map.layers = map.layers.map(layer => {
+                                return {
+                                    ...layer,
+                                    tiles: layer.tiles.map(tile => {
+                                        if (tile === null) {
+                                            return {
+                                                tileId: -1,
+                                                tilesetId: -1
+                                            };
+                                        }
+                                        return {
+                                            ...tile,
+                                            tilesetId: tilesetIndexToIdMap.get(tile.tilesetId)
+                                        };
+                                    })
+                                };
+                            });
+
+                            this.dispatch("addMap", id, map);
+                        });
+
+                        const projects = DTile.store.getState().entities.projects;
+                        const projectId = DTile.stateHelpers.lastId(projects);
+
+                        this.dispatch("addProject", projectId, {
+                            name: project.name,
+                            meta: project.meta,
+                            tilesetIds: Array.from(tilesetIndexToIdMap.values()),
+                            mapIds: mapIds
+                        });
+                    }
+                }
+            });
+        }
+
         _addProject() {
-            this.dispatch("addProject");
+            const projects = DTile.store.getState().entities.projects;
+            const projectId = DTile.stateHelpers.lastId(projects);
+            this.dispatch("addProject", projectId);
         }
 
         _removeProject(e) {
