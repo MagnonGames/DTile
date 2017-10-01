@@ -7,7 +7,6 @@
                     ...state,
                     [action.payload.projectId]: {
                         name: action.payload.name,
-                        description: undefined,
                         mapIds: action.payload.mapIds || [],
                         tilesetIds: action.payload.tilesetIds || [],
 
