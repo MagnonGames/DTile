@@ -2,6 +2,7 @@ const gulp = require("gulp");
 const replace = require("gulp-replace");
 const mergeStream = require("merge-stream");
 const gulpBabel = require("gulp-babel");
+const gulpRollup = require("gulp-rollup");
 const symlink = require("gulp-sym");
 const htmlMinify = require("gulp-htmlmin");
 const babelMinify = require("gulp-babel-minify");
@@ -39,10 +40,19 @@ gulp.task("pre-build", ["clean"], () => {
     return mergeStream(
         gulp.src("./src/**/*.html")
             .pipe(transpileWithinHtml())
+            .pipe(replace("type=\"module\"", ""))
             .pipe(gulp.dest("./build-temp/src/")),
-        gulp.src("./src/**/*.js")
+        gulp.src(["./src/**/*.js", "!./src/renderer/**/*"])
             .pipe(gulpBabel())
             .pipe(gulp.dest("./build-temp/src/")),
+        gulp.src("./src/renderer/**/*.js")
+            .pipe(gulpRollup({
+                input: "./src/renderer/index.js",
+                allowRealFiles: true, // I'm a terrible person.
+                format: "iife",
+                name: "dtileThreeRenderer"
+            }))
+            .pipe(gulp.dest("./build-temp/src/renderer/")),
         gulp.src(["./node_modules", "./bower_components"])
             .pipe(symlink(["./build-temp/node_modules", "./build-temp/bower_components"])),
         gulp.src("./index.html")
