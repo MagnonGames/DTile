@@ -1,5 +1,5 @@
 {
-  "name": "DTile",
+  "name": "dtile",
   "description": "The simple, non-clutter tilemap editor",
   "main": "index.html",
   "dependencies": {
