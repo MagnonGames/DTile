@@ -66,7 +66,7 @@
         <rename-dialog></rename-dialog>
 
         <dtile-shell>
-            <iron-pages selected="[[page]]" attr-for-selected="page">
+            <iron-pages id="pages" selected="[[pageView]]" attr-for-selected="page">
                 <dtile-projects-view page="projects"></dtile-projects-view>
                 <dtile-project-view page="project"></dtile-project-view>
                 <dtile-tileset-editor page="edit-tileset"></dtile-tileset-editor>
@@ -88,6 +88,7 @@
             return {
                 route: String,
                 page: { type: String, statePath: "ui.currentPage" },
+                pageView: String,
                 uiState: { type: Object, statePath: "ui" },
                 pageId: { type: String, computed: "_getIdForPage(page, uiState)" },
 
@@ -153,22 +154,42 @@
         }
 
         _pageStateUpdated(page, pageId) {
+            let pageUpdated;
             if (this._previousPage !== page) {
                 this._previousPage = page;
+                pageUpdated = true;
             } else if (this._previousPageId !== pageId) {
                 this._previousPageId = pageId;
             } else return;
 
-            if (this._previousView) {
-                this._previousView.dispatchEvent(new CustomEvent("dtile-page-away"));
+            if (pageUpdated) {
+                if (this._previousView) {
+                    this._previousView.dispatchEvent(new CustomEvent("dtile-page-away"));
+                }
+
+                const animationOptions = {
+                    iterations: 1,
+                    duration: 200
+                };
+
+                this.$.pages.animate([
+                    { opacity: 1, transform: "translate(0, 0)" },
+                    { opacity: 0, transform: "translate(0, 40px)" }
+                ], animationOptions).onfinish = () => {
+                    this.pageView = page;
+                    this.$.pages.animate([
+                        { opacity: 0, transform: "translate(0, -40px)" },
+                        { opacity: 1, transform: "translate(0, 0)" }
+                    ], animationOptions);
+
+                    requestAnimationFrame(() => {
+                        const currentView = this.shadowRoot.querySelector(".iron-selected");
+                        currentView.dispatchEvent(new CustomEvent("dtile-page-to"));
+
+                        this._previousView = currentView;
+                    });
+                };
             }
-
-            requestAnimationFrame(() => {
-                const currentView = this.shadowRoot.querySelector(".iron-selected");
-                currentView.dispatchEvent(new CustomEvent("dtile-page-to"));
-
-                this._previousView = currentView;
-            });
 
             const usePrefix = (!DTile.disablePrefix && location.pathname.match(/^\/DTile/));
             const newPath =
