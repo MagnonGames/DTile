@@ -6,21 +6,29 @@
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-item/all-imports.html">
 
+<script type="module" src="../../node_modules/@magnon/components/components/magnon-logo/magnon-logo.js"></script>
+
 <dom-module id="dtile-shell-main-drawer">
     <template>
         <style>
+            :host {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
             * {
                 color: var(--primary-text-color);
             }
 
-            #header {
+            header {
                 display: flex;
                 flex-direction: column;
                 align-items: left;
                 height: 125px;
             }
 
-            #header > img {
+            header > img {
                 height: 64px;
                 border-radius: 50%;
                 background: white;
@@ -28,53 +36,109 @@
                 margin: 15px;
             }
 
-            #header > .spacer {
+            header > .spacer {
                 flex-grow: 1;
             }
 
-            #header > .user {
-                margin: 5px 25px;
+            header > .user {
+                margin: 5px 15px;
                 font-weight: bold;
             }
 
             hr {
+                width: 100%;
                 height: 0;
                 border: none;
                 border-top: 1px solid rgba(255, 255, 255, 0.2);
             }
+
+            h3 {
+                margin-left: 15px;
+            }
+
+            footer {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                align-items: center;
+                padding: 20px;
+            }
+
+            footer magnon-logo {
+                margin-top: 15px;
+            }
         </style>
 
-        <div id="header">
+        <header>
             <img src="../../img/icon/icon.svg">
             <span class="spacer"></span>
             <span class="user">
                 DTile
             </span>
-        </div>
+        </header>
 
         <hr>
 
         <nav>
             <paper-icon-item on-tap="navigate" path="projects">
-                <iron-icon icon="dashboard" slot="item-icon"></iron-icon>
+                <iron-icon icon="view-list" slot="item-icon"></iron-icon>
                 All projects
             </paper-icon-item>
-            <paper-icon-item on-tap="openMapExporter" path="project">
-                <iron-icon icon="file-download" slot="item-icon"></iron-icon>
-                Export Map
-            </paper-icon-item>
+            <template is="dom-if" if="[[project]]">
+                <hr>
+                <h3>[[project.name]]</h3>
+                <paper-icon-item on-tap="navigate" path="project">
+                    <iron-icon icon="dashboard" slot="item-icon"></iron-icon>
+                    Home
+                </paper-icon-item>
+            </template>
+            <template is="dom-if" if="[[map]]">
+                <hr>
+                <h3>[[map.name]]</h3>
+                <paper-icon-item on-tap="openMapExporter">
+                    <iron-icon icon="file-download" slot="item-icon"></iron-icon>
+                    Export
+                </paper-icon-item>
+            </template>
         </nav>
+
+        <footer>
+            DTile is made by
+            <a href="https://magnon.net" target="_blank">
+                <magnon-logo></magnon-logo>
+            </a>
+        </footer>
     </template>
 </dom-module>
 
 <script>
-    class DTileShellMainDrawer extends Polymer.Element {
+    class DTileShellMainDrawer extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-shell-main-drawer"; }
 
+        static get properties() {
+            return {
+                project: {
+                    type: Object,
+                    statePath(state) {
+                        if (state.ui.currentPage === "projects") return null;
+                        return state.entities.projects[state.ui.currentProjectId];
+                    }
+                },
+
+                map: {
+                    type: Object,
+                    statePath(state) {
+                        if (state.ui.currentPage !== "edit-map") return null;
+                        const mapState = state.entities.maps[state.ui.currentMapId];
+                        return mapState ? mapState.present : null;
+                    }
+                }
+            };
+        }
+
         navigate(e) {
-            // Push path, update app-location in dtile-app
-            history.pushState(null, null, `/${e.target.getAttribute("path")}`);
-            window.dispatchEvent(new CustomEvent("location-changed"));
+            this.dispatch("setCurrentPage", { page: e.target.getAttribute("path") });
         }
 
         openMapExporter() {
