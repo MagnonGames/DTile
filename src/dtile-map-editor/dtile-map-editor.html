@@ -472,7 +472,7 @@
         }
 
         _mouseOnRectEdge(mtx, mty, { x, y, width, height }) {
-            const OBJECT_EDGE_SIZE = 0.1;
+            const OBJECT_EDGE_SIZE = 0.5;
 
             const top = mty >= y && mty < y + OBJECT_EDGE_SIZE;
             const right = mtx <= x + width && mtx > x + width - OBJECT_EDGE_SIZE;
