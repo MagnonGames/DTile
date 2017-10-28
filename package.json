@@ -18,7 +18,7 @@
     "redux": "^3.7.2",
     "redux-undo": "^1.0.0-beta9-9-6",
     "three": "^0.87.1",
-    "tile-tools": "^0.9.4"
+    "tile-tools": "^0.9.5"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
