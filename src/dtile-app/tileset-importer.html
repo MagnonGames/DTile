@@ -122,9 +122,8 @@
 
         async _import() {
             const state = this.getState();
-            const updatingTileset = typeof this.updatingTileset !== "undefined";
             const tilesets = state.entities.tilesets;
-            const tilesetId = !updatingTileset
+            const tilesetId = !this.updatingTileset
                 ? DTile.stateHelpers.lastId(tilesets)
                 : this.updatingTileset;
 
@@ -134,7 +133,7 @@
                 tileWidth: this.tileWidth,
                 tileHeight: this.tileHeight,
                 url: this.imageUrl,
-                meta: updatingTileset ? tilesets[tilesetId].meta : {}
+                meta: this.updatingTileset ? tilesets[tilesetId].meta : {}
             };
 
             DTile.storage.addTilesetImage(tilesetId, this.imageUrl);
