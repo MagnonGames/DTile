@@ -76,6 +76,9 @@
 </dom-module>
 
 <script>
+    window.DTile = window.DTile || {};
+    DTile.metaPlugins = DTile.metaPlugins || [];
+
     class DTileMetaEditor extends Polymer.Element {
         static get is() { return "dtile-meta-editor"; }
 
