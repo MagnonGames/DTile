@@ -9,8 +9,32 @@
 <dom-module id="dtile-shell-main-drawer">
     <template>
         <style>
-            nav {
+            * {
                 color: var(--primary-text-color);
+            }
+
+            #header {
+                display: flex;
+                flex-direction: column;
+                align-items: left;
+                height: 125px;
+            }
+
+            #header > img {
+                height: 64px;
+                border-radius: 50%;
+                background: white;
+                @apply --shadow-elevation-8dp;
+                margin: 15px;
+            }
+
+            #header > .spacer {
+                flex-grow: 1;
+            }
+
+            #header > .user {
+                margin: 5px 25px;
+                font-weight: bold;
             }
 
             hr {
@@ -20,12 +44,21 @@
             }
         </style>
 
+        <div id="header">
+            <img src="../../img/icon/icon.svg">
+            <span class="spacer"></span>
+            <span class="user">
+                DTile
+            </span>
+        </div>
+
+        <hr>
+
         <nav>
             <paper-icon-item on-tap="navigate" path="projects">
                 <iron-icon icon="dashboard" slot="item-icon"></iron-icon>
                 All projects
             </paper-icon-item>
-            <hr>
             <paper-icon-item on-tap="openMapExporter" path="project">
                 <iron-icon icon="file-download" slot="item-icon"></iron-icon>
                 Export Map
