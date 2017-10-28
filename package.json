@@ -34,11 +34,11 @@
     "gulp-crisper": "^1.1.0",
     "gulp-debug": "^3.1.0",
     "gulp-if": "^2.0.2",
-    "gulp-replace": "^0.5.4",
-    "gulp-rollup": "^2.15.0",
+    "gulp-replace": "^0.6.1",
     "gulp-sym": "^1.0.2",
     "gulp-vulcanize": "^6.1.0",
     "polymer-build": "^2.0.0",
+    "rollup": "^0.50.0",
     "web-component-tester": "^5.0.0"
   },
   "repository": {

@@ -2,12 +2,12 @@ const gulp = require("gulp");
 const replace = require("gulp-replace");
 const mergeStream = require("merge-stream");
 const gulpBabel = require("gulp-babel");
-const gulpRollup = require("gulp-rollup");
 const symlink = require("gulp-sym");
 const htmlMinify = require("gulp-htmlmin");
 const babelMinify = require("gulp-babel-minify");
 const gulpif = require("gulp-if");
 const del = require("del");
+const rollup = require("rollup");
 const PolymerProject = require("polymer-build").PolymerProject;
 const HtmlSplitter = require("polymer-build").HtmlSplitter;
 
@@ -39,20 +39,30 @@ gulp.task("code", ["pre-build"], () => {
 gulp.task("pre-build", ["clean"], () => {
     return mergeStream(
         gulp.src("./src/**/*.html")
+            .pipe(replace(/<script type="module" src="(.+?)">/g, function(_, src) {
+                // Compile all <script type="module"> and put them in a "built"
+                // directory.
+
+                const name = Math.floor(Math.random() * 10000) + "";
+                const path = this.file.path.match(/(^.*\/)/)[1];
+                const foldersDeep = this.file.path.match(/(\/)/g).length -
+                    this.file.cwd.match(/(\/)/g).length - 1;
+
+                rollup.rollup({
+                    input: `${path}${src}`
+                }).then(bundle => bundle.write({
+                    file: `./build-temp/built/${name}.js`,
+                    format: "iife",
+                    name: `b${name}`
+                }));
+
+                return `<script src="${"../".repeat(foldersDeep)}built/${name}.js">`;
+            }))
             .pipe(transpileWithinHtml())
-            .pipe(replace("type=\"module\"", ""))
             .pipe(gulp.dest("./build-temp/src/")),
         gulp.src(["./src/**/*.js", "!./src/renderer/**/*"])
             .pipe(gulpBabel())
             .pipe(gulp.dest("./build-temp/src/")),
-        gulp.src("./src/renderer/**/*.js")
-            .pipe(gulpRollup({
-                input: "./src/renderer/index.js",
-                allowRealFiles: true, // I'm a terrible person.
-                format: "iife",
-                name: "dtileThreeRenderer"
-            }))
-            .pipe(gulp.dest("./build-temp/src/renderer/")),
         gulp.src(["./node_modules", "./bower_components"])
             .pipe(symlink(["./build-temp/node_modules", "./build-temp/bower_components"])),
         gulp.src("./index.html")
@@ -92,7 +102,7 @@ gulp.task("default", ["code", "image", "meta"]);
 
 // ***
 // Hacky HTML-babel transpiler because polymer-build is pretty shitty
-// (If you haven"t noticed, I"m pretty pissed as of writing this)
+// (If you haven't noticed, I'm pretty pissed as of writing this)
 // ***
 
 const through = require("through2");
