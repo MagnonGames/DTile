@@ -61,7 +61,7 @@ gulp.task("pre-build", ["clean"], () => {
 });
 
 gulp.task("image", ["clean"], () => {
-    return gulp.src("./img/**/*.png")
+    return gulp.src("./img/**/*")
         .pipe(gulp.dest("./build/img/"));
 });
 
