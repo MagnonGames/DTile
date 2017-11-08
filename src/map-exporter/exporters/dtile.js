@@ -10,6 +10,12 @@
             const tilesetMapping = new Map();
 
             const currentMap = state.entities.maps[state.ui.currentMapId].present;
+
+            currentMap.width = parseInt(currentMap.width);
+            currentMap.height = parseInt(currentMap.height);
+            currentMap.tileWidth = parseInt(currentMap.tileWidth);
+            currentMap.tileHeight = parseInt(currentMap.tileHeight);
+
             const currentProject = state.entities.projects[state.ui.currentProjectId];
             const tilesets = await Promise.all(currentProject.tilesetIds
                 .map((id, index) => {
@@ -32,6 +38,8 @@
 
                     return {
                         ...tileset,
+                        tileWidth: parseInt(tileset.tileWidth),
+                        tileHeight: parseInt(tileset.tileHeight),
                         url,
                         path,
                         imageData
