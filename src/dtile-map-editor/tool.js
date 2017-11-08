@@ -36,7 +36,11 @@
         }
 
         get tileArea() {
-            return DTileTool.state.ui.currentTileArea;
+            return DTileTool.state.ui.currentTileArea || {
+                width: 0,
+                height: 0,
+                tiles: []
+            };
         }
 
         getTileMeta(tilesetId, tileId) {
