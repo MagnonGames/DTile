@@ -114,15 +114,14 @@
         _tabChanged(index) {
             if (index < 0) return;
             const tab = this._openTabs[index];
-            if (!tab || this._previousIndex === index) return;
-            this._previousIndex = index;
+            if (!tab) return;
 
             if (tab.type === "map") {
                 const state = this.getState();
 
-                const needsChange =
-                    state.ui.currentPage !== "edit-map" ||
-                    state.ui.currentMapId !== tab.id;
+                const correctPage = state.ui.currentPage === "edit-map";
+                const correctMap = state.ui.currentMapId === tab.id;
+                const needsChange = !correctPage || !correctMap;
 
                 if (needsChange) {
                     this.dispatch("setCurrentPage", {
