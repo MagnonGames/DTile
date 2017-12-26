@@ -58,13 +58,6 @@
 
         static get actions() {
             return {
-                setCurrentMap(id) {
-                    return {
-                        type: "SET_CURRENT_MAP_ID",
-                        payload: id
-                    };
-                },
-
                 openTab(type, id) {
                     return {
                         type: "OPEN_TAB",
@@ -106,13 +99,17 @@
             }
         }
         _mapChanged(id) {
-            const openTabs = this.getState().ui.openTabs;
-            let index = openTabs ? openTabs.findIndex(tab => tab.id === id) : -1;
-            if (index < 0) {
-                this.dispatch("openTab", "map", id);
-                index = this._openTabs.findIndex(tab => tab.id === id);
+            if (!this._hasRun) {
+                this._hasRun = true;
+            } else {
+                const openTabs = this.getState().ui.openTabs;
+                let index = openTabs ? openTabs.findIndex(tab => tab.id === id) : -1;
+                if (index < 0) {
+                    this.dispatch("openTab", "map", id);
+                    index = this._openTabs.findIndex(tab => tab.id === id);
+                }
+                this._selectedTabIndex = index;
             }
-            this._selectedTabIndex = index;
         }
         _tabChanged(index) {
             if (index < 0) return;
