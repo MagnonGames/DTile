@@ -166,7 +166,9 @@
                 maps: {
                     type: Array,
                     statePath(state) {
-                        return Object.keys(state.entities.maps).map(id => {
+                        const project = state.entities.projects[state.ui.currentProjectId];
+                        if (!project) return;
+                        return project.mapIds.map(id => {
                             return {
                                 ...state.entities.maps[id].present,
                                 id
