@@ -129,7 +129,7 @@
         });
     }
 
-    async function generateTilesetMap(tilesetId, tileset) {
+    async function generateTilesetMap(tilesetId, tileset = {}) {
         const { // 25x25 is the test tilesets dimensions
             width: imageWidth = 25 * tileset.tileWidth,
             height: imageHeight = 25 * tileset.tileHeight
