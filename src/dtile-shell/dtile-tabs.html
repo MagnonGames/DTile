@@ -119,14 +119,25 @@
             if (tab.type === "map") {
                 const state = this.getState();
 
-                const correctPage = state.ui.currentPage === "edit-map";
-                const correctMap = state.ui.currentMapId === tab.id;
-                const needsChange = !correctPage || !correctMap;
+                const projectId = Object
+                    .entries(state.entities.projects)
+                    .find(([id, project]) => project.mapIds.includes(tab.id))[0];
 
-                if (needsChange) {
+                const correctProject = state.ui.currentProjectId === projectId;
+                const correctMap = state.ui.currentMapId === tab.id;
+                const correctPage = state.ui.currentPage === "edit-map";
+
+                if (!correctProject) {
+                    this.dispatch("setCurrentProjectId", projectId);
+                }
+
+                if (!correctMap) {
+                    this.dispatch("setCurrentMapId", tab.id);
+                }
+
+                if (!correctPage) {
                     this.dispatch("setCurrentPage", {
-                        page: "edit-map",
-                        mapId: tab.id
+                        page: "edit-map"
                     });
                 }
             }

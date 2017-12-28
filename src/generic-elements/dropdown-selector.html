@@ -52,7 +52,8 @@
         static get observers() {
             return [
                 "_onSelectedIdChanged(selectedId, _itemsArray)",
-                "_onSelectedIndexChanged(_selectedArrayIndex, _itemsArray)"
+                "_onSelectedIndexChanged(_selectedArrayIndex, _itemsArray)",
+                "_fixInvalidSelection(selectedId, items)"
             ];
         }
 
@@ -63,6 +64,18 @@
                     item: items[itemId]
                 };
             });
+        }
+
+        _fixInvalidSelection(selectedId, items) {
+            if (selectedId >= 0 && items[selectedId]) return;
+
+            const entires = Object.entries(items);
+
+            if (entires.length > 0) {
+                this.selectedId = entires[0][0];
+            } else {
+                this.selectedId = -1;
+            }
         }
 
         _onSelectedIdChanged(id) {

@@ -8,21 +8,27 @@
     DTile.reducers.ui = (state = {}, action) => {
         switch (action.type) {
             case "SET_CURRENT_PAGE":
-                const pageIdKey = Object.keys(action.payload).find(key => {
-                    return key.endsWith("Id");
-                });
-                if (pageIdKey) {
-                    const uiIdKey = `current${toUpperCamel(pageIdKey.match(/(\w+?)Id/)[1])}Id`;
-                    return {
-                        ...state,
-                        currentPage: action.payload.page,
-                        [uiIdKey]: action.payload[pageIdKey]
-                    };
-                } else {
-                    return {
-                        ...state,
+                let cs = state;
+
+                {
+                    const pageIdKeys = Object.keys(action.payload).filter(key => {
+                        return key.endsWith("Id");
+                    });
+
+                    let state = {
+                        ...cs,
                         currentPage: action.payload.page
                     };
+
+                    for (let pageIdKey of pageIdKeys) {
+                        const uiIdKey = `current${toUpperCamel(pageIdKey.match(/(\w+?)Id/)[1])}Id`;
+                        state = {
+                            ...state,
+                            [uiIdKey]: action.payload[pageIdKey]
+                        };
+                    }
+
+                    return state;
                 }
 
             case "SET_CURRENT_LAYER_INDEX":
@@ -62,6 +68,29 @@
                 return {
                     ...state,
                     openTabs: state.openTabs.filter((_, i) => i !== action.payload)
+                };
+
+            case "SET_CURRENT_MAP_ID":
+                return {
+                    ...state,
+                    currentMapId: action.payload,
+                    mapSelection: [],
+                    currentLayerIndex: 0
+                };
+
+            case "SET_CURRENT_PROJECT_ID":
+                return {
+                    ...state,
+                    currentProjectId: action.payload,
+                    currentTilesetId: -1,
+                    tilesetSelection: []
+                };
+
+            case "SET_CURRENT_TILESET_ID":
+                return {
+                    ...state,
+                    currentTilesetId: action.payload,
+                    tilesetSelection: []
                 };
 
             default:
