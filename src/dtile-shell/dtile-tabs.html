@@ -103,11 +103,13 @@
                 this._hasRun = true;
             } else {
                 const openTabs = this.getState().ui.openTabs;
-                let index = openTabs ? openTabs.findIndex(tab => tab.id === id) : -1;
+                /* eslint-disable eqeqeq */
+                let index = openTabs ? openTabs.findIndex(tab => tab.id == id) : -1;
                 if (index < 0) {
                     this.dispatch("openTab", "map", id);
-                    index = this._openTabs.findIndex(tab => tab.id === id);
+                    index = this._openTabs.findIndex(tab => tab.id == id);
                 }
+                /* eslint-enable eqeqeq */
                 this._selectedTabIndex = index;
             }
         }
@@ -119,9 +121,15 @@
             if (tab.type === "map") {
                 const state = this.getState();
 
+                /* eslint-disable eqeqeq */
                 const projectId = Object
                     .entries(state.entities.projects)
-                    .find(([id, project]) => project.mapIds.includes(tab.id))[0];
+                    .find(([id, project]) =>
+                        project.mapIds.find(id =>
+                            id == tab.id
+                        )
+                    )[0];
+                /* eslint-enable eqeqeq */
 
                 const correctProject = state.ui.currentProjectId === projectId;
                 const correctMap = state.ui.currentMapId === tab.id;
