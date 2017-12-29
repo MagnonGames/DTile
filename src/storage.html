@@ -5,6 +5,7 @@
     DTile.storage = new class DTileStorage {
         constructor() {
             this.attemptedResotre = false;
+            this.unsavedChanges = false;
 
             (async () => {
                 DTile.status.actionInitiated();
@@ -12,13 +13,22 @@
                 DTile.status.actionFinished();
             })();
 
+            window.onbeforeunload = () => {
+                if (this.unsavedChanges) {
+                    return true;
+                }
+            };
+
             DTile.store.subscribe(() => {
+                this.unsavedChanges = true;
+
                 if (this.timeout) clearTimeout(this.timeout);
 
                 this.timeout = setTimeout(async () => {
                     DTile.status.actionInitiated();
                     await this.save();
                     setTimeout(() => {
+                        this.unsavedChanges = false;
                         DTile.status.actionFinished();
                     }, 200);
                     this.timeout = null;
