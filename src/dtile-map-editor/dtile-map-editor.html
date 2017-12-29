@@ -160,6 +160,8 @@
 <script src="./tools/select.js"></script>
 
 <script>
+    const OBJECT_EDGE_SIZE = 0.2;
+
     /* globals TileTools */
     class DTileMapEditor extends DTile.ReduxMixin(Polymer.Element) {
         static get is() { return "dtile-map-editor"; }
@@ -467,17 +469,22 @@
 
         _getObjectIndexAt(tx, ty) {
             return this.map.objects.findIndex(({ x, y, width, height }) => {
-                return !(x > tx || y > ty || x + width < tx || y + height < ty);
+                return !(
+                    x - OBJECT_EDGE_SIZE > tx ||
+                    y - OBJECT_EDGE_SIZE > ty ||
+                    x + width + OBJECT_EDGE_SIZE < tx ||
+                    y + height + OBJECT_EDGE_SIZE < ty
+                );
             });
         }
 
         _mouseOnRectEdge(mtx, mty, { x, y, width, height }) {
-            const OBJECT_EDGE_SIZE = 0.5;
+            const oes = OBJECT_EDGE_SIZE;
 
-            const top = mty >= y && mty < y + OBJECT_EDGE_SIZE;
-            const right = mtx <= x + width && mtx > x + width - OBJECT_EDGE_SIZE;
-            const bottom = mty <= y + height && mty > y + height - OBJECT_EDGE_SIZE;
-            const left = mtx >= x && mtx < x + OBJECT_EDGE_SIZE;
+            const top = mty >= y - oes && mty < y + oes;
+            const right = mtx <= x + width + oes && mtx > x + width - oes;
+            const bottom = mty <= y + height + oes && mty > y + height - oes;
+            const left = mtx >= x - oes && mtx < x + oes;
 
             return { top, right, bottom, left };
         }
