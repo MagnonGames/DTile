@@ -96,7 +96,7 @@
                 layers: {
                     type: Array,
                     statePath: state => {
-                        if (!state.ui.currentMapId) return;
+                        if (typeof state.ui.currentMapId === "undefined") return;
                         const mapData = state.entities.maps[parseInt(state.ui.currentMapId)];
                         if (!mapData) return;
                         return mapData.present.layers
