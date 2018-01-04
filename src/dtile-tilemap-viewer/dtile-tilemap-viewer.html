@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../node_modules/tile-tools/tile-tools.html">
 
-<link rel="import" href="./three-renderer-import.html">
+<link rel="import" href="./renderer-import.html">
 <link rel="import" href="./view-navigator.html">
 
 <dom-module id="dtile-tilemap-viewer">
@@ -24,7 +24,7 @@
     const MAX_ZOOM = 1;
     const MIN_ZOOM = 0.001;
 
-    /* globals dtileThreeRenderer */
+    /* globals DTileRenderer */
     class DTileTilemapViewer extends DTile.ViewNavigator(Polymer.Element) {
         static get is() { return "dtile-tilemap-viewer"; }
 
@@ -59,9 +59,10 @@
 
             // Headless testing usually doesn't work with WebGL so we need to
             // tell the renderer to disable it.
-            if (window.mocha) dtileThreeRenderer.Renderer.enableTesting();
+            if (window.mocha) DTileRenderer.enableTesting();
 
-            this.renderer = new dtileThreeRenderer.Renderer(this.$.renderer, true);
+            this.renderer = new DTileRenderer(this.$.renderer);
+            this.debugEnabled = true;
             this.setDebug(this.debugEnabled);
             this._toUpdate = [];
 
@@ -72,50 +73,33 @@
             this._setUpPointerEvents();
         }
 
+        updateSize() {
+            if (!this.renderer) return;
+            this.renderer.updateRendererSize(
+                this.$.renderer.offsetWidth,
+                this.$.renderer.offsetHeight
+            );
+            this.render();
+        }
+
         updateMap(map) {
+            // this.renderer.updateMap(map);
+            // this.setRenderValues(this.outline, this.backdrop);
+            // this.updateSize();
+            if (!this.renderer) return;
             this.renderer.updateMap(map);
-            this.setRenderValues(this.outline, this.backdrop);
-            this.updateSize();
         }
 
         updateTilesets(tilesets) {
+            if (!this.renderer) return;
             this.renderer.updateTilesets(tilesets);
         }
 
         updateCamera(panX = this.panX, panY = this.panY, zoom = this.zoom) {
             if (!this.renderer) return;
-            this.renderer.camera.zoom = Math.pow(zoom, 2) * (MAX_ZOOM - MIN_ZOOM) + MIN_ZOOM;
-            const cameraUnit = dtileThreeRenderer.CAMERA_UNIT;
-            this.renderer.camera.position.set(
-                panX + this.renderer.width / cameraUnit * 2,
-                panY + this.renderer.height / cameraUnit * 2,
-                this.renderer.camera.position.z
-            );
-            this.update(["camera"]);
-        }
-
-        setRenderValues(outline, backdrop, map) {
-            if (!this.renderer || !map) return;
-            this.renderer.outlineEnabled = outline;
-            this.renderer.backdropEnabled = backdrop;
-
-            this.update("tiles");
-        }
-
-        updateSize() {
-            this.update(["size", "camera"]);
-        }
-
-        unprojectToTilePosition(position, includeDecimals) {
-            return this.renderer.unprojectToTilePosition(position, includeDecimals);
-        }
-
-        getObjectInformationAtMouse(x, y) {
-            return this.renderer.getObjectInformationAtMouse({ x, y });
-        }
-
-        setTint(x, y, layerId, tint) {
-            this.renderer.getTile(x, y, layerId).setTint(tint);
+            this.renderer.camera.zoom = zoom;
+            this.renderer.camera.updateProjectionMatrix();
+            this.render();
         }
 
         setDebug(enabled, profiling) {
@@ -124,48 +108,13 @@
             this.renderer.runProfile = profiling;
         }
 
-        /**
-         * Batched updating for the tilemap viewer. toUpdate can be either a
-         * string or an array with strings. Valid string values are:
-         * "size", "camera", "tiles", "tilesets", "objects".
-         * See https://github.com/magnonellie/dtile-three-renderer/blob/master/src/renderer.js#L78-L97
-         */
-        update(toUpdate = []) {
-            if (typeof toUpdate === "string") toUpdate = [toUpdate];
-
-            const firstUpdateSinceFlushed = this._toUpdate.length <= 0;
-
-            toUpdate.filter(update => !this._toUpdate.includes(update))
-                .forEach(update => this._toUpdate.push(update));
-
-            if (firstUpdateSinceFlushed) {
+        render() {
+            if (!this._renderScheduled) {
                 requestAnimationFrame(() => {
-                    this.renderer.update(this._toUpdate);
-                    this._toUpdate = [];
+                    this.renderer.render();
+                    this._renderScheduled = false;
                 });
             }
-        }
-
-        // map is passed in case selection is set before map in which case
-        // the renderer won't be able to show the selection.
-        _showSelection(selection, map) {
-            if (!map) return;
-
-            const set = (tile, selected) => {
-                const topLayer = this.renderer.getLayer(this.map.layers.length - 1);
-                const renderTile = topLayer.getTile(tile.x, tile.y);
-                if (!renderTile) return;
-                renderTile.tint = selected ? 0xffffff : false;
-            };
-
-            if (this._previousSelection) {
-                this._previousSelection.forEach(tile => set(tile, false));
-            }
-
-            if (selection) selection.forEach(tile => set(tile, true));
-
-            this._previousSelection = selection;
-            this.update("tiles");
         }
 
         _setUpPointerEvents() {
