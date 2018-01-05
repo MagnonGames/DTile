@@ -33,6 +33,11 @@
                 map: Object,
                 tilesets: Object,
 
+                currentLayer: {
+                    type: Number,
+                    value: 0
+                },
+
                 outline: Boolean,
                 backdrop: { type: Boolean, value: true },
 
@@ -122,13 +127,14 @@
                 startOffsetPos = {},
                 mouseDown = false, mouseMoved = false, mouseButton;
 
-            const toTilePos = pos => this.renderer.unprojectToTilePosition(pos, true);
+            const toTilePos = (x, y) => this.renderer.getTileXY(this.currentLayer, x, y);
 
             const buildEvent = (name, e, detail, skipStart) => {
                 const { top, left } = this.getBoundingClientRect();
                 const x = e.clientX - left, y = e.clientY - top;
 
-                const { x: perciseTileX, y: perciseTileY } = toTilePos({ x, y });
+                const { x: perciseTileX, y: perciseTileY } = toTilePos(x, y) || { x: NaN, y: NaN };
+                console.log(perciseTileX, perciseTileY);
 
                 const start = {
                     startPerciseTileX: startTilePos.x, startPerciseTileY: startTilePos.y,
@@ -167,7 +173,7 @@
                 startEvent = e;
                 const { top, left } = e.target.getBoundingClientRect();
                 startOffsetPos = { x: e.clientX - left, y: e.clientY - top };
-                startTilePos = toTilePos(startOffsetPos);
+                startTilePos = toTilePos(startOffsetPos.x, startOffsetPos.y);
                 mouseDown = true;
                 mouseMoved = false;
                 mouseButton = e.button;

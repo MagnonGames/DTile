@@ -1,5 +1,5 @@
 import {
-    WebGLRenderer, OrthographicCamera, Scene, Group
+    WebGLRenderer, OrthographicCamera, Scene, Group, Vector3, Ray
 } from "../../node_modules/three/build/three.module.js";
 
 import MapRenderer from "./map-renderer.js";
@@ -57,6 +57,22 @@ export class Renderer {
         this._mapRenderer.tilesets = this._tilesets;
     }
 
+    getTileXY(layer, mouseX, mouseY) {
+        const ray = (() => {
+            if (this.camera.isOrthographicCamera) {
+                const position = this._screenToWorldPosition(mouseX, mouseY);
+                const direction = this.camera.getWorldDirection();
+                direction.z = -direction.z;
+
+                return new Ray(position, direction);
+            } else {
+                console.warn("This type of camera is not supported for raycasting");
+            }
+        })();
+
+        return this._mapRenderer.castRayOnLayer(layer, ray);
+    }
+
     render() {
         if (testing) return;
         if (this.debugMode) console.time("Render Time");
@@ -75,6 +91,20 @@ export class Renderer {
         this.camera.left = -a / 2;
         this.camera.right = a / 2;
         this.camera.updateProjectionMatrix();
+
+        this._width = width;
+        this._height = height;
+    }
+
+    _screenToWorldPosition(sx, sy) {
+        const screen3D = new Vector3();
+        screen3D.x = (sx / this._width) * 2 - 1;
+        screen3D.y = -(sy / this._height) * 2 + 1;
+        screen3D.z = 1.0;
+
+        screen3D.unproject(this.camera);
+
+        return screen3D;
     }
 
     printDebugInfo(consoleTimer) {
