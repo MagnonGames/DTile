@@ -15,13 +15,17 @@ export class Renderer {
 
     constructor(canvas) {
         this._canvas = canvas;
+        this._width = 1;
+        this._height = 1;
+
         if (!testing) {
             this.renderer = new WebGLRenderer({
                 canvas,
                 alpha: true
             });
         }
-        this.camera = new OrthographicCamera(0, 0, 0, 0, 0.1, 1000);
+
+        this.camera = new OrthographicCamera(0, 0, 0, 25, 0.1, 1000);
         this.resetView();
         this.scene = new Scene();
 
@@ -120,6 +124,8 @@ export class Renderer {
         worldDelta.setZ(0);
 
         this.camera.position.add(worldDelta);
+
+        this._updateOrhtographicCamera();
     }
 
     resetView() {
@@ -141,6 +147,19 @@ export class Renderer {
         this.camera.top = -he;
         this.camera.left = -he * a;
         this.camera.right = he * a;
+
+        if (this._map) {
+            // Clamp to map position
+            const c = this.camera;
+            const cp = c.position;
+            const hw = this._map.width / 2;
+            const hh = this._map.height / 2;
+            this.camera.position.set(
+                ThreeMath.clamp(cp.x, Math.min(-hw - c.left, 0), Math.max(hw - c.right, 0)),
+                ThreeMath.clamp(cp.y, Math.min(-hh - c.top, 0), Math.max(hh - c.bottom, 0)),
+                cp.z
+            );
+        }
 
         this.camera.updateProjectionMatrix();
     }

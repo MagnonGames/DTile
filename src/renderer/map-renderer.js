@@ -32,8 +32,8 @@ export default class MapRenderer {
 
         if (intersection) {
             const tilePosition = {
-                x: intersection.x + this._map.width / 2 - 0.5,
-                y: -(intersection.y - this._map.height / 2) - 0.5
+                x: intersection.x + this._map.width / 2,
+                y: -(intersection.y - this._map.height / 2)
             };
             return tilePosition;
         } else {
@@ -59,7 +59,7 @@ export default class MapRenderer {
                 if (!tileMesh) return;
                 const mesh = tileMesh.clone();
 
-                mesh.position.set(x - width / 2, (-y + height) - height / 2, 0);
+                mesh.position.set(x - width / 2 + 0.5, (-y + height) - height / 2 - 0.5, 0);
 
                 group.add(mesh);
             });
