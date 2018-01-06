@@ -21,10 +21,8 @@ export class Renderer {
                 alpha: true
             });
         }
-        this.camera = new OrthographicCamera(-25, 25, -25, 25, 0.1, 1000);
-        this.camera.position.z = -100;
-        this.camera.rotation.y = Math.PI;
-        this.camera.rotation.z = Math.PI;
+        this.camera = new OrthographicCamera(0, 0, 0, 0, 0.1, 1000);
+        this.resetView();
         this.scene = new Scene();
 
         this._mapSceneGroup = new Group();
@@ -109,6 +107,29 @@ export class Renderer {
         this.camera.position.add(offset);
 
         this.camera.bottom = targetOrtho;
+
+        this._updateOrhtographicCamera();
+    }
+
+    pan(dx, dy) {
+        const cameraTopLeft = new Vector3(this.camera.left, this.camera.bottom, 0);
+        cameraTopLeft.add(this.camera.position);
+
+        const worldDelta = this._screenToWorldPosition(-dx, -dy);
+        worldDelta.sub(cameraTopLeft);
+        worldDelta.setZ(0);
+
+        this.camera.position.add(worldDelta);
+    }
+
+    resetView() {
+        this.camera.position.set(0, 0, -100);
+
+        this.camera.position.z = -100;
+        this.camera.rotation.y = Math.PI;
+        this.camera.rotation.z = Math.PI;
+
+        this.camera.bottom = 25;
 
         this._updateOrhtographicCamera();
     }

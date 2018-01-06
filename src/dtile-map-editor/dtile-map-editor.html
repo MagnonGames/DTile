@@ -289,9 +289,8 @@
             super.ready();
 
             this.addEventListener("dtile-page-to", () => {
-                this.$.viewer.resetViewValues();
+                this.$.viewer.renderer.resetView();
                 this.$.viewer.updateSize();
-                this.$.viewer.updateCamera();
 
                 this.$["tileset-viewer"].resetView();
             });

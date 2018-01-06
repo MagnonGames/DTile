@@ -2,7 +2,6 @@
 <link rel="import" href="../../node_modules/tile-tools/tile-tools.html">
 
 <link rel="import" href="./renderer-import.html">
-<link rel="import" href="./view-navigator.html">
 
 <dom-module id="dtile-tilemap-viewer">
     <template>
@@ -21,11 +20,8 @@
 </dom-module>
 
 <script>
-    const MAX_ZOOM = 1;
-    const MIN_ZOOM = 0.001;
-
     /* globals DTileRenderer */
-    class DTileTilemapViewer extends DTile.ViewNavigator(Polymer.Element) {
+    class DTileTilemapViewer extends Polymer.Element {
         static get is() { return "dtile-tilemap-viewer"; }
 
         static get properties() {
@@ -71,11 +67,31 @@
             this.setDebug(this.debugEnabled);
             this._toUpdate = [];
 
-            this.resetViewValues();
+            this.renderer.resetView();
             this._sizeListener = this.updateSize.bind(this);
             window.addEventListener("resize", this._sizeListener);
 
             this._setUpPointerEvents();
+
+            this.addEventListener("mousemove", e => {
+                if (e.buttons === 4) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    this.renderer.pan(e.movementX, e.movementY);
+                    this.renderer.render();
+                }
+            });
+            this.addEventListener("wheel", e => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.ctrlKey) {
+                    const { top, left } = e.target.getBoundingClientRect();
+                    this.renderer.zoom(e.clientX - left, e.clientY - top, e.deltaY);
+                } else {
+                    this.renderer.pan(e.deltaX, e.deltaY);
+                }
+                this.renderer.render();
+            });
         }
 
         updateSize() {
@@ -88,9 +104,6 @@
         }
 
         updateMap(map) {
-            // this.renderer.updateMap(map);
-            // this.setRenderValues(this.outline, this.backdrop);
-            // this.updateSize();
             if (!this.renderer) return;
             this.renderer.updateMap(map);
         }
@@ -98,11 +111,6 @@
         updateTilesets(tilesets) {
             if (!this.renderer) return;
             this.renderer.updateTilesets(tilesets);
-        }
-
-        updateCamera(panX = this.panX, panY = this.panY) {
-            if (!this.renderer) return;
-            this.render();
         }
 
         setDebug(enabled, profiling) {

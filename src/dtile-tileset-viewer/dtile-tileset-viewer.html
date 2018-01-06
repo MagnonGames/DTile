@@ -46,6 +46,8 @@
             ];
         }
 
+        get renderer() { return this.$["tileset-map-viewer"].renderer; }
+
         get tilesetTileWidth() { return this.tilesetMap.width; }
         get tilesetTileHeight() { return this.tilesetMap.height; }
 
@@ -87,10 +89,8 @@
         }
 
         resetView() {
-            const viewer = this.$["tileset-map-viewer"];
-            viewer.resetViewValues();
-            viewer.updateSize();
-            viewer.updateCamera();
+            this.renderer.resetView();
+            this.$["tileset-map-viewer"].updateSize();
         }
 
         async _generateTilesetMap(tilesetId, tilesets) {
