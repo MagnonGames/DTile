@@ -8,8 +8,7 @@
                     disableViewNavigation: Boolean,
 
                     panX: { type: Number, value: 0 },
-                    panY: { type: Number, value: 0 },
-                    zoom: { type: Number, value: 0.15 }
+                    panY: { type: Number, value: 0 }
                 };
             }
 
@@ -27,7 +26,9 @@
                     e.preventDefault();
                     e.stopPropagation();
                     if (e.ctrlKey) {
-                        this.zoom = Math.max(0, Math.min(1, this.zoom + e.deltaY * -0.0003));
+                        const { top, left } = e.target.getBoundingClientRect();
+                        this.renderer.zoom(e.clientX - left, e.clientY - top, e.deltaY);
+                        this.renderer.render();
                     } else {
                         this.panView(e.deltaX, e.deltaY);
                     }

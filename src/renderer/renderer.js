@@ -1,5 +1,5 @@
 import {
-    WebGLRenderer, OrthographicCamera, Scene, Group, Vector3, Ray
+    WebGLRenderer, OrthographicCamera, Scene, Group, Vector3, Ray, Math as ThreeMath
 } from "../../node_modules/three/build/three.module.js";
 
 import MapRenderer from "./map-renderer.js";
@@ -21,7 +21,7 @@ export class Renderer {
                 alpha: true
             });
         }
-        this.camera = new OrthographicCamera(-0.5, 0.5, -0.5, 0.5, 0.1, 1000);
+        this.camera = new OrthographicCamera(-25, 25, -25, 25, 0.1, 1000);
         this.camera.position.z = -100;
         this.camera.rotation.y = Math.PI;
         this.camera.rotation.z = Math.PI;
@@ -87,13 +87,41 @@ export class Renderer {
         if (!testing) {
             this.renderer.setSize(width, height);
         }
-        const a = width / height;
-        this.camera.left = -a / 2;
-        this.camera.right = a / 2;
-        this.camera.updateProjectionMatrix();
 
         this._width = width;
         this._height = height;
+
+        this._updateOrhtographicCamera();
+    }
+
+    zoom(mouseX, mouseY, amount) {
+        amount *= -1;
+        amount /= 100;
+
+        const targetOrtho = ThreeMath.clamp(this.camera.bottom - amount, 0.1, 100);
+
+        const moveTowards = this._screenToWorldPosition(mouseX, mouseY);
+
+        const distance = new Vector3().subVectors(moveTowards, this.camera.position);
+        const scaledDistance = distance.clone().multiplyScalar(targetOrtho / this.camera.bottom);
+        const offset = new Vector3().subVectors(distance, scaledDistance);
+        offset.setZ(0);
+        this.camera.position.add(offset);
+
+        this.camera.bottom = targetOrtho;
+
+        this._updateOrhtographicCamera();
+    }
+
+    _updateOrhtographicCamera() {
+        const he = this.camera.bottom;
+        const a = this._width / this._height;
+
+        this.camera.top = -he;
+        this.camera.left = -he * a;
+        this.camera.right = he * a;
+
+        this.camera.updateProjectionMatrix();
     }
 
     _screenToWorldPosition(sx, sy) {

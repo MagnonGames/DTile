@@ -35,7 +35,6 @@ export default class MapRenderer {
                 x: intersection.x + this._map.width / 2 - 0.5,
                 y: -(intersection.y - this._map.height / 2) - 0.5
             };
-            console.log(tilePosition);
             return tilePosition;
         } else {
             return null;

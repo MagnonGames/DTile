@@ -52,7 +52,7 @@
             return [
                 "updateMap(map)",
                 "updateTilesets(tilesets)",
-                "updateCamera(panX, panY, zoom)",
+                "updateCamera(panX, panY)",
                 "_showSelection(selection, map)",
                 "setRenderValues(outline, backdrop, map)",
                 "setDebug(debugEnabled, profilingEnabled)"
@@ -100,10 +100,8 @@
             this.renderer.updateTilesets(tilesets);
         }
 
-        updateCamera(panX = this.panX, panY = this.panY, zoom = this.zoom) {
+        updateCamera(panX = this.panX, panY = this.panY) {
             if (!this.renderer) return;
-            this.renderer.camera.zoom = zoom;
-            this.renderer.camera.updateProjectionMatrix();
             this.render();
         }
 
@@ -134,7 +132,6 @@
                 const x = e.clientX - left, y = e.clientY - top;
 
                 const { x: perciseTileX, y: perciseTileY } = toTilePos(x, y) || { x: NaN, y: NaN };
-                console.log(perciseTileX, perciseTileY);
 
                 const start = {
                     startPerciseTileX: startTilePos.x, startPerciseTileY: startTilePos.y,
