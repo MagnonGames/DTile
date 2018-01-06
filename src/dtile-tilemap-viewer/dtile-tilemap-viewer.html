@@ -2,6 +2,7 @@
 <link rel="import" href="../../node_modules/tile-tools/tile-tools.html">
 
 <link rel="import" href="./renderer-import.html">
+<link rel="import" href="../imports/until-later.html">
 
 <dom-module id="dtile-tilemap-viewer">
     <template>
@@ -20,12 +21,17 @@
 </dom-module>
 
 <script>
-    /* globals DTileRenderer */
+    /* globals DTileRenderer, untilLater */
     class DTileTilemapViewer extends Polymer.Element {
         static get is() { return "dtile-tilemap-viewer"; }
 
         static get properties() {
             return {
+                renderer: {
+                    type: Object,
+                    value: () => untilLater()
+                },
+
                 map: Object,
                 tilesets: Object,
 
@@ -39,6 +45,11 @@
 
                 selection: Array,
 
+                cameraBoundOffsetX1: { type: Number, value: 0 },
+                cameraBoundOffsetX2: { type: Number, value: 0 },
+                cameraBoundOffsetY1: { type: Number, value: 0 },
+                cameraBoundOffsetY2: { type: Number, value: 0 },
+
                 debugEnabled: Boolean,
                 profilingEnabled: Boolean
             };
@@ -50,6 +61,10 @@
                 "updateTilesets(tilesets)",
                 "updateCamera(panX, panY)",
                 "_showSelection(selection, map)",
+                `_setCameraBoundOffsets(
+                    cameraBoundOffsetX1, cameraBoundOffsetX2,
+                    cameraBoundOffsetY1, cameraBoundOffsetY2
+                )`,
                 "setRenderValues(outline, backdrop, map)",
                 "setDebug(debugEnabled, profilingEnabled)"
             ];
@@ -62,10 +77,15 @@
             // tell the renderer to disable it.
             if (window.mocha) DTileRenderer.enableTesting();
 
-            this.renderer = new DTileRenderer(this.$.renderer);
+            this.renderer = this.renderer.later(new DTileRenderer(this.$.renderer));
             this.debugEnabled = true;
             this.setDebug(this.debugEnabled);
             this._toUpdate = [];
+
+            this._setCameraBoundOffsets(
+                this.cameraBoundOffsetX1, this.cameraBoundOffsetX2,
+                this.cameraBoundOffsetY1, this.cameraBoundOffsetY2
+            );
 
             this.renderer.resetView();
             this._sizeListener = this.updateSize.bind(this);
@@ -95,7 +115,6 @@
         }
 
         updateSize() {
-            if (!this.renderer) return;
             this.renderer.updateRendererSize(
                 this.$.renderer.offsetWidth,
                 this.$.renderer.offsetHeight
@@ -104,17 +123,14 @@
         }
 
         updateMap(map) {
-            if (!this.renderer) return;
             this.renderer.updateMap(map);
         }
 
         updateTilesets(tilesets) {
-            if (!this.renderer) return;
             this.renderer.updateTilesets(tilesets);
         }
 
         setDebug(enabled, profiling) {
-            if (!this.renderer) return;
             this.renderer.debugMode = enabled;
             this.renderer.runProfile = profiling;
         }
@@ -126,6 +142,10 @@
                     this._renderScheduled = false;
                 });
             }
+        }
+
+        _setCameraBoundOffsets(x1, x2, y1, y2) {
+            this.renderer.setCameraBoundOffsets(x1, x2, y1, y2);
         }
 
         _setUpPointerEvents() {

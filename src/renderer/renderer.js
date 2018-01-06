@@ -59,6 +59,10 @@ export class Renderer {
         this._mapRenderer.tilesets = this._tilesets;
     }
 
+    setCameraBoundOffsets(x1, x2, y1, y2) {
+        this._cameraBoundOffsets = { x1, x2, y1, y2 };
+    }
+
     getTileXY(layer, mouseX, mouseY) {
         const ray = (() => {
             if (this.camera.isOrthographicCamera) {
@@ -116,12 +120,8 @@ export class Renderer {
     }
 
     pan(dx, dy) {
-        const cameraTopLeft = new Vector3(this.camera.left, this.camera.bottom, 0);
-        cameraTopLeft.add(this.camera.position);
-
-        const worldDelta = this._screenToWorldPosition(-dx, -dy);
-        worldDelta.sub(cameraTopLeft);
-        worldDelta.setZ(0);
+        const worldDelta = this._screenToWorldUnits(-dx, -dy);
+        console.log(worldDelta);
 
         this.camera.position.add(worldDelta);
 
@@ -154,9 +154,22 @@ export class Renderer {
             const cp = c.position;
             const hw = this._map.width / 2;
             const hh = this._map.height / 2;
+            const { x1, x2, y1, y2 } = (this._cameraBoundOffsets || {
+                x1: 0, x2: 0, y1: 0, y2: 0
+            });
+            const p1 = this._screenToWorldUnits(x1, y1);
+            const p2 = this._screenToWorldUnits(x2, y2);
             this.camera.position.set(
-                ThreeMath.clamp(cp.x, Math.min(-hw - c.left, 0), Math.max(hw - c.right, 0)),
-                ThreeMath.clamp(cp.y, Math.min(-hh - c.top, 0), Math.max(hh - c.bottom, 0)),
+                ThreeMath.clamp(
+                    cp.x,
+                    Math.min(-hw - c.left - p1.x, 0),
+                    Math.max(hw - c.right + p2.x, 0)
+                ),
+                ThreeMath.clamp(
+                    cp.y,
+                    Math.min(-hh - c.top - p1.y, 0),
+                    Math.max(hh - c.bottom + p2.y, 0)
+                ),
                 cp.z
             );
         }
@@ -173,6 +186,14 @@ export class Renderer {
         screen3D.unproject(this.camera);
 
         return screen3D;
+    }
+
+    _screenToWorldUnits(sx, sy) {
+        return new Vector3(
+            sx / this._width * (this.camera.right * 2),
+            -sy / this._height * (this.camera.right * 2),
+            0
+        );
     }
 
     printDebugInfo(consoleTimer) {
