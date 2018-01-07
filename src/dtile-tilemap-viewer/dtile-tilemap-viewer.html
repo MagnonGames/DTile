@@ -57,16 +57,15 @@
 
         static get observers() {
             return [
-                "updateMap(map)",
-                "updateTilesets(tilesets)",
-                "updateCamera(panX, panY)",
+                "_updateMap(map)",
+                "_updateTilesets(tilesets)",
                 "_showSelection(selection)",
                 `_setCameraBoundOffsets(
                     cameraBoundOffsetX1, cameraBoundOffsetX2,
                     cameraBoundOffsetY1, cameraBoundOffsetY2
                 )`,
-                "setRenderValues(outline, backdrop, map)",
-                "setDebug(debugEnabled, profilingEnabled)"
+                "_updateBackdrop(backdrop, map)",
+                "_setDebug(debugEnabled, profilingEnabled)"
             ];
         }
 
@@ -78,7 +77,7 @@
             if (window.mocha) DTileRenderer.enableTesting();
 
             this.renderer = this.renderer.later(new DTileRenderer(this.$.renderer));
-            this.setDebug(this.debugEnabled);
+            this._setDebug(this.debugEnabled);
             this._toUpdate = [];
 
             this._setCameraBoundOffsets(
@@ -89,6 +88,15 @@
             this.renderer.resetView();
             this._sizeListener = this.updateSize.bind(this);
             window.addEventListener("resize", this._sizeListener);
+
+            this._backdrop = this.renderer.createObject(
+                DTileRenderObjectType.CUBE,
+                {
+                    material: {
+                        color: 0x212121
+                    }
+                }
+            );
 
             this._setUpPointerEvents();
 
@@ -121,21 +129,6 @@
             this.render();
         }
 
-        updateMap(map) {
-            this.renderer.updateMap(map);
-            this.renderer.render();
-        }
-
-        updateTilesets(tilesets) {
-            this.renderer.updateTilesets(tilesets);
-            this.renderer.render();
-        }
-
-        setDebug(enabled, profiling) {
-            this.renderer.debugMode = enabled;
-            this.renderer.runProfile = profiling;
-        }
-
         render() {
             if (!this._renderScheduled) {
                 this._renderScheduled = true;
@@ -144,6 +137,21 @@
                     this._renderScheduled = false;
                 });
             }
+        }
+
+        _updateMap(map) {
+            this.renderer.updateMap(map);
+            this.renderer.render();
+        }
+
+        _updateTilesets(tilesets) {
+            this.renderer.updateTilesets(tilesets);
+            this.renderer.render();
+        }
+
+        _setDebug(enabled, profiling) {
+            this.renderer.debugMode = enabled;
+            this.renderer.runProfile = profiling;
         }
 
         _showSelection(selection = []) {
@@ -170,6 +178,17 @@
 
         _setCameraBoundOffsets(x1, x2, y1, y2) {
             this.renderer.setCameraBoundOffsets(x1, x2, y1, y2);
+        }
+
+        _updateBackdrop(useBackdrop, map) {
+            if (!this._backdrop) return;
+
+            if (useBackdrop) {
+                this._backdrop.mesh.visible = true;
+                this._backdrop.mesh.scale.set(map.width, map.height, 1);
+            } else {
+                this._backdrop.mesh.visible = false;
+            }
         }
 
         _setUpPointerEvents() {
