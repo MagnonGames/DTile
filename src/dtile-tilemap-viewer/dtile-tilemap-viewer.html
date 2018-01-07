@@ -21,7 +21,7 @@
 </dom-module>
 
 <script>
-    /* globals DTileRenderer, untilLater */
+    /* globals DTileRenderer, DTileRenderObjectType, untilLater */
     class DTileTilemapViewer extends Polymer.Element {
         static get is() { return "dtile-tilemap-viewer"; }
 
@@ -60,7 +60,7 @@
                 "updateMap(map)",
                 "updateTilesets(tilesets)",
                 "updateCamera(panX, panY)",
-                "_showSelection(selection, map)",
+                "_showSelection(selection)",
                 `_setCameraBoundOffsets(
                     cameraBoundOffsetX1, cameraBoundOffsetX2,
                     cameraBoundOffsetY1, cameraBoundOffsetY2
@@ -144,6 +144,28 @@
                     this._renderScheduled = false;
                 });
             }
+        }
+
+        _showSelection(selection = []) {
+            if (this._selectionObjects) {
+                this._selectionObjects.forEach(o => o.removeSelf());
+            }
+
+            this._selectionObjects = selection.map(({ x, y }) => {
+                return this.renderer.createObject(
+                    DTileRenderObjectType.CUBE,
+                    {
+                        x, y, z: -1,
+                        material: {
+                            color: 0x00e5ff,
+                            opacity: 0.3,
+                            transparent: true
+                        }
+                    }
+                );
+            });
+
+            this.render();
         }
 
         _setCameraBoundOffsets(x1, x2, y1, y2) {

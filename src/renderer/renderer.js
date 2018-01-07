@@ -4,6 +4,9 @@ import {
 
 import MapRenderer from "./map-renderer.js";
 import Tileset from "./tileset.js";
+import { RenderObject } from "./object.js";
+
+export { ObjectType } from "./object.js";
 
 let testing = false;
 
@@ -85,6 +88,17 @@ export class Renderer {
 
     setGhosts(ghosts) {
         this._mapRenderer.setGhosts(ghosts);
+    }
+
+    createObject(type, params) {
+        const [mapWidth, mapHeight] = (() => {
+            if (this._map) return [this._map.width, this._map.height];
+            else return [0, 0];
+        })();
+
+        params.x -= mapWidth / 2 - 0.5;
+        params.y = -params.y + mapHeight / 2 - 0.5;
+        return new RenderObject(type, params, this.scene);
     }
 
     updateRendererSize(width, height) {
