@@ -1,7 +1,7 @@
 # DTile - The tilemap editor for everyone
-[![Build Status](https://travis-ci.org/theMagnon/DTile.svg?branch=master)](https://travis-ci.org/theMagnon/DTile)
-[![dependencies Status](https://david-dm.org/theMagnon/DTile/status.svg)](https://david-dm.org/theMagnon/DTile)
-[![devDependencies Status](https://david-dm.org/theMagnon/DTile/dev-status.svg)](https://david-dm.org/theMagnon/DTile?type=dev)
+[![Build Status](https://travis-ci.org/MagnonGames/DTile.svg?branch=master)](https://travis-ci.org/MagnonGames/DTile)
+[![dependencies Status](https://david-dm.org/MagnonGames/DTile/status.svg)](https://david-dm.org/MagnonGames/DTile)
+[![devDependencies Status](https://david-dm.org/MagnonGames/DTile/dev-status.svg)](https://david-dm.org/MagnonGames/DTile?type=dev)
 
 DTile aims to be the best tilemap editor available today. It runs in your browser
 (right now only Chrome) and has the ability to adapt to what you need it to do.
