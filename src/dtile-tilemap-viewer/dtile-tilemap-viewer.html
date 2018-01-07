@@ -123,10 +123,12 @@
 
         updateMap(map) {
             this.renderer.updateMap(map);
+            this.renderer.render();
         }
 
         updateTilesets(tilesets) {
             this.renderer.updateTilesets(tilesets);
+            this.renderer.render();
         }
 
         setDebug(enabled, profiling) {
@@ -136,6 +138,7 @@
 
         render() {
             if (!this._renderScheduled) {
+                this._renderScheduled = true;
                 requestAnimationFrame(() => {
                     this.renderer.render();
                     this._renderScheduled = false;

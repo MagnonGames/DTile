@@ -40,13 +40,7 @@ export class Renderer {
     }
 
     async updateMap(map) {
-        if (
-            !this._map ||
-            this._map.width !== map.width ||
-            this._map.height !== map.height
-        ) {
-            this._mapRenderer.map = map;
-        }
+        this._mapRenderer.map = map;
 
         this._map = map;
     }
