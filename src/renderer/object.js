@@ -1,9 +1,10 @@
 import {
-    BoxGeometry, MeshBasicMaterial, Mesh
+    BoxGeometry, PlaneGeometry, MeshBasicMaterial, ShaderMaterial, Mesh
 } from "../../node_modules/three/build/three.module.js";
 
 export const ObjectType = {
-    CUBE: "cube"
+    CUBE: "cube",
+    PLANE: "plane"
 };
 
 export class RenderObject {
@@ -24,10 +25,19 @@ export class RenderObject {
                     ),
                     MeshBasicMaterial
                 ];
+            } else if (type === ObjectType.PLANE) {
+                const {
+                    width, height, widthSegments, heightSegments
+                } = (params.geometry || {});
+
+                return [
+                    new PlaneGeometry(width, height, widthSegments, heightSegments),
+                    MeshBasicMaterial
+                ];
             }
         })();
 
-        const material = new Material(params.material);
+        const material = new (params.useShaderMaterial ? ShaderMaterial : Material)(params.material);
 
         this._mesh = new Mesh(geometry, material);
 

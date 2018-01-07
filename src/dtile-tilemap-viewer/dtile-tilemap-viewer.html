@@ -65,6 +65,7 @@
                     cameraBoundOffsetY1, cameraBoundOffsetY2
                 )`,
                 "_updateBackdrop(backdrop, map)",
+                "_updateOutline(outline, map)",
                 "_setDebug(debugEnabled, profilingEnabled)"
             ];
         }
@@ -94,6 +95,46 @@
                 {
                     material: {
                         color: 0x212121
+                    }
+                }
+            );
+
+            this._outline = this.renderer.createObject(
+                DTileRenderObjectType.PLANE,
+                {
+                    z: -0.5,
+                    useShaderMaterial: true,
+                    material: {
+                        vertexShader: `
+                        varying vec2 vertexPosition;
+
+                        void main() {
+                            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                            vertexPosition = (vec4(position, 1.0) * modelMatrix).xy;
+                        }
+                        `,
+                        fragmentShader: `
+                        varying vec2 vertexPosition;
+
+                        vec4 line() {
+                            // Credit goes here: http://madebyevan.com/shaders/grid/
+                            // Only a few modifications were made to size it correctly.
+                            vec2 coord = vertexPosition;
+
+                            vec2 grid = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
+                            float line = min(grid.x, grid.y);
+
+                            return vec4(vec3(1.0), 1.0 - min(line, 1.0));
+                        }
+
+                        void main() {
+                            gl_FragColor = line();
+                        }
+                        `,
+                        extensions: {
+                            derivatives: true
+                        },
+                        transparent: true
                     }
                 }
             );
@@ -189,6 +230,21 @@
             } else {
                 this._backdrop.mesh.visible = false;
             }
+
+            this.renderer.render();
+        }
+
+        _updateOutline(useOutline, map) {
+            if (!this._outline) return;
+
+            if (useOutline) {
+                this._outline.mesh.visible = true;
+                this._outline.mesh.scale.set(map.width, map.height, 1);
+            } else {
+                this._outline.mesh.visible = false;
+            }
+
+            this.renderer.render();
         }
 
         _setUpPointerEvents() {
