@@ -53,7 +53,8 @@ gulp.task("pre-build", ["clean"], () => {
                 }).then(bundle => bundle.write({
                     file: `./build-temp/built/${name}.js`,
                     format: "iife",
-                    name: `b${name}`
+                    name: `b${name}`,
+                    exports: "named"
                 }));
 
                 return `<script src="${"../".repeat(foldersDeep)}built/${name}.js">`;
