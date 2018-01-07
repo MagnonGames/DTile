@@ -5,8 +5,15 @@ import {
 export default class MapRenderer {
     constructor(tilesets, group) {
         this._tilesets = tilesets;
+
         this.layers = [];
         this.group = group;
+
+        this._mapGroup = new Group();
+        this._ghostGroup = new Group();
+
+        this.group.add(this._mapGroup);
+        this.group.add(this._ghostGroup);
     }
 
     set map(mapInfo) {
@@ -41,33 +48,84 @@ export default class MapRenderer {
         }
     }
 
+    setGhosts(ghosts) {
+        this._ghostGroup.children = [];
+
+        this._map.layers.forEach((l, layerIndex) => l.tiles.forEach((tile, tileIndex) => {
+            const ghost = (ghosts[layerIndex] || [])[tileIndex];
+            const tileMesh = this._mapGroup.children[layerIndex].children
+                .find(tileMesh => tileMesh.name === tileIndex);
+
+            const ghostDefined = ghost && ghost.tilesetId >= 0 && ghost.tileId >= 0;
+
+            if (ghostDefined) {
+                const ghostDifferent =
+                    !tile ||
+                    ghost.tilesetId !== tile.tilesetId ||
+                    ghost.tileId !== tile.tileId;
+
+                if (ghostDifferent) {
+                    if (tileMesh) {
+                        tileMesh.visible = false;
+                    }
+
+                    const mesh = this._getTileMesh(
+                        ghost.tilesetId,
+                        ghost.tileId,
+                        tileIndex
+                    );
+                    if (mesh) {
+                        mesh.material = mesh.material.clone();
+                        mesh.material.opacity = 0.7;
+
+                        this._ghostGroup.add(mesh);
+
+                        return;
+                    }
+                }
+            }
+            if (tileMesh) {
+                tileMesh.visible = true;
+            }
+        }));
+    }
+
     _regenerateMeshes() {
         if (!this._map || !this._tilesets) return;
 
-        const { width, height } = this._map;
-
-        this.layers = this._map.layers.map(layer => {
+        this.layers = this._map.layers.map((layer, layerIndex) => {
             const group = new Group();
 
             layer.tiles.forEach(({ tileId, tilesetId }, i) => {
-                const x = Math.floor(i % width);
-                const y = Math.floor(i / width);
-
-                const tileset = this._tilesets[tilesetId];
-                if (!tileset) return;
-                const tileMesh = tileset.meshes[tileId];
-                if (!tileMesh) return;
-                const mesh = tileMesh.clone();
-
-                mesh.position.set(x - width / 2 + 0.5, (-y + height) - height / 2 - 0.5, 0);
-
-                group.add(mesh);
+                const mesh = this._getTileMesh(tilesetId, tileId, i);
+                if (mesh) {
+                    mesh.name = i;
+                    group.add(mesh);
+                }
             });
 
             return group;
         });
 
-        this.group.children = [];
-        this.layers.forEach(layer => this.group.add(layer));
+        this._mapGroup.remove(...this._mapGroup.children);
+        this.layers.forEach(layer => this._mapGroup.add(layer));
+    }
+
+    _getTileMesh(tilesetId, tileId, mapTileIndex) {
+        const tileset = this._tilesets[tilesetId];
+        if (!tileset) return;
+        const tileMesh = tileset.meshes[tileId];
+        if (!tileMesh) return;
+        const mesh = tileMesh.clone();
+
+        const width = parseInt(this._map.width);
+        const height = parseInt(this._map.height);
+
+        const x = Math.floor(mapTileIndex % width);
+        const y = Math.floor(mapTileIndex / width);
+
+        mesh.position.set(x - width / 2 + 0.5, (-y + height) - height / 2 - 0.5, 0);
+
+        return mesh;
     }
 }

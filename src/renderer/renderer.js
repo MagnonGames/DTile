@@ -89,6 +89,10 @@ export class Renderer {
         }
     }
 
+    setGhosts(ghosts) {
+        this._mapRenderer.setGhosts(ghosts);
+    }
+
     updateRendererSize(width, height) {
         if (!testing) {
             this.renderer.setSize(width, height);
