@@ -86,8 +86,7 @@
                 if (!(isLayer || isObject)) return state;
                 const type = isLayer ? "layers" : isObject ? "objects" : "";
                 const reducer = type === "layers" ? layers
-                    : type === "objects" ? objects
-                    : null;
+                    : type === "objects" ? objects : null;
 
                 return {
                     ...state,

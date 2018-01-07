@@ -152,7 +152,7 @@
         ready() {
             super.ready();
 
-            this.addEventListener("dtile-file-import", async ({ detail: { files }}) => {
+            this.addEventListener("dtile-file-import", async({ detail: { files }}) => {
                 for (let file of files) {
                     const bytes = new Uint8Array(await DTile.utils.readFileAsArrayBuffer(file));
                     const data = await pako.ungzip(bytes);
@@ -256,7 +256,7 @@
 
             const tilesetIdToIndexMap = new Map();
 
-            const tilesets = await Promise.all(project.tilesetIds.map(async (id, index) => {
+            const tilesets = await Promise.all(project.tilesetIds.map(async(id, index) => {
                 tilesetIdToIndexMap.set(id, index);
 
                 const tileset = state.entities.tilesets[id];

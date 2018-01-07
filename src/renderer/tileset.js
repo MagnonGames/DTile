@@ -50,8 +50,8 @@ function getUv(id, imageWidth, imageHeight, tileWidth, tileHeight) {
     for (let ly = y; ly < y + 2; ly++) {
         for (let lx = x; lx < x + 2; lx++) {
             quad.push(new Vector2(
-               lx * tileWidth / imageWidth,
-               ly * tileHeight / imageHeight * -1 + 1
+                lx * tileWidth / imageWidth,
+                ly * tileHeight / imageHeight * -1 + 1
             ));
         }
     }

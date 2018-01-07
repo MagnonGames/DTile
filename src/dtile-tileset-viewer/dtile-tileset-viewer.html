@@ -56,12 +56,12 @@
 
             const viewer = this.$["tileset-map-viewer"];
 
-            const dispatchSelection = selection =>
+            const dispatchSelection = selection => {
                 this.dispatchEvent(new CustomEvent("tileset-selection", {
                     detail: selection,
                     bubbles: true
-                })
-            );
+                }));
+            };
 
             viewer.addEventListener("tile-tap", e => {
                 dispatchSelection([{ x: e.detail.tileX, y: e.detail.tileY, layer: 0 }]);

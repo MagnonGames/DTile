@@ -7,7 +7,7 @@
             this.attemptedResotre = false;
             this.unsavedChanges = false;
 
-            (async () => {
+            (async() => {
                 DTile.status.actionInitiated();
                 await this.restore();
                 DTile.status.actionFinished();
@@ -24,7 +24,7 @@
 
                 if (this.timeout) clearTimeout(this.timeout);
 
-                this.timeout = setTimeout(async () => {
+                this.timeout = setTimeout(async() => {
                     DTile.status.actionInitiated();
                     await this.save();
                     setTimeout(() => {

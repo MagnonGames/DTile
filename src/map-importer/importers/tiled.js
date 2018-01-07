@@ -104,7 +104,7 @@
         }
 
         static async importTilesets(map, importedTilesetUrls) {
-            return await Promise.all(map.tilesets.map(async (tileset, id) => {
+            return await Promise.all(map.tilesets.map(async(tileset, id) => {
                 if (importedTilesetUrls[id]) tileset.url = importedTilesetUrls[id];
                 const imageBlob = await (await fetch(tileset.url)).blob();
 

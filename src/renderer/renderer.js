@@ -50,7 +50,7 @@ export class Renderer {
 
     async updateTilesets(tilesets) {
         this._tilesets = {};
-        await Promise.all(Object.entries(tilesets).map(async ([id, tileset]) => {
+        await Promise.all(Object.entries(tilesets).map(async([id, tileset]) => {
             this._tilesets[id] = await Tileset.load(tileset);
         }));
         this._mapRenderer.tilesets = this._tilesets;
