@@ -17,7 +17,7 @@ export default class Tileset {
 
         for (let i = 0; i < width * height; i++) {
             const geometry = new PlaneGeometry(1, 1);
-            geometry.faceVertexUvs = [getUv(i, imageWidth, imageHeight, tileWidth, tileHeight)];
+            geometry.faceVertexUvs = [getTileUv(i, imageWidth, imageHeight, tileWidth, tileHeight)];
             geometry.uvsNeedUpdate = true;
             const material = new MeshBasicMaterial({
                 map: this.texture,
@@ -39,7 +39,7 @@ export default class Tileset {
     }
 }
 
-function getUv(id, imageWidth, imageHeight, tileWidth, tileHeight) {
+export function getTileUv(id, imageWidth, imageHeight, tileWidth, tileHeight) {
     const quad = [];
 
     const wide = Math.floor(imageWidth / tileWidth);

@@ -60,6 +60,7 @@
                 "_updateMap(map)",
                 "_updateTilesets(tilesets)",
                 "_showSelection(selection)",
+                "_showObjects(map.objects)",
                 `_setCameraBoundOffsets(
                     cameraBoundOffsetX1, cameraBoundOffsetX2,
                     cameraBoundOffsetY1, cameraBoundOffsetY2
@@ -217,6 +218,32 @@
             this.render();
         }
 
+        _showObjects(objects = []) {
+            if (this._objectObjects) {
+                this._objectObjects.forEach(o => o.removeSelf());
+            }
+
+            this._objectObjects = objects.map(({ x, y, width, height }) => {
+                return this.renderer.createObject(
+                    DTileRenderObjectType.PLANE,
+                    {
+                        x, y, z: -3, width, height,
+                        material: {
+                            map: {
+                                texture: "/img/sprites.png",
+                                textureSize: [512, 512],
+                                gridSize: [32, 32],
+                                subSprite: 0
+                            },
+                            transparent: true
+                        }
+                    }
+                );
+            });
+
+            this.render();
+        }
+
         _setCameraBoundOffsets(x1, x2, y1, y2) {
             this.renderer.setCameraBoundOffsets(x1, x2, y1, y2);
         }
@@ -225,10 +252,10 @@
             if (!this._backdrop) return;
 
             if (useBackdrop) {
-                this._backdrop.mesh.visible = true;
-                this._backdrop.mesh.scale.set(map.width, map.height, 1);
+                this._backdrop.object3D.visible = true;
+                this._backdrop.object3D.scale.set(map.width, map.height, 1);
             } else {
-                this._backdrop.mesh.visible = false;
+                this._backdrop.object3D.visible = false;
             }
 
             this.renderer.render();
@@ -238,10 +265,10 @@
             if (!this._outline) return;
 
             if (useOutline) {
-                this._outline.mesh.visible = true;
-                this._outline.mesh.scale.set(map.width, map.height, 1);
+                this._outline.object3D.visible = true;
+                this._outline.object3D.scale.set(map.width, map.height, 1);
             } else {
-                this._outline.mesh.visible = false;
+                this._outline.object3D.visible = false;
             }
 
             this.renderer.render();
