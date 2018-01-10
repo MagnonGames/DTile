@@ -42,9 +42,9 @@
                 };
 
             case "MODIFY_TILESET_TILE_META":
-                const tileMeta = { ...state.tileMeta };
+                const tileMeta = { ...state[action.payload.tilesetId].tileMeta };
                 action.payload.tileIds.forEach(tileId => {
-                    tileMeta[tileId] = action.payload.meta;
+                    tileMeta[`${tileId}`] = { ...action.payload.meta };
                 });
                 return {
                     ...state,
