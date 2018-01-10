@@ -202,7 +202,7 @@ export class Renderer {
     _screenToWorldUnits(sx, sy) {
         return new Vector3(
             sx / this._width * (this.camera.right * 2),
-            -sy / this._height * (this.camera.right * 2),
+            -sy / this._height * (this.camera.bottom * 2),
             0
         );
     }
