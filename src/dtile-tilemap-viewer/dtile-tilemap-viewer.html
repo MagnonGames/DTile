@@ -336,12 +336,16 @@
                     e.stopPropagation();
                     e.preventDefault();
 
-                    if (!mouseMoved) {
-                        this.dispatchEvent(buildEvent("tile-track", startEvent, { state: "start" }));
+                    if (e.buttons !== 4) {
+                        if (!mouseMoved) {
+                            this.dispatchEvent(buildEvent("tile-track", startEvent, { state: "start" }));
+                            mouseMoved = true;
+                        }
+
+                        this.dispatchEvent(buildEvent("tile-track", e, { state: "track" }));
+                    } else {
                         mouseMoved = true;
                     }
-
-                    this.dispatchEvent(buildEvent("tile-track", e, { state: "track" }));
                 } else {
                     // Event not stopped because other parts may want to know
                     // mouse movement too.
