@@ -15,16 +15,39 @@ export default class Tileset {
         const width = Math.floor(imageWidth / tileWidth);
         const height = Math.floor(imageHeight / tileHeight);
 
-        for (let i = 0; i < width * height; i++) {
-            const geometry = new PlaneGeometry(1, 1);
-            geometry.faceVertexUvs = [getTileUv(i, imageWidth, imageHeight, tileWidth, tileHeight)];
-            geometry.uvsNeedUpdate = true;
-            const material = new MeshBasicMaterial({
-                map: this.texture,
-                transparent: true
-            });
+        const img = this.texture.image;
+        const canvas = document.createElement("canvas");
+        canvas.width = imageWidth;
+        canvas.height = imageHeight;
+        const c = canvas.getContext("2d");
+        c.drawImage(img, 0, 0, imageWidth, imageHeight);
 
-            this.meshes[i] = new Mesh(geometry, material);
+        const isTileTransparent = (id) => {
+            const x = id % width * tileWidth;
+            const y = id / width * tileHeight;
+            const data = c.getImageData(x, y, tileWidth, tileHeight).data;
+            if (id === 0) console.log(data);
+            for (let i = 0; i < data.length / 4; i++) {
+                const index = i * 4 + 3;
+                if (data[index] !== 0) return false;
+            }
+            return true;
+        };
+
+        for (let i = 0; i < width * height; i++) {
+            if (!isTileTransparent(i)) {
+                const geometry = new PlaneGeometry(1, 1);
+                geometry.faceVertexUvs = [getTileUv(i, imageWidth, imageHeight, tileWidth, tileHeight)];
+                geometry.uvsNeedUpdate = true;
+                const material = new MeshBasicMaterial({
+                    map: this.texture,
+                    transparent: true
+                });
+
+                this.meshes[i] = new Mesh(geometry, material);
+            } else {
+                this.meshes[i] = false;
+            }
         }
     }
 
