@@ -49,11 +49,26 @@ export class Renderer {
     }
 
     async updateTilesets(tilesets) {
-        this._tilesets = {};
+        let changed = !this._previousTilesets;
+
         await Promise.all(Object.entries(tilesets).map(async([id, tileset]) => {
-            this._tilesets[id] = await Tileset.load(tileset);
+            if (!this._previousTilesets || this._previousTilesets[id] !== tileset) {
+                this._tilesets[id] = await Tileset.load(tileset);
+                changed = true;
+            }
         }));
-        this._mapRenderer.tilesets = this._tilesets;
+        Object.keys(this._previousTilesets || {}).forEach(id => {
+            if (!tilesets[id]) {
+                this._tilesets[id] = null;
+                changed = true;
+            }
+        });
+
+        this._previousTilesets = tilesets;
+
+        if (changed) {
+            this._mapRenderer.tilesets = this._tilesets;
+        }
     }
 
     setCameraBoundOffsets(x1, x2, y1, y2) {

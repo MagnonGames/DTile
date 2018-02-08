@@ -26,7 +26,6 @@ export default class Tileset {
             const x = id % width * tileWidth;
             const y = id / width * tileHeight;
             const data = c.getImageData(x, y, tileWidth, tileHeight).data;
-            if (id === 0) console.log(data);
             for (let i = 0; i < data.length / 4; i++) {
                 const index = i * 4 + 3;
                 if (data[index] !== 0) return false;

@@ -17,6 +17,7 @@ export default class MapRenderer {
     }
 
     set map(mapInfo) {
+        this._previousMap = this._map;
         this._map = mapInfo;
 
         this._regenerateMeshes();
@@ -25,7 +26,7 @@ export default class MapRenderer {
     set tilesets(tilesets) {
         this._tilesets = tilesets;
 
-        this._regenerateMeshes();
+        this._regenerateMeshes(true);
     }
 
     // Returns tile { x, y } or null
@@ -90,25 +91,30 @@ export default class MapRenderer {
         }));
     }
 
-    _regenerateMeshes() {
+    _regenerateMeshes(force) {
         if (!this._map || !this._tilesets) return;
+        force = force || !this._previousMap;
 
-        this.layers = this._map.layers.map((layer, layerIndex) => {
-            const group = new Group();
+        const layers = this._map.layers.map((layer, index) => {
+            if (force || layer !== this._previousMap.layers[index]) {
+                const group = new Group();
 
-            layer.tiles.forEach(({ tileId, tilesetId }, i) => {
-                const mesh = this._getTileMesh(tilesetId, tileId, i);
-                if (mesh) {
-                    mesh.name = i;
-                    group.add(mesh);
-                }
-            });
+                layer.tiles.forEach(({ tileId, tilesetId }, i) => {
+                    const mesh = this._getTileMesh(tilesetId, tileId, i);
+                    if (mesh) {
+                        mesh.name = i;
+                        group.add(mesh);
+                    }
+                });
 
-            return group;
+                return group;
+            } else {
+                return this._mapGroup.children[index];
+            }
         });
 
         this._mapGroup.remove(...this._mapGroup.children);
-        this.layers.forEach(layer => this._mapGroup.add(layer));
+        this._mapGroup.add(...layers);
     }
 
     _getTileMesh(tilesetId, tileId, mapTileIndex) {
