@@ -94,7 +94,7 @@
         }
 
         async _generateTilesetMap(tilesetId, tilesets) {
-            if (!tilesetId || !tilesets) return;
+            if (tilesetId === undefined || tilesets === undefined) return;
             this.tilesetMap = await generateTilesetMap(tilesetId, tilesets[tilesetId]);
         }
 
