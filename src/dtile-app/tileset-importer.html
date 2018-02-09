@@ -61,7 +61,7 @@
 
             <div id="actions">
                 <paper-button on-tap="_return">Cancel</paper-button>
-                <paper-button on-tap="_import">Import to [[_currentProjectName]]</paper-button>
+                <paper-button on-tap="_import">[[importText]]</paper-button>
             </div>
         </div>
     </template>
@@ -87,7 +87,8 @@
                 tileHeight: { type: Number, value: 16 },
                 imageUrl: String,
 
-                updatingTileset: { type: Number, value: null }
+                updatingTileset: { type: Number, value: null },
+                importText: { type: String, computed: "_getImportText(updatingTileset, _currentProjectName)" }
             };
         }
 
@@ -123,9 +124,9 @@
         async _import() {
             const state = this.getState();
             const tilesets = state.entities.tilesets;
-            const tilesetId = !this.updatingTileset
-                ? DTile.stateHelpers.lastId(tilesets)
-                : this.updatingTileset;
+            const tilesetId = this._updatingTileset()
+                ? this.updatingTileset
+                : DTile.stateHelpers.lastId(tilesets);
 
             const tileset = {
                 name: this.tilesetName,
@@ -133,7 +134,8 @@
                 tileWidth: this.tileWidth,
                 tileHeight: this.tileHeight,
                 url: this.imageUrl,
-                meta: this.updatingTileset ? tilesets[tilesetId].meta : {}
+                meta: this._updatingTileset() ? tilesets[tilesetId].meta : {},
+                tileMeta: this._updatingTileset() ? tilesets[tilesetId].tileMeta : {}
             };
 
             DTile.storage.addTilesetImage(tilesetId, this.imageUrl);
@@ -153,6 +155,18 @@
 
         _imageLoaded(url) {
             return Boolean(url);
+        }
+
+        _updatingTileset() {
+            return this.updatingTileset !== null;
+        }
+
+        _getImportText() {
+            if (this._updatingTileset()) {
+                return "Update";
+            } else {
+                return `Import to ${this._currentProjectName}`;
+            }
         }
     }
 

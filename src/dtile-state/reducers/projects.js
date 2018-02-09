@@ -53,6 +53,9 @@
 
             case "ADD_TILESET_TO_PROJECT":
                 const addTilesetProject = state[action.payload.projectId];
+                if (addTilesetProject.tilesetIds.includes(action.payload.tilesetId)) {
+                    return state;
+                }
                 return {
                     ...state,
                     [action.payload.projectId]: {

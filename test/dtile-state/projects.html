@@ -124,6 +124,16 @@
                         }));
                         expect(state()[id].tilesetIds).to.include(99);
                     });
+
+                    it("doesn't add if ID already exists", () => {
+                        const a = action("ADD_TILESET_TO_PROJECT", {
+                            projectId: id,
+                            tilesetId: 5
+                        });
+                        DTile.store.dispatch(a);
+                        DTile.store.dispatch(a);
+                        expect(state()[id].tilesetIds).to.deep.equal([5]);
+                    });
                 });
 
                 describe("REMOVE_TILESET_FROM_PROJECT", () => {
