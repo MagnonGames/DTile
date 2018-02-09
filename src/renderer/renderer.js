@@ -147,7 +147,7 @@ export class Renderer {
     }
 
     pan(dx, dy) {
-        const worldDelta = this._screenToWorldUnits(-dx, -dy);
+        const worldDelta = this._screenToWorldUnits(dx, dy);
 
         this.camera.position.add(worldDelta);
 
