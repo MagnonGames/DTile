@@ -16,7 +16,11 @@
             canvas.width = mapWidth * tileWidth;
             canvas.height = mapHeight * tileHeight;
 
-            const tilesets = await Promise.all(currentProject.tilesetIds.map(id => {
+            const tilesetIdMap = new Map();
+
+            const tilesets = await Promise.all(currentProject.tilesetIds.map((id, index) => {
+                tilesetIdMap.set(id, index);
+
                 const img = new Image();
                 const tileset = state.entities.tilesets[id];
                 const promise = new Promise((resolve, reject) => {
@@ -35,7 +39,7 @@
                 layer.tiles.forEach(({ tileId, tilesetId }, i) => {
                     if (tileId < 0 || tilesetId < 0) return;
 
-                    const { img, size: [tw, th] } = tilesets[tilesetId];
+                    const { img, size: [tw, th] } = tilesets[tilesetIdMap.get(tilesetId)];
 
                     const tilesHorizontal = img.naturalWidth / tileWidth;
 
