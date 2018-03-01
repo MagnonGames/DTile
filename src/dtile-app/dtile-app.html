@@ -143,6 +143,10 @@
                 this.$["meta-editor"].prepare();
                 metaEditorDialog.open();
             });
+
+            if (location.hash === "#r") {
+                window.history.back();
+            }
         }
 
         _metaDialogClose(e) {
@@ -240,4 +244,10 @@
     }
 
     customElements.define(DTileApp.is, DTileApp);
+
+    /* Reload function for easy debug reloading (not quite HMR though) */
+    // eslint-disable-next-line no-unused-vars
+    function r() {
+        window.location.href = "/#r";
+    }
 </script>
