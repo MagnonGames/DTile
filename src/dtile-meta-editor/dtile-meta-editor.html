@@ -193,7 +193,7 @@
         }
 
         buildMeta() {
-            const meta = {};
+            const meta = this.meta;
 
             this._publicMeta.forEach(({ key, value }) => {
                 meta[key] = value;
@@ -207,6 +207,12 @@
                 Object.entries(pluginMeta).forEach(([key, value]) => {
                     meta[key] = value;
                 });
+            });
+
+            Object.entries(meta).forEach(([key, value]) => {
+                if (value === null || value === undefined) {
+                    delete meta[key];
+                }
             });
 
             return meta;
