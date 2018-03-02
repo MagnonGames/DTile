@@ -29,4 +29,29 @@
 
         return promise;
     };
+
+    window.DTile.utils.autotiles = {
+        tileMapping: {
+            0: 4, 2: 23, 8: 7, 10: 47, 11: 43, 16: 1, 18: 40, 22: 44, 24: 41,
+            26: 33, 27: 46, 30: 42, 31: 45, 64: 31, 66: 39, 72: 15, 74: 26,
+            75: 22, 80: 8, 82: 32, 86: 24, 88: 9, 90: 18, 91: 25,
+            94: 10, 95: 21, 104: 3, 106: 30, 107: 38, 120: 6, 122: 17,
+            123: 14, 126: 35, 127: 20, 208: 5, 210: 16, 214: 27, 216: 2,
+            218: 34, 219: 11, 222: 19, 223: 36, 248: 12, 250: 29, 251: 28,
+            254: 13, 255: 37
+        },
+
+        getId(tl, tr, bl, br, t, r, b, l) {
+            if (tl && (!t || !l)) tl = false;
+            if (tr && (!t || !r)) tr = false;
+            if (bl && (!b || !l)) bl = false;
+            if (br && (!b || !r)) br = false;
+
+            const index = parseInt(
+                1 * tl + 2 * t + 4 * tr + 8 * l +
+                16 * r + 32 * bl + 64 * b + 128 * br
+            );
+            return window.DTile.utils.autotiles.tileMapping[index];
+        }
+    };
 </script>

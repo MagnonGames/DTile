@@ -1,0 +1,86 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="dtile-simple-tile-selector">
+    <template>
+        <style>
+            #backdrop {
+                z-index: 100000;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: block;
+                width: 100vw;
+                height: 100vh;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+            }
+
+            #container {
+                z-index: 100001;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                margin: auto;
+                background: var(--page-background-color);
+            }
+        </style>
+
+        <span id="backdrop"></span>
+        <div id="container">
+            <img id="tiles" src="[[tileset.url]]"></img>
+        </div>
+    </template>
+</dom-module>
+
+<script>
+    class DTileSimpleTileSelector extends Polymer.Element {
+        static get is() { return "dtile-simple-tile-selector"; }
+
+        static get properties() {
+            return {
+                tileset: Object,
+                open: { type: Boolean, value: false },
+                tileId: Number
+            };
+        }
+
+        static get observers() {
+            return [
+                "_setOpen(open)"
+            ];
+        }
+
+        ready() {
+            super.ready();
+
+            this.$.tiles.addEventListener("load", () => {
+                const { naturalWidth, naturalHeight } = this.$.tiles;
+                this.$.container.style.width = `${naturalWidth}px`;
+                this.$.container.style.height = `${naturalHeight}px`;
+            });
+
+            this.$.tiles.addEventListener("click", e => {
+                const f = Math.floor;
+                const { top, left } = this.$.tiles.getBoundingClientRect();
+                const x = f((f(e.clientX) - f(left)) / this.tileset.tileWidth);
+                const y = f((f(e.clientY) - f(top)) / this.tileset.tileHeight);
+                this.tileId = x + y * f(this.$.tiles.naturalWidth / this.tileset.tileWidth);
+
+                this.dispatchEvent(new CustomEvent("simpleselectorselectedtile", {
+                    composed: true,
+                    bubbles: true,
+                    detail: {
+                        tileId: this.tileId
+                    }
+                }));
+            });
+
+            this.$.backdrop.addEventListener("click", () => {
+                this.open = false;
+            });
+        }
+
+        _setOpen(open) {
+            this.style.display = open ? "block" : "none";
+        }
+    }
+
+    customElements.define(DTileSimpleTileSelector.is, DTileSimpleTileSelector);
+</script>

@@ -1,0 +1,315 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../dtile-tile-viewer/dtile-tile-viewer.html">
+<link rel="import" href="../dtile-simple-tile-selector/dtile-simple-tile-selector.html">
+
+<dom-module id="dtile-autotiles-manager">
+    <template>
+        <style>
+            #manager {
+                height: 50vh;
+                overflow-y: scroll;
+            }
+
+            #build-hint {
+                max-width: 50vw;
+                text-align: center;
+            }
+
+            .row {
+                display: flex;
+                align-items: center;
+            }
+
+            #from-selection-button {
+                background: var(--default-primary-color);
+                color: black;
+            }
+
+            #dropdown {
+                flex-grow: 1;
+                /*position: relative;
+                top: -7px;*/
+                margin: 0 10px;
+            }
+
+            .padding {
+                padding: 0 24px;
+            }
+        </style>
+
+        <dtile-simple-tile-selector
+            id="selector"
+            tileset="[[tileset]]">
+        </dtile-simple-tile-selector>
+
+        <div id="header">
+            <div id="build-hint" class="padding">
+                <template is="dom-if" if="[[hasSelection]]">
+                    <p>
+                        You can try building an autotile group from the current
+                        selection. This feature is mostly a preview and such
+                        requires your tiles to be made in a way where there are
+                        transparent areas that the detector can detect.
+                    </p>
+                    <paper-button id="from-selection-button" on-tap="_buildFromSelection" raised>
+                        Try building from selection
+                    </paper-button>
+                </template>
+            </div>
+            <div class="row padding">
+                <paper-icon-button icon="add" on-tap="_createGroup">Create group</paper-icon-button>
+                <paper-dropdown-menu
+                    id="dropdown"
+                    label="Autotile Group"
+                    selected-item-label="_getCurrentGroupName(groups.*, _selectedGroupIndex)">
+                    <paper-listbox slot="dropdown-content" selected="{{_selectedGroupIndex}}">
+                        <template id="groups" is="dom-repeat" items="[[groups]]">
+                            <paper-item>[[item.name]]</paper-item>
+                        </template>
+                    </paper-listbox>
+                </paper-dropdown-menu>
+                <paper-icon-button icon="delete" on-tap="_removeGroup">Remove group</paper-icon-button>
+                <paper-icon-button icon="create" on-tap="_renameGroup">Rename group</paper-icon-button>
+            </div>
+        </div>
+        <template is="dom-if" if="[[_hasGroup(groups.*, _selectedGroupIndex)]]">
+            <div id="manager" class="padding">
+                <template is="dom-repeat" items="[[_tileCombinations]]">
+                    <h4>Connecting to [[item]]</h4>
+                    <dtile-tile-viewer
+                        tileset="[[tileset]]"
+                        tile-id="[[_getTileId(index, _selectedGroupIndex, gourps, groups.*)]]"
+                        on-tap="_openSelector">
+                    </dtile-tile-viewer>
+                </template>
+            </div>
+        </template>
+    </template>
+</dom-module>
+
+<script>
+    class DTileAutotilesManager extends Polymer.Element {
+        static get is() { return "dtile-autotiles-manager"; }
+
+        static get properties() {
+            return {
+                tileset: Object,
+                selection: Array,
+                hasSelection: { computed: "_computeSelection(selection)" },
+                groups: { type: Array, value: () => [] },
+                _selectingId: Number,
+                _selectedGroupIndex: { type: Number, value: 0 },
+                _tileCombinations: { type: Array, readOnly: true, value: [
+                    "right",
+                    "left, right, bottom and bottom-right",
+                    "left, bottom and bottom-left",
+                    "none",
+                    "right, bottom and bottom-right",
+                    "left, right, bottom and bottom-left",
+                    "left",
+                    "right and bottom",
+                    "left, right and bottom",
+                    "top, left, right, bottom and top-right",
+                    "top, left, right, bottom, top-left and bottom-right",
+                    "left, right, bottom, bottom-left and bottom-right",
+                    "top, left, right, bottom, top-right, bottom-left and bottom-right",
+                    "top, left, right, bottom, top-left, bottom-left and bottom-right",
+                    "left and bottom",
+                    "top, right, bottom and bottom-right",
+                    "top, left, right, bottom and bottom-left",
+                    "top, left, right and bottom",
+                    "top, left, right, bottom, top-right and bottom-right",
+                    "top, left, right, bottom, top-left, top-right and bottom-left",
+                    "top, left, right, bottom, top-left and top-right",
+                    "top, left, bottom and top-left",
+                    "top",
+                    "top, right, bottom and top-right",
+                    "top, left, right, bottom and top-left",
+                    "top, left and bottom",
+                    "top, right, bottom, top-right and bottom-right",
+                    "top, left, right, bottom, top-left, bottom-left and bottom-right",
+                    "top, left, right, bottom, bottom-left and bottom-right",
+                    "top, left, bottom and bottom-left",
+                    "bottom",
+                    "top, right and bottom",
+                    "top, left and right",
+                    "top, left, right, bottom and bottom-right",
+                    "top, left, right, bottom, top-right and bottom-left",
+                    "top, left, right, top-left, top-right and bottom-right",
+                    "all",
+                    "top, left, bottom, top-left and bottom-right",
+                    "top and bottom",
+                    "top and right",
+                    "left and right",
+                    "top, left, right and top-right",
+                    "top, left and top-left",
+                    "top, right and top-right",
+                    "top, left, right, top-left and top-right",
+                    "top, left, right and top-left",
+                    "top and left"
+                ] }
+            };
+        }
+
+        get group() {
+            return this.groups[this._selectedGroupIndex];
+        }
+
+        ready() {
+            super.ready();
+
+            this.$.selector.addEventListener("simpleselectorselectedtile", (e) => {
+                this.$.selector.open = false;
+
+                this.set(`groups.${this._selectedGroupIndex}.tiles.${this._selectingId}`, e.detail.tileId);
+            });
+        }
+
+        setGroups(groups = []) {
+            this.groups = groups;
+        }
+
+        getGroups() {
+            return this.groups;
+        }
+
+        reset() {
+            this.groups = [];
+        }
+
+        _computeSelection(selection = []) {
+            return selection.length > 0;
+        }
+
+        _createGroup(tiles = {}) {
+            if (tiles instanceof Event) tiles = {};
+
+            const num = this.groups.reduce((acc, group) => {
+                const match = group.name.match(/Group ([0-9]+)/);
+                if (match) {
+                    const num = parseInt(match[1]);
+                    return Math.max(acc, num + 1);
+                } else {
+                    return acc;
+                }
+            }, 1);
+
+            this.push("groups", {
+                name: `Group ${num}`,
+                tiles
+            });
+            this._selectedGroupIndex = this.groups.length - 1;
+        }
+
+        _removeGroup() {
+            const index = this._selectedGroupIndex;
+            this.splice("groups", index, 1);
+            this._selectedGroupIndex = Math.min(index, this.groups.length - 1);
+            this._selectedGroupIndex--;
+            requestAnimationFrame(() => {
+                this._selectedGroupIndex++;
+            });
+        }
+
+        _renameGroup() {
+            this.dispatchEvent(new CustomEvent("rename", {
+                composed: true,
+                bubbles: true,
+                detail: {
+                    itemType: "Autotile Group",
+                    currentName: this.group.name,
+                    callback: ({ newName }) => {
+                        this.set(`groups.${this._selectedGroupIndex}.name`, newName);
+                        const i = this._selectedGroupIndex;
+                        this._selectedGroupIndex = undefined;
+                        this._selectedGroupIndex = i;
+                    }
+                }
+            }));
+        }
+
+        _openSelector(e) {
+            this.$.selector.open = true;
+            this._selectingId = e.model.index;
+        }
+
+        _buildFromSelection() {
+            const tiles = {};
+
+            const img = new Image();
+            img.src = this.tileset.url;
+
+            img.onload = () => {
+                const iw = img.naturalWidth;
+                const ih = img.naturalHeight;
+                const tw = parseInt(this.tileset.tileWidth);
+                const th = parseInt(this.tileset.tileHeight);
+                const hw = tw / 2;
+                const hh = th / 2;
+                const width = Math.floor(iw / tw);
+
+                const canvas = document.createElement("canvas");
+                canvas.width = iw;
+                canvas.height = ih;
+                const c = canvas.getContext("2d");
+                c.drawImage(img, 0, 0, iw, ih);
+
+                const isAreaTransparent = (x, y, w, h) => {
+                    const data = c.getImageData(x, y, w, h).data;
+                    for (let i = 0; i < data.length / 4; i++) {
+                        const index = i * 4 + 3;
+                        if (data[index] !== 0) return false;
+                    }
+                    return true;
+                };
+
+                this.selection.forEach(({ x, y }) => {
+                    const sx = x * tw;
+                    const sy = y * th;
+                    const ex = sx + tw - 1;
+                    const ey = sy + th - 1;
+                    const transparent = isAreaTransparent(sx, sy, tw, th);
+                    let mapIndex;
+
+                    if (!transparent) {
+                        const tl = !isAreaTransparent(sx, sy, 1, 1);
+                        const tr = !isAreaTransparent(ex, sy, 1, 1);
+                        const bl = !isAreaTransparent(sx, ey, 1, 1);
+                        const br = !isAreaTransparent(ex, ey, 1, 1);
+                        const t = !isAreaTransparent(sx + hw, sy, 1, 1);
+                        const r = !isAreaTransparent(ex, sy + hh, 1, 1);
+                        const b = !isAreaTransparent(sx + hw, ey, 1, 1);
+                        const l = !isAreaTransparent(sx, sy + hh, 1, 1);
+                        mapIndex = DTile.utils.autotiles.getId(tl, tr, bl, br, t, r, b, l) - 1;
+                    }
+
+                    if (mapIndex !== undefined) {
+                        tiles[mapIndex] = x + y * width;
+                    }
+                });
+
+                const groupIndex = this.groups.length;
+                this._createGroup(tiles);
+                this._selectedGroupIndex = groupIndex;
+            };
+        }
+
+        _getTileId(index) {
+            if (!this.group) return -1;
+            const id = this.group.tiles[index];
+            return id === undefined ? -1 : id;
+        }
+
+        _hasGroup(groups, groupIndex) {
+            if (this.parentElement.notifyResize) this.parentElement.notifyResize();
+            return this.groups.length > 0 && this.groups[this._selectedGroupIndex];
+        }
+
+        _getCurrentGroupName() {
+            return this.group.name;
+        }
+    }
+
+    customElements.define(DTileAutotilesManager.is, DTileAutotilesManager);
+</script>
