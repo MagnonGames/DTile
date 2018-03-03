@@ -160,6 +160,9 @@
 <script src="./tools/bucket.js"></script>
 <script src="./tools/select.js"></script>
 
+<script src="./filter.js"></script>
+<script src="./filters/autotile.js"></script>
+
 <script>
     const OBJECT_EDGE_SIZE = 0.2;
 
@@ -384,6 +387,8 @@
             this._toolInstance = DTile.Tool.allTools.find(tool => tool.constructor.toolName === selectedTool);
         }
 
+        _getFilters() { return DTile.Filter.allFilters; }
+
         _getSelection(selection, temporary, useTemporary) {
             return useTemporary ? temporary : selection;
         }
@@ -408,7 +413,8 @@
                     },
                     commitTiles: layerTiles => {
                         const state = this.getState();
-                        this.dispatch("modifyTiles", state.ui.currentMapId, layerTiles);
+                        const filteredTiles = this._runFilters(layerTiles);
+                        this.dispatch("modifyTiles", state.ui.currentMapId, filteredTiles);
                         this._ghostData = {};
                     },
                     previewSelection: selection => {
@@ -436,6 +442,16 @@
                 ...this._pointerEventTemplate,
                 ...e.detail
             });
+        }
+
+        _runFilters(changed) {
+            this._getFilters().forEach(filter => {
+                changed = filter.filter(changed, {
+                    map: this.map,
+                    getTileset: id => this.tilesets[id]
+                });
+            });
+            return changed;
         }
 
         /*
