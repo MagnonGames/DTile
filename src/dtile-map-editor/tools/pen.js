@@ -78,7 +78,7 @@
                 }
 
                 const tileIndex = TileTools.getTileIndex(layerTileArea, x, y);
-                if (!newTiles[layerIndex]) newTiles[layerIndex] = [];
+                if (!newTiles[layerIndex]) newTiles[layerIndex] = {};
                 newTiles[layerIndex][tileIndex] = { ...tile };
             }
         }
