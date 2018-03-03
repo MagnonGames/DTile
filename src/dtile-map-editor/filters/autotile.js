@@ -50,14 +50,8 @@
                 tileId = parseInt(tileId);
                 populategroupMap(layer, id);
 
-                const thisGroup = groupMap[layer][id];
-                toUpdate.push({ layer, id });
-
-                [-w - 1, -w, -w + 1, -1, 1, w - 1, w, w + 1].forEach(offset => {
-                    const group = groupMap[layer][id + offset];
-                    if (group === thisGroup) {
-                        toUpdate.push({ layer, id: id + offset });
-                    }
+                [-w - 1, -w, -w + 1, -1, 0, 1, w - 1, w, w + 1].forEach(offset => {
+                    toUpdate.push({ layer, id: id + offset });
                 });
             });
         });
