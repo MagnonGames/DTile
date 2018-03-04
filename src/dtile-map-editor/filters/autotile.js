@@ -3,6 +3,7 @@
         const w = parseInt(map.width);
 
         const getUpdatedTile = (layer, index) => {
+            if (index < 0) return { tilesetId: -1, tileId: -1 };
             if (changed[layer] && changed[layer][index] !== undefined) {
                 return changed[layer][index];
             } else {
@@ -24,8 +25,9 @@
                 w - 2, w - 1, w, w + 1, w + 2,
                 w * 2 - 2, w * 2 - 1, w * 2, w * 2 + 1, w * 2 + 2
             ].forEach((offset) => {
-                if (groupMap[index + offset] !== undefined) return;
+                if (groupMap[layer][index + offset] !== undefined) return;
                 const tile = getUpdatedTile(layer, index + offset);
+                if (index + offset === 0) console.log(tile);
                 if (!tile || tile.tilesetId === undefined || tile.tileId === undefined) return;
 
                 const tilesetId = parseInt(tile.tilesetId);
@@ -60,14 +62,19 @@
             const group = groupMap[layer][tileId];
             if (!group) return;
 
-            const tl = groupMap[layer][tileId - w - 1] === group;
-            const tr = groupMap[layer][tileId - w + 1] === group;
-            const bl = groupMap[layer][tileId + w - 1] === group;
-            const br = groupMap[layer][tileId + w + 1] === group;
+            // Top and bottom not needed because they'll just produce undefined
+            // anyway and become false when checking the group.
+            const edgeLeft = tileId % w === 0;
+            const edgeRight = tileId % w === w - 1;
+
+            const tl = edgeLeft ? false : groupMap[layer][tileId - w - 1] === group;
+            const tr = edgeRight ? false : groupMap[layer][tileId - w + 1] === group;
+            const bl = edgeLeft ? false : groupMap[layer][tileId + w - 1] === group;
+            const br = edgeRight ? false : groupMap[layer][tileId + w + 1] === group;
             const t = groupMap[layer][tileId - w] === group;
-            const r = groupMap[layer][tileId + 1] === group;
+            const r = edgeRight ? false : groupMap[layer][tileId + 1] === group;
             const b = groupMap[layer][tileId + w] === group;
-            const l = groupMap[layer][tileId - 1] === group;
+            const l = edgeLeft ? false : groupMap[layer][tileId - 1] === group;
 
             const autoId = DTile.utils.autotiles.getId(tl, tr, bl, br, t, r, b, l) - 1;
             changed[layer][tileId] = {
