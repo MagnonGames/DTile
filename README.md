@@ -19,7 +19,7 @@ daring.
 ## Contributing
 We want to make contributing to DTile as easy and frictionless as possible. If
 you want to help out, but you have something you're unsure about, send an email
-to [dtile@magnon.net]() and someone (most likely @magnonellie) will help you
+to [hello@dtile.io](mailto:hello@dtile.io) and someone (most likely @magnonellie) will help you
 out! We don't bite and you can help out no matter what your skillset is. You
 don't have to be able to code to make a good contribution!
 
@@ -29,12 +29,21 @@ starting to write code to see if others may have valuable feedback.
 ## Developing
 
 ### Requirements
-- Git, NPM and Bower (yeah I know) installed
+- Git, NPM and Bower installed
 
 ### Getting started
-Start by downloading the
-[https://www.polymer-project.org/2.0/docs/tools/polymer-cli](Polymer CLI) if you
-don't already have it installed. Then, navigate to the project directory and
-execute `polymer serve`. Open one of the links presented by the serve command
-and you're done! Do keep in mind that Google Chrome is currently the only
-browser that can handle this development setup for now.
+First of all, the usual JavaScript gobble applies with the catch that DTile
+still uses bower, meaning that you have to fetch all bower dependencies too.
+(This is subject to change very soon as Polymer 3.0 comes around)
+
+```
+$ cd path/to/DTile
+$ npm i && bower i
+```
+
+With that done, you need to download the
+[Polymer CLI](https://www.polymer-project.org/2.0/docs/tools/polymer-cli) if you
+don't already have it installed. Then, execute `polymer serve` and open one of
+the links presented by the serve command and you're done! Do keep in mind that
+Google Chrome is currently the only browser that can handle this development
+setup for now.
