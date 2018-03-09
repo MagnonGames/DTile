@@ -12,9 +12,9 @@ configured with all the essentials out of the box.
 
 ## DTile is in Alpha
 DTile is using some of the latest cutting edge features of the web-platform
-and therefore is only functional in Chrome right now. It's also not really
-super stable, though you can certainly play around with it or even use it for a
-game if your feeling daring.
+and is only functional in Chrome right now. It's also not super stable, though
+you can certainly play around with it or even use it for a game if your feeling
+daring.
 
 ## Contributing
 We want to make contributing to DTile as easy and frictionless as possible. If
@@ -26,7 +26,15 @@ don't have to be able to code to make a good contribution!
 If you want to add a new feature, a good idea is to open an issue first before
 starting to write code to see if others may have valuable feedback.
 
-## License
-MIT - Basically you can do whatever you want with it as long as you credit us
-for making it originally. That said, we always appreciate seeing what you have
-made and we're absolutely not against merging good changes.
+## Developing
+
+### Requirements
+- Git, NPM and Bower (yeah I know) installed
+
+### Getting started
+Start by downloading the
+[https://www.polymer-project.org/2.0/docs/tools/polymer-cli](Polymer CLI) if you
+don't already have it installed. Then, navigate to the project directory and
+execute `polymer serve`. Open one of the links presented by the serve command
+and you're done! Do keep in mind that Google Chrome is currently the only
+browser that can handle this development setup for now.
