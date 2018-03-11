@@ -52,6 +52,7 @@ export class Renderer {
         let changed = !this._previousTilesets;
 
         await Promise.all(Object.entries(tilesets).map(async([id, tileset]) => {
+            if (!tileset) return;
             if (!this._previousTilesets || this._previousTilesets[id] !== tileset) {
                 this._tilesets[id] = await Tileset.load(tileset);
                 changed = true;
