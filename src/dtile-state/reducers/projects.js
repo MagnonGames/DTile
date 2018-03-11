@@ -2,6 +2,12 @@
     // entities.projects
     DTile.reducers.entities.projects = (state = {}, action) => {
         switch (action.type) {
+            case "SYNC_PROJECT":
+                return {
+                    ...state,
+                    [action.payload.projectId]: action.payload.project
+                };
+
             case "ADD_PROJECT":
                 return {
                     ...state,

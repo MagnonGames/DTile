@@ -24,7 +24,7 @@
         <paper-tabs id="tabs" selected="[[_selectedTabIndex]]">
             <template is="dom-repeat" items="[[_openTabs]]">
                 <paper-tab>
-                    <span class="tab-name">[[_getTabName(item)]]</span>
+                    <span class="tab-name">[[_getTabName(item, _maps)]]</span>
                     <paper-icon-button
                         icon="close"
                         on-tap="_closeTab">
@@ -52,7 +52,11 @@
                         return DTile.store.getState().ui.openTabs || [];
                     }
                 },
-                _selectedTabIndex: Number
+                _selectedTabIndex: Number,
+
+                _maps: {
+                    statePath: "entities.maps"
+                }
             };
         }
 
@@ -95,7 +99,12 @@
         _getTabName(tab) {
             const state = this.getState();
             if (tab.type === "map") {
-                return state.entities.maps[tab.id].present.name;
+                const map = state.entities.maps[tab.id];
+                if (map) {
+                    return map.present.name;
+                } else {
+                    return "";
+                }
             }
         }
         _mapChanged(id) {

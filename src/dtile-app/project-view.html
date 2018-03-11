@@ -169,10 +169,13 @@
                         const project = state.entities.projects[state.ui.currentProjectId];
                         if (!project) return;
                         return project.mapIds.map(id => {
-                            return {
-                                ...state.entities.maps[id].present,
-                                id
-                            };
+                            const map = state.entities.maps[id];
+                            if (map) {
+                                return {
+                                    ...map.present,
+                                    id
+                                };
+                            }
                         });
                     }
                 },
@@ -196,10 +199,13 @@
                         const tilesets = [];
                         if (!projectId) return;
                         state.entities.projects[projectId].tilesetIds.forEach(tilesetId => {
-                            tilesets.push({
-                                id: tilesetId,
-                                tileset: state.entities.tilesets[tilesetId]
-                            });
+                            const tileset = state.entities.tilesets[tilesetId];
+                            if (tileset) {
+                                tilesets.push({
+                                    id: tilesetId,
+                                    tileset
+                                });
+                            }
                         });
                         return tilesets;
                     }
@@ -243,12 +249,28 @@
             };
         }
 
+        static get observers() {
+            return [
+                "_sync(projectId)"
+            ];
+        }
+
         ready() {
             super.ready();
 
             this.addEventListener("dtile-file-import", ({ detail: { files }}) => {
                 this.$["map-importer"].importFiles(files);
             });
+        }
+
+        async _sync(projectId) {
+            const project = this.getState().entities.projects[projectId];
+            const mapIds = project.mapIds;
+            const tilesetIds = project.tilesetIds;
+            const actions = [];
+            actions.push(...mapIds.map(mapId => DTile.storage.syncMap(mapId)));
+            actions.push(...tilesetIds.map(tilesetId => DTile.storage.syncTileset(tilesetId)));
+            await Promise.all(actions);
         }
 
         _addMap(name) {

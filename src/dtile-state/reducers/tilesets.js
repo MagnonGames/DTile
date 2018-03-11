@@ -1,6 +1,12 @@
 (() => {
     DTile.reducers.entities.tilesets = (state = {}, action) => {
         switch (action.type) {
+            case "SYNC_TILESET":
+                return {
+                    ...state,
+                    [action.payload.tilesetId]: action.payload.tileset
+                };
+
             case "IMPORT_TILESET":
                 return {
                     ...state,
@@ -10,6 +16,7 @@
                         tileWidth: action.payload.tileWidth,
                         tileHeight: action.payload.tileHeight,
                         url: action.payload.url,
+                        imageId: action.payload.id,
                         meta: action.payload.meta,
                         tileMeta: action.payload.tileMeta || {}
                     }

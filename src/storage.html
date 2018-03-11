@@ -2,103 +2,329 @@
 
 <script>
     /* globals localforage */
-    DTile.storage = new class DTileStorage {
-        constructor() {
-            this.attemptedResotre = false;
-            this.unsavedChanges = false;
+    (() => {
+        // Handle generators
+        const _project = id => `project-${id}`;
+        const _map = id => `map-${id}`;
+        const _tileset = id => `tileset-${id}`;
+        const _image = id => `image-${id}`;
+        const _ui = () => "ui";
 
-            (async() => {
-                DTile.status.actionInitiated();
-                await this.restore();
-                DTile.status.actionFinished();
-            })();
+        DTile.storage = new class DTileStorage {
+            constructor(debug) {
+                this.unsavedChanges = false;
+                this.debug = debug;
 
-            window.onbeforeunload = () => {
-                if (this.unsavedChanges) {
-                    return true;
-                }
-            };
-
-            DTile.store.subscribe(() => {
-                this.unsavedChanges = true;
-
-                if (this.timeout) clearTimeout(this.timeout);
-
-                this.timeout = setTimeout(async() => {
+                (async() => {
                     DTile.status.actionInitiated();
-                    await this.save();
-                    setTimeout(() => {
-                        this.unsavedChanges = false;
-                        DTile.status.actionFinished();
-                    }, 200);
-                    this.timeout = null;
-                }, 1000);
-            });
-        }
+                    await this.migrate();
+                    await this.restore();
+                    DTile.status.actionFinished();
+                })();
 
-        async restore() {
-            try {
-                const state = await localforage.getItem("state");
+                window.onbeforeunload = () => {
+                    if (this.unsavedChanges) {
+                        return true;
+                    }
+                };
 
-                if (!state) {
-                    this.attemptedResotre = true;
-                    return;
+                let previousState = DTile.store.getState();
+                DTile.store.subscribe(() => {
+                    this.unsavedChanges = true;
+                    if (this.timeout) clearTimeout(this.timeout);
+
+                    this.timeout = setTimeout(async() => {
+                        DTile.status.actionInitiated();
+
+                        const currentState = DTile.store.getState();
+
+                        await this.update(previousState, currentState);
+
+                        setTimeout(() => {
+                            previousState = currentState;
+
+                            this.unsavedChanges = false;
+                            DTile.status.actionFinished();
+                        }, 200);
+                        this.timeout = null;
+                    }, 1000);
+                });
+            }
+
+            log(message) {
+                if (this.debug) {
+                    console.log(`[DTile storage]: ${message}`);
+                }
+            }
+
+            async migrate() {
+                try {
+                    const state = await localforage.getItem("state");
+                    if (!state) return;
+                    console.warn("start migration");
+
+                    // Migrate state
+                    const projects = Object.entries(state.entities.projects)
+                        .map(([projectId, project]) =>
+                            localforage.setItem(_project(projectId), project));
+                    const maps = Object.entries(state.entities.maps)
+                        .map(([mapId, map]) =>
+                            localforage.setItem(_map(mapId), map));
+                    const tilesets = Object.entries(state.entities.tilesets)
+                        .map(([tilesetId, tileset]) =>
+                            localforage.setItem(_tileset(tilesetId), tileset));
+
+                    await Promise.all([
+                        ...projects,
+                        ...maps,
+                        ...tilesets,
+                        localforage.setItem(_ui(), state.ui)
+                    ]);
+
+                    // Migrate images
+                    const actions = [];
+                    const tilesetIds = [];
+                    await localforage.iterate((tileset, key) => {
+                        const match = key.match(/tilesetImage-(\d+)/);
+                        if (match) {
+                            const tilesetId = match[1];
+                            tilesetIds.push(tilesetId);
+                            tileset.imageId = tilesetId;
+                            actions.push(localforage.setItem(_image(tilesetId), tileset));
+                        }
+                    });
+                    await Promise.all(actions);
+
+                    // Cleanup
+                    await localforage.removeItem("state");
+                    await Promise.all(tilesetIds.map(id =>
+                        localforage.removeItem(`tilesetImage-${id}`)));
+                } catch (e) {}
+            }
+
+            async restore() {
+                try {
+                    DTile.status.actionInitiated();
+                    this.log("Restoring projects...");
+                    await localforage.iterate((value, key) => {
+                        const match = key.match(/project-(\d+)/);
+                        if (match) {
+                            this.syncProject(match[1]);
+                        }
+                    });
+                    this.log("Restoring UI...");
+                    await this.syncUI();
+                    DTile.status.actionFinished();
+                } catch (e) {
+                    DTile.status.actionFailed(e);
+                    throw e;
+                }
+            }
+
+            async update(previousState, currentState) {
+                const pe = previousState.entities;
+                const ce = currentState.entities;
+
+                const actions = [];
+
+                // Save projects
+                if (pe.projects !== ce.projects) {
+                    // Remove deleted
+                    Object.keys(pe.projects)
+                        .filter(id => !ce.projects[id])
+                        .forEach((id) => actions.push(this.removeProject(id)));
+                }
+                Object.entries(ce.projects).forEach(([id, project]) => {
+                    // Save if changed
+                    if (pe.projects[id] !== project) {
+                        actions.push(this.saveProject(id));
+                    }
+                });
+
+                // Save maps
+                if (pe.maps !== ce.maps) {
+                    // Remove deleted
+                    Object.keys(pe.maps)
+                        .filter(id => !ce.maps[id])
+                        .forEach(id => actions.push(this.removeProject(id)));
+                }
+                Object.entries(ce.maps).forEach(([id, map]) => {
+                    // Save if changed
+                    if (!pe.maps[id] || pe.maps[id].present !== map.present) {
+                        actions.push(this.saveMap(id));
+                    }
+                });
+
+                // Save tilesets
+                if (pe.tilesets !== ce.tilesets) {
+                    // Remove deleted
+                    Object.keys(pe.tilesets)
+                        .filter(id => !ce.tilesets[id])
+                        .forEach(id => actions.push(this.removeProject(id)));
+                }
+                Object.entries(ce.tilesets).forEach(([id, tileset]) => {
+                    // Save if changed
+                    if (pe.tilesets[id] !== tileset) {
+                        actions.push(this.saveTileset(id));
+                    }
+                });
+
+                // Save UI
+                if (previousState.ui !== currentState.ui) {
+                    actions.push(this.saveUI());
                 }
 
-                await Promise.all(Object.keys(state.entities.tilesets).map(async tilesetId => {
-                    if (state.entities.tilesets[tilesetId].tilesetType === "test") return;
-
-                    state.entities.tilesets[tilesetId].url = await this.getTilesetImageUrl(tilesetId);
-                }));
-
-                DTile.store.dispatch({
-                    type: "REPLACE",
-                    payload: state
-                });
-                this.attemptedResotre = true;
-            } catch (e) {
-                DTile.status.actionFailed(e);
-                throw e;
+                await Promise.all(actions);
             }
-        }
 
-        async save() {
-            // Saving before a restore has been attempted can overwite everything
-            // saved before.
-            if (!this.attemptedResotre) return;
+            async removeProject(projectId) {
+                const handle = _project(projectId);
+                this.log(`Remove ${handle}`);
+                await localforage.removeItem(handle);
+            }
 
-            try {
-                const state = DTile.store.getState();
-                const replace = t => {
-                    if (t instanceof Array) {
-                        return t.map(replace);
-                    } else if (t instanceof Object) {
-                        if (t.present && t.past && t.future) {
-                            return t.present;
-                        } else {
-                            return Object.keys(t).reduce((obj = {}, key) => {
-                                obj[key] = replace(t[key]);
-                                return obj;
-                            }, {});
+            async removeMap(mapId) {
+                const handle = _map(mapId);
+                this.log(`Remove ${handle}`);
+                await localforage.removeItem(handle);
+            }
+
+            async removeTileset(tilesetId) {
+                const handle = _tileset(tilesetId);
+                this.log(`Remove ${handle}`);
+                await localforage.removeItem(handle);
+            }
+
+            async saveProject(projectId) {
+                const handle = _project(projectId);
+                const project = DTile.store.getState().entities.projects[projectId];
+                this.log(`Save ${handle}`);
+                await localforage.setItem(handle, project);
+            }
+
+            async saveMap(mapId) {
+                const handle = _map(mapId);
+                const map = DTile.store.getState().entities.maps[mapId].present;
+                this.log(`Save ${handle}`);
+                await localforage.setItem(handle, map);
+            }
+
+            async saveTileset(tilesetId) {
+                const handle = _tileset(tilesetId);
+                const tileset = DTile.store.getState().entities.tilesets[tilesetId];
+                this.log(`Save ${handle}`);
+                await localforage.setItem(handle, tileset);
+            }
+
+            async saveUI() {
+                const handle = _ui();
+                const ui = DTile.store.getState().ui;
+                this.log(`Save ${handle}`);
+                await localforage.setItem(handle, ui);
+            }
+
+            async addImage(imageId, url) {
+                DTile.status.actionInitiated();
+                const imageData = await fetch(url);
+                const imageBlob = await imageData.blob();
+
+                const handle = _image(imageId);
+                this.log(`Add image ${handle}`);
+                await localforage.setItem(handle, imageBlob);
+                DTile.status.actionFinished();
+            }
+
+            async syncProject(projectId) {
+                try {
+                    if (DTile.store.getState().entities.projects[projectId]) return;
+
+                    DTile.status.actionInitiated();
+                    const handle = _project(projectId);
+                    this.log(`Sync ${handle}`);
+                    const project = await localforage.getItem(handle);
+                    DTile.store.dispatch({
+                        type: "SYNC_PROJECT",
+                        payload: {
+                            projectId,
+                            project
                         }
-                    } else return t;
-                };
-                await localforage.setItem("state", replace(state));
-            } catch (e) {
-                DTile.status.actionFailed(e);
-                throw e;
+                    });
+                    DTile.status.actionFinished();
+                } catch (e) {
+                    DTile.status.actionFailed(e);
+                    throw e;
+                }
             }
-        }
 
-        async addTilesetImage(tilesetId, url) {
-            const imageData = await fetch(url);
-            const imageBlob = await imageData.blob();
+            async syncMap(mapId) {
+                try {
+                    if (DTile.store.getState().entities.maps[mapId]) return;
 
-            await localforage.setItem(`tilesetImage-${tilesetId}`, imageBlob);
-        }
+                    DTile.status.actionInitiated();
+                    const handle = _map(mapId);
+                    this.log(`Sync ${handle}`);
+                    const map = await localforage.getItem(handle);
+                    DTile.store.dispatch({
+                        type: "SYNC_MAP",
+                        payload: {
+                            mapId,
+                            map
+                        }
+                    });
+                    DTile.status.actionFinished();
+                } catch (e) {
+                    DTile.status.actionFailed(e);
+                    throw e;
+                }
+            }
 
-        async getTilesetImageUrl(tilesetId) {
-            return URL.createObjectURL(await localforage.getItem(`tilesetImage-${tilesetId}`));
-        }
-    }();
+            async syncTileset(tilesetId) {
+                try {
+                    if (DTile.store.getState().entities.tilesets[tilesetId]) return;
+
+                    DTile.status.actionInitiated();
+                    const handle = _tileset(tilesetId);
+                    this.log(`Sync ${handle}`);
+                    const tileset = await localforage.getItem(handle);
+                    if (tileset.imageId !== undefined) {
+                        tileset.url = await this.getImageUrl(tileset.imageId);
+                    }
+                    DTile.store.dispatch({
+                        type: "SYNC_TILESET",
+                        payload: {
+                            tilesetId,
+                            tileset
+                        }
+                    });
+                    DTile.status.actionFinished();
+                } catch (e) {
+                    DTile.status.actionFailed(e);
+                    throw e;
+                }
+            }
+
+            async syncUI() {
+                try {
+                    if (Object.keys(DTile.store.getState().ui).length > 1) return;
+
+                    DTile.status.actionInitiated();
+                    const handle = _ui();
+                    this.log(`Sync ${handle}`);
+                    const ui = await localforage.getItem(handle);
+                    DTile.store.dispatch({
+                        type: "SYNC_UI",
+                        payload: { ui }
+                    });
+                    DTile.status.actionFinished();
+                } catch (e) {
+                    DTile.status.actionFailed(e);
+                    throw e;
+                }
+            }
+
+            async getImageUrl(imageId) {
+                return URL.createObjectURL(await localforage.getItem(_image(imageId)));
+            }
+        }();
+    })();
 </script>

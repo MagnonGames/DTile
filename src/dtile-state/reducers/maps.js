@@ -4,6 +4,12 @@
     // entities.maps
     DTile.reducers.entities.maps = (state = {}, action) => {
         switch (action.type) {
+            case "SYNC_MAP":
+                return {
+                    ...state,
+                    [action.payload.mapId]: map(state, action)
+                };
+
             case "ADD_MAP":
                 return {
                     ...state,
@@ -40,6 +46,9 @@
     // is undoable by sending UNDO / REDO (from ReduxUndo.ActionTypes) with mapId
     const map = undoable((state = {}, action) => {
         switch (action.type) {
+            case "SYNC_MAP":
+                return action.payload.map;
+
             case "ADD_MAP":
                 return {
                     name: action.payload.name,

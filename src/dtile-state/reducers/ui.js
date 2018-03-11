@@ -7,6 +7,9 @@
     // ui
     DTile.reducers.ui = (state = {}, action) => {
         switch (action.type) {
+            case "SYNC_UI":
+                return action.payload.ui;
+
             case "SET_CURRENT_PAGE":
                 let cs = state;
 
