@@ -7,7 +7,7 @@
             case "SYNC_MAP":
                 return {
                     ...state,
-                    [action.payload.mapId]: map(state, action)
+                    [action.payload.mapId]: map(undefined, action)
                 };
 
             case "ADD_MAP":
