@@ -10,7 +10,9 @@
         const _image = id => `image-${id}`;
         const _ui = () => "ui";
 
-        DTile.storage = new class DTileStorage {
+        DTile.buildStorage = DTile.buildStorage || (s => s);
+
+        const StorageClass = DTile.buildStorage(class DTileStorage {
             constructor(debug) {
                 this.unsavedChanges = false;
                 this.debug = debug;
@@ -311,6 +313,10 @@
                     const handle = _ui();
                     this.log(`Sync ${handle}`);
                     const ui = await localforage.getItem(handle);
+                    if (!ui) {
+                        DTile.status.actionFinished();
+                        return;
+                    }
                     DTile.store.dispatch({
                         type: "SYNC_UI",
                         payload: { ui }
@@ -338,6 +344,8 @@
 
                 return max;
             }
-        }();
-    })();
+        });
+
+        DTile.storage = new StorageClass();
+    })(true);
 </script>
