@@ -325,6 +325,19 @@
             async getImageUrl(imageId) {
                 return URL.createObjectURL(await localforage.getItem(_image(imageId)));
             }
+
+            async getAvailableImageId() {
+                let max = 0;
+
+                await localforage.iterate((_, key) => {
+                    const match = key.match(/image-(\d+)/);
+                    if (match) {
+                        max = Math.max(max, parseInt(match[1]) + 1);
+                    }
+                });
+
+                return max;
+            }
         }();
     })();
 </script>

@@ -128,6 +128,8 @@
                 ? this.updatingTileset
                 : DTile.stateHelpers.lastId(tilesets);
 
+            const imageId = await DTile.storage.getAvailableImageId();
+
             const tileset = {
                 name: this.tilesetName,
                 tilesetType: "ortho",
@@ -135,10 +137,11 @@
                 tileHeight: this.tileHeight,
                 url: this.imageUrl,
                 meta: this._updatingTileset() ? tilesets[tilesetId].meta : {},
-                tileMeta: this._updatingTileset() ? tilesets[tilesetId].tileMeta : {}
+                tileMeta: this._updatingTileset() ? tilesets[tilesetId].tileMeta : {},
+                imageId
             };
 
-            DTile.storage.addTilesetImage(tilesetId, this.imageUrl);
+            DTile.storage.addImage(imageId, this.imageUrl);
 
             this.dispatch("importTileset", tilesetId, tileset);
             this.dispatch("addTilesetToProject", state.ui.currentProjectId, tilesetId);
