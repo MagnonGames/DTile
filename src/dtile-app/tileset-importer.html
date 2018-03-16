@@ -138,7 +138,7 @@
                 url: this.imageUrl,
                 meta: this._updatingTileset() ? tilesets[tilesetId].meta : {},
                 tileMeta: this._updatingTileset() ? tilesets[tilesetId].tileMeta : {},
-                imageId
+                imageId: `${imageId}`
             };
 
             DTile.storage.addImage(imageId, this.imageUrl);
