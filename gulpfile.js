@@ -39,7 +39,7 @@ gulp.task("code", ["pre-build"], () => {
 gulp.task("pre-build", ["clean"], () => {
     return mergeStream(
         gulp.src("./src/**/*.html")
-            .pipe(replace(/<script type="module" src="(.+?)">/g, function(_, src) {
+            .pipe(replace(/<script type="module" src="(.+?)".+?>/g, function(_, src) {
                 // Compile all <script type="module"> and put them in a "built"
                 // directory.
 
