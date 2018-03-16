@@ -27,7 +27,7 @@
             ].forEach((offset) => {
                 if (groupMap[layer][index + offset] !== undefined) return;
                 const tile = getUpdatedTile(layer, index + offset);
-                if (index + offset === 0) console.log(tile);
+
                 if (!tile || tile.tilesetId === undefined || tile.tileId === undefined) return;
 
                 const tilesetId = parseInt(tile.tilesetId);
@@ -35,6 +35,9 @@
                 if (tilesetId < 0 || tileId < 0) return;
 
                 const autotileGroups = getTileset(tilesetId).meta["@*autotile-groups"];
+
+                if (!autotileGroups) return;
+
                 const group = autotileGroups.find(({ tiles }) => {
                     return Object.values(tiles).find(id => id === tileId);
                 });
