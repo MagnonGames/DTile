@@ -16,7 +16,7 @@
                         tileWidth: action.payload.tileWidth,
                         tileHeight: action.payload.tileHeight,
                         url: action.payload.url,
-                        imageId: action.payload.id,
+                        imageId: action.payload.imageId,
                         meta: action.payload.meta,
                         tileMeta: action.payload.tileMeta || {}
                     }
