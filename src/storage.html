@@ -38,17 +38,21 @@
                     this.timeout = setTimeout(async() => {
                         DTile.status.actionInitiated();
 
-                        const currentState = DTile.store.getState();
+                        try {
+                            const currentState = DTile.store.getState();
 
-                        await this.update(previousState, currentState);
+                            await this.update(previousState, currentState);
 
-                        setTimeout(() => {
-                            previousState = currentState;
+                            setTimeout(() => {
+                                previousState = currentState;
 
-                            this.unsavedChanges = false;
-                            DTile.status.actionFinished();
-                        }, 200);
-                        this.timeout = null;
+                                this.unsavedChanges = false;
+                                DTile.status.actionFinished();
+                            }, 200);
+                            this.timeout = null;
+                        } catch (e) {
+                            DTile.status.actionFailed(e);
+                        }
                     }, 1000);
                 });
             }
