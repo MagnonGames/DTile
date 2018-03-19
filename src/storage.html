@@ -336,6 +336,39 @@
                 return URL.createObjectURL(await localforage.getItem(_image(imageId)));
             }
 
+            async getAvailableProjectId() {
+                let max = 0;
+
+                await localforage.iterate((_, key) => {
+                    const match = key.match(/project-(\d+)/);
+                    if (match) max = Math.max(max, parseInt(match[1]) + 1);
+                });
+
+                return max;
+            }
+
+            async getAvailableMapId() {
+                let max = 0;
+
+                await localforage.iterate((_, key) => {
+                    const match = key.match(/map-(\d+)/);
+                    if (match) max = Math.max(max, parseInt(match[1]) + 1);
+                });
+
+                return max;
+            }
+
+            async getAvailableTilesetId() {
+                let max = 0;
+
+                await localforage.iterate((_, key) => {
+                    const match = key.match(/tileset-(\d+)/);
+                    if (match) max = Math.max(max, parseInt(match[1]) + 1);
+                });
+
+                return max;
+            }
+
             async getAvailableImageId() {
                 let max = 0;
 

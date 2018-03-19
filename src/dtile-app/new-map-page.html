@@ -91,7 +91,7 @@
             };
         }
 
-        _add() {
+        async _add() {
             const tiles = [];
             for (let i = 0; i < this._mapWidth * this._mapHeight; i++) {
                 tiles[i] = { tileId: -1, tilesetId: -1 };
@@ -113,7 +113,7 @@
             };
 
             const state = this.getState();
-            const mapId = DTile.stateHelpers.lastId(state.entities.maps);
+            const mapId = await DTile.storage.getAvailableMapId();
 
             this.dispatch("addMap", state.ui.currentProjectId, mapId, map);
             this._return();

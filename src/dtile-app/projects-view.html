@@ -163,19 +163,19 @@
                         const tilesetIndexToIdMap = new Map();
                         const mapIds = [];
 
-                        project.tilesets.forEach((tileset, index) => {
-                            const id = DTile.stateHelpers.lastId(this.getState().entities.tilesets);
+                        await Promise.all(project.tilesets.map(async(tileset, index) => {
+                            const id = await DTile.storage.getAvailableTilesetId();
 
                             tilesetIndexToIdMap.set(index, id);
 
-                            DTile.storage.addTilesetImage(id, tileset.url);
+                            await DTile.storage.addTilesetImage(id, tileset.url);
                             this.dispatch("importTileset", id, tileset);
-                        });
+                        }));
 
-                        project.maps.forEach(map => {
+                        await Promise.all(project.maps.map(async(map) => {
                             if (!map) return;
 
-                            const id = DTile.stateHelpers.lastId(this.getState().entities.maps);
+                            const id = await DTile.storage.getAvailableMapId();
 
                             mapIds.push(id);
 
@@ -198,10 +198,9 @@
                             });
 
                             this.dispatch("addMap", id, map);
-                        });
+                        }));
 
-                        const projects = DTile.store.getState().entities.projects;
-                        const projectId = DTile.stateHelpers.lastId(projects);
+                        const projectId = await DTile.storage.getAvailableProjectId();
 
                         this.dispatch("addProject", projectId, {
                             name: project.name,
@@ -214,9 +213,8 @@
             });
         }
 
-        _addProject() {
-            const projects = DTile.store.getState().entities.projects;
-            const projectId = DTile.stateHelpers.lastId(projects);
+        async _addProject() {
+            const projectId = await DTile.storage.getAvailableProjectId();
             this.dispatch("addProject", projectId);
         }
 

@@ -101,9 +101,7 @@
 
         static get actions() {
             return {
-                importMap(projectId, map) {
-                    const maps = DTile.store.getState().entities.maps;
-                    const mapId = DTile.stateHelpers.lastId(maps);
+                importMap(projectId, mapId, map) {
                     return {
                         type: "ADD_MAP",
                         payload: { projectId, mapId, ...map }
@@ -161,21 +159,21 @@
                     tilesetIdMapping.set(parseInt(mapTilesetId), tilesetId);
                 });
 
-                tilesets.forEach(({ tileset, imageBlob }, i) => {
+                await Promise.all(tilesets.map(async({ tileset, imageBlob }, i) => {
                     if (this._tilesetSelections[i] !== UPLOADED_TILESET) return;
 
-                    const tilesets = state.entities.tilesets;
-                    const newId = DTile.stateHelpers.lastId(tilesets);
+                    const newId = await DTile.storage.getAvailableTilesetId();
 
                     tilesetIdMapping.set(i, newId);
                     DTile.storage.addTilesetImage(newId, URL.createObjectURL(imageBlob));
 
                     this.dispatch("importTileset", newId, tileset);
                     this.dispatch("addTilesetToProject", state.ui.currentProjectId, newId);
-                });
+                }));
 
                 const map = await importer.importMap(data, tilesetIdMapping);
-                this.dispatch("importMap", state.ui.currentProjectId, map);
+                const mapId = await DTile.storage.getAvailableMapId();
+                this.dispatch("importMap", state.ui.currentProjectId, mapId, map);
 
                 this._reset();
             }

@@ -20,7 +20,7 @@
                 }));
             };
 
-            const createTestTileset = (id = DTile.stateHelpers.freeId(state())) => {
+            const createTestTileset = (id = 0) => {
                 DTile.store.dispatch(action("IMPORT_TILESET", {
                     name: "test",
                     tilesetType: "ortho",

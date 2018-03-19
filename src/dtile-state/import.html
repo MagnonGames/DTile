@@ -5,20 +5,6 @@
 <script>
     window.DTile = window.DTile || {};
     DTile.reducers = { entities: {} };
-
-    DTile.stateHelpers = {
-        freeId(objectStore) {
-            let count = 0;
-            while (objectStore.hasOwnProperty(count)) count++;
-            return count;
-        },
-
-        lastId(objectStore) {
-            return Object.keys(objectStore).reduce(
-                (acc, id) => Math.max(acc, parseInt(id) + 1), 0
-            );
-        }
-    };
 </script>
 
 <script src="./reducers/projects.js"></script>

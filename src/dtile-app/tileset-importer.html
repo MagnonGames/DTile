@@ -126,7 +126,7 @@
             const tilesets = state.entities.tilesets;
             const tilesetId = this._updatingTileset()
                 ? this.updatingTileset
-                : DTile.stateHelpers.lastId(tilesets);
+                : await DTile.storage.getAvailableTilesetId();
 
             const imageId = await DTile.storage.getAvailableImageId();
 
@@ -141,7 +141,7 @@
                 imageId: `${imageId}`
             };
 
-            DTile.storage.addImage(imageId, this.imageUrl);
+            await DTile.storage.addImage(imageId, this.imageUrl);
 
             this.dispatch("importTileset", tilesetId, tileset);
             this.dispatch("addTilesetToProject", state.ui.currentProjectId, tilesetId);
