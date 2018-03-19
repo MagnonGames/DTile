@@ -158,6 +158,8 @@
         }
 
         _pageStateUpdated(page, pageId) {
+            if (!page) return;
+
             let pageUpdated;
             if (this._previousPage !== page) {
                 this._previousPage = page;
@@ -188,6 +190,7 @@
 
                     requestAnimationFrame(() => {
                         const currentView = this.shadowRoot.querySelector(".iron-selected");
+                        if (!currentView) return;
                         currentView.dispatchEvent(new CustomEvent("dtile-page-to"));
 
                         this._previousView = currentView;
@@ -195,10 +198,7 @@
                 };
             }
 
-            const usePrefix = (!DTile.disablePrefix && location.pathname.match(/^\/DTile/));
-            const newPath =
-                `${usePrefix ? "/DTile" : ""}` +
-                `/${page}${pageId !== null ? `/${pageId}` : ""}`;
+            const newPath = `/${page}${pageId !== null ? `/${pageId}` : ""}`;
 
             if (newPath !== location.pathname) {
                 history.pushState(null, null, newPath);
