@@ -163,11 +163,15 @@
                     if (this._tilesetSelections[i] !== UPLOADED_TILESET) return;
 
                     const newId = await DTile.storage.getAvailableTilesetId();
+                    const imageId = await DTile.storage.getAvailableImageId();
 
                     tilesetIdMapping.set(i, newId);
-                    DTile.storage.addTilesetImage(newId, URL.createObjectURL(imageBlob));
+                    DTile.storage.addTilesetImage(imageId, URL.createObjectURL(imageBlob));
 
-                    this.dispatch("importTileset", newId, tileset);
+                    this.dispatch("importTileset", newId, {
+                        ...tileset,
+                        imageId
+                    });
                     this.dispatch("addTilesetToProject", state.ui.currentProjectId, newId);
                 }));
 

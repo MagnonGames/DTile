@@ -165,11 +165,15 @@
 
                         await Promise.all(project.tilesets.map(async(tileset, index) => {
                             const id = await DTile.storage.getAvailableTilesetId();
+                            const imageId = await DTile.storage.getAvailableImageId();
 
                             tilesetIndexToIdMap.set(index, id);
 
-                            await DTile.storage.addTilesetImage(id, tileset.url);
-                            this.dispatch("importTileset", id, tileset);
+                            await DTile.storage.addTilesetImage(imageId, tileset.url);
+                            this.dispatch("importTileset", id, {
+                                ...tileset,
+                                imageId
+                            });
                         }));
 
                         await Promise.all(project.maps.map(async(map) => {
