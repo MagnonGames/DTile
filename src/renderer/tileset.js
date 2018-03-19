@@ -52,7 +52,9 @@ export default class Tileset {
 
     static async load(tilesetObject) {
         const texture = await new Promise((resolve, reject) => {
-            new TextureLoader().load(tilesetObject.url, resolve);
+            const loader = new TextureLoader();
+            loader.crossOrigin = "use-credentials";
+            loader.load(tilesetObject.url, resolve);
         });
 
         texture.minFilter = texture.magFilter = NearestFilter;
