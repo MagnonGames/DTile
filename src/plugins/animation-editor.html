@@ -1,0 +1,214 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../dtile-tile-viewer/dtile-tile-viewer.html">
+
+<script>
+    class DTileAnimationEditorPlugin extends Polymer.Element {
+        static get is() { return "dtile-animation-editor-plugin"; }
+        static get pluginName() { return "Animation"; }
+
+        static get template() {
+            return `
+                <style>
+                    :host > div[no-animation] #has-animation {
+                        display: none;
+                    }
+
+                    :host > div:not([no-animation]) #no-animation {
+                        display: none;
+                    }
+
+                    :host > div {
+                        display: flex;
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                    :host > div > div {
+                        flex-grow: 1;
+                    }
+
+                    #no-animation {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #no-animation > * {
+                        margin: 10px;
+                    }
+
+                    #has-animation {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                    }
+
+                    #preview-container {
+                        flex-grow: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #has-animation > paper-input {
+                        width: 100%;
+                    }
+
+                    .row {
+                        width: 100%;
+                        display: flex;
+                        justify-content: space-between;
+                    }
+
+                    .row > * {
+                        width: 47%;
+                    }
+                </style>
+
+                <div no-animation$="[[!_hasAnimation]]">
+                    <div id="no-animation">
+                        This tile doesn't have an animation defined.
+                        <paper-button on-tap="_enableAnimation">Add animation</paper-button>
+                    </div>
+
+                    <div id="has-animation">
+                        <div id="preview-container">
+                            <dtile-tile-viewer id="tile-viewer"
+                                width="192"
+                                height="192"
+                                tileset="[[tileset]]"
+                                tile-id="[[tileId]]">
+                            </dtile-tile-viewer>
+                        </div>
+
+                        <paper-input
+                            type="number" label="Time per frame"
+                            value="{{tpf}}" on-change="_resetAnimation">
+                        </paper-input>
+                        <div class="row">
+                            <paper-input
+                                type="number" label="Tiles wide"
+                                value="{{tw}}" on-change="_resetAnimation">
+                            </paper-input>
+                            <paper-input
+                                type="number" label="Tiles tall"
+                                value="{{tt}}" on-change="_resetAnimation">
+                            </paper-input>
+                        </div>
+                        <div class="row">
+                            <paper-input
+                                type="number" label="Stride x"
+                                value="{{sx}}" on-change="_resetAnimation">
+                            </paper-input>
+                            <paper-input
+                                type="number" label="Stride y"
+                                value="{{sy}}" on-change="_resetAnimation">
+                            </paper-input>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        static get properties() {
+            return {
+                meta: Object,
+                context: Object,
+
+                tileset: Object,
+                tileId: { type: Number, value: 0 },
+
+                tpf: { type: Number, value: 10 }, // time per frame
+                tw: { type: Number, value: 1 }, // tiles wide
+                tt: { type: Number, value: 1 }, // tiles tall
+                sx: { type: Number, value: 1 }, // stride x
+                sy: { type: Number, value: 1 }, // stride y
+
+                _hasAnimation: Boolean
+            };
+        }
+
+        static get observers() {
+            return [
+                "_setAnimationFromMeta(meta)"
+            ];
+        }
+
+        typeMatch(type) { return type === "tilesetTile"; }
+
+        ready() {
+            super.ready();
+
+            this._animate();
+        }
+
+        buildMeta() {
+            const or = a => this._hasAnimation ? a : null;
+            return {
+                "@is-animated": or(true),
+                "@animation-time-per-frame": or(this.tpf),
+                "@animation-tiles-wide": or(this.tw),
+                "@animation-tiles-tall": or(this.tt),
+                "@animation-stride-x": or(this.sx),
+                "@animation-stride-y": or(this.sy),
+            };
+        }
+
+        _setAnimationFromMeta(meta) {
+            this._hasAnimation = meta.hasOwnProperty("@is-animated");
+            if (this._hasAnimation) {
+                this.tpf = meta["@animation-time-per-frame"];
+                this.tw = meta["@animation-tiles-wide"];
+                this.tt = meta["@animation-tiles-tall"];
+                this.sx = meta["@animation-stride-x"];
+                this.sy = meta["@animation-stride-y"];
+            }
+            this.tileset = this.context.tileset;
+            this._resetAnimation();
+        }
+
+        _enableAnimation() {
+            this._hasAnimation = true;
+            this._resetAnimation();
+        }
+
+        _animate() {
+            requestAnimationFrame(() => this._animate());
+            if (!this._hasAnimation) return;
+
+            const n = Math.floor;
+
+            this._frameCounter++;
+
+            const tilesWide = this.$["tile-viewer"].tilesWide;
+            const tilesTall = this.$["tile-viewer"].tilesTall;
+
+            const x = n(n(this.context.tileIds[0]) % tilesWide);
+            const y = n(n(this.context.tileIds[0]) / tilesTall);
+
+            if (this.tpf == 0) {
+                this.tileId = x + y * n(this.tileset.width);
+            } else {
+                const frame = (this._frameCounter / n(this.tpf)) % n(this.tw) * n(this.tt);
+                const frameX = n(frame % n(this.tw)) * n(this.sx) + x;
+                const frameY = n(frame / n(this.tw)) * n(this.sy) + y;
+
+                this.tileId = frameX + frameY * tilesWide;
+            }
+        }
+
+        _resetAnimation() {
+            if (!this._hasAnimation) return;
+            this.tileId = this.context.tileIds[0];
+            this._frameCounter = 0;
+        }
+    }
+
+    DTile.metaPlugins.push(DTileAnimationEditorPlugin);
+    customElements.define(DTileAnimationEditorPlugin.is, DTileAnimationEditorPlugin);
+</script>

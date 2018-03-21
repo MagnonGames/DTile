@@ -34,7 +34,8 @@
     "granite-file-reader": "LostInBrittany/granite-file-reader#^1.2.2",
     "paper-toast": "PolymerElements/paper-toast#^2.0.0",
     "paper-expansion-panel": "Collaborne/paper-expansion-panel#^2.0.0",
-    "vaadin-grid": "^3.0.1"
+    "vaadin-grid": "^3.0.1",
+    "juicy-ace-editor": "^2.0.5"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^2.0.0",
