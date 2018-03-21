@@ -193,7 +193,7 @@
         }
 
         buildMeta() {
-            const meta = this.meta;
+            const meta = this.meta || {};
 
             this._publicMeta.forEach(({ key, value }) => {
                 meta[key] = value;
