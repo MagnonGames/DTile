@@ -366,6 +366,19 @@
                     if (e.key === "a") setTool("pen");
                     else if (e.key === "s") setTool("bucket");
                     else if (e.key === "d") setTool("select");
+
+                    if (e.key === "Delete") {
+                        const newTiles = {};
+                        const state = this.getState();
+                        this.mapSelection.forEach(({ x, y, layer }) => {
+                            newTiles[layer] = newTiles[layer] || {};
+                            newTiles[layer][x + y * this.map.width] = {
+                                tileId: -1,
+                                tilesetId: -1
+                            };
+                        });
+                        this.dispatch("modifyTiles", state.ui.currentMapId, newTiles);
+                    }
                 }
             });
 
