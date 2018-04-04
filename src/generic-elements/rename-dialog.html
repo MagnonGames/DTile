@@ -4,7 +4,7 @@
     <template>
         <paper-dialog id="dialog" with-backdrop>
             <h2>Rename [[itemType]]</h2>
-            <paper-input value="{{name}}" no-label-float></paper-input>
+            <paper-input id="input" value="{{name}}" no-label-float></paper-input>
             <div class="buttons">
                 <paper-button dialog-dismiss>Close</paper-button>
                 <paper-button dialog-confirm on-tap="_rename">Rename</paper-button>
@@ -33,10 +33,21 @@
                 this._callback = e.detail.callback;
                 this.open();
             });
+
+            this.addEventListener("keydown", e => {
+                if (e.key === "Enter") {
+                    this._rename();
+                }
+            });
         }
 
         open() {
             this.$.dialog.open();
+            const input = this.$.input.inputElement.inputElement;
+            requestAnimationFrame(() => {
+                input.focus();
+                input.select();
+            });
         }
 
         _rename() {
@@ -44,6 +55,7 @@
             this._callback({
                 newName: this.name
             });
+            this.$.dialog.close();
         }
     }
 
